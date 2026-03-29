@@ -22,9 +22,11 @@ export class LoansService {
     });
     if (!client) throw new Error('Cliente no encontrado o no pertenece a esta cuenta');
 
+    // Ajustar tasa y períodos según la frecuencia
+    const ratePerPeriod = (frequency === 'MONTHLY' ? interestRate : interestRate / 4) / 100;
+    
     // Calcular cuota fija (Amortización francesa)
-    const monthlyRate = interestRate / 100;
-    const installmentAmount = amount * (monthlyRate * Math.pow(1 + monthlyRate, term)) / (Math.pow(1 + monthlyRate, term) - 1);
+    const installmentAmount = amount * (ratePerPeriod * Math.pow(1 + ratePerPeriod, term)) / (Math.pow(1 + ratePerPeriod, term) - 1);
     
     // Crear el préstamo siempre vinculado al administrador de la cartera
     const loan = await this.prisma.loan.create({
@@ -38,18 +40,25 @@ export class LoansService {
       },
     });
 
-    // Generar cuotas (Simplificado para el ejemplo)
+    // Generar cuotas dinámicas
     let currentBalance = amount;
     const installments: Prisma.InstallmentCreateManyInput[] = [];
     for (let i = 1; i <= term; i++) {
-       const interest = currentBalance * monthlyRate;
+       const interest = currentBalance * ratePerPeriod;
        const capital = installmentAmount - interest;
        currentBalance -= capital;
        
+       const dueDate = new Date();
+       if (frequency === 'MONTHLY') {
+         dueDate.setMonth(dueDate.getMonth() + i);
+       } else {
+         dueDate.setDate(dueDate.getDate() + (i * 7));
+       }
+
        installments.push({
          loanId: loan.id,
          number: i,
-         dueDate: new Date(new Date().setMonth(new Date().getMonth() + i)),
+         dueDate,
          amount: installmentAmount,
          capital,
          interest,
@@ -68,17 +77,69 @@ export class LoansService {
 
   async findAll(user: any) {
     const adminId = user.role === 'AGENT' ? user.adminId : user.userId;
+    
+    // Antes de listar, actualizamos estados de mora
+    await this.refreshLoanStatuses(adminId);
+
     return this.prisma.loan.findMany({ 
       where: { userId: adminId },
       include: { 
         client: true,
-        installments: true 
-      } 
+        installments: true,
+        payments: true
+      },
+      orderBy: { createdAt: 'desc' }
     });
+  }
+
+  private async refreshLoanStatuses(adminId: number) {
+    const now = new Date();
+    
+    // Buscar todos los préstamos activos que tienen cuotas vencidas
+    const loansWithOverdue = await this.prisma.loan.findMany({
+        where: { userId: adminId, status: 'ACTIVE' },
+        include: { 
+            installments: { 
+                where: { status: 'PENDING', dueDate: { lt: now } } 
+            }
+        }
+    });
+
+    for (const loan of loansWithOverdue) {
+        if (loan.installments.length > 0) {
+            await this.prisma.loan.update({
+                where: { id: loan.id },
+                data: { status: 'ARREARS' }
+            });
+        }
+    }
+
+    // Y viceversa (volver a ACTIVE si ya no hay vencidas)
+    const arrearsLoans = await this.prisma.loan.findMany({
+        where: { userId: adminId, status: 'ARREARS' },
+        include: { 
+            installments: { 
+                where: { status: 'PENDING', dueDate: { lt: now } } 
+            }
+        }
+    });
+
+    for (const loan of arrearsLoans) {
+        if (loan.installments.length === 0) {
+            await this.prisma.loan.update({
+                where: { id: loan.id },
+                data: { status: 'ACTIVE' }
+            });
+        }
+    }
   }
 
   async getSummary(user: any) {
     const adminId = user.role === 'AGENT' ? user.adminId : user.userId;
+    
+    // Actualizamos estados antes de dar el resumen
+    await this.refreshLoanStatuses(adminId);
+
     const loans = await this.prisma.loan.findMany({
       where: { userId: adminId },
       include: { installments: true, payments: true }
@@ -89,7 +150,7 @@ export class LoansService {
     const arrearsLoans = loans.filter((l: any) => l.status === 'ARREARS').length;
     
     const expectedCollections = loans.reduce((acc, l) => {
-      return acc + l.installments.reduce((sum, inst) => sum + (inst.status === 'PENDING' ? inst.amount : 0), 0);
+      return acc + l.installments.reduce((sum, inst) => sum + (inst.status === 'PENDING' ? (inst.amount - inst.paidAmount) : 0), 0);
     }, 0);
 
     const totalCollected = loans.reduce((acc, l) => {

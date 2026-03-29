@@ -36,6 +36,21 @@ services:
       - santana_network
     restart: always
 
+  # Frontend (Vite React App)
+  web:
+    build:
+      context: ./frontend
+    container_name: santana_web_local
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+    networks:
+      - santana_network
+    restart: always
+
 networks:
   santana_network:
     driver: bridge

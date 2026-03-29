@@ -87,6 +87,7 @@ model Installment {
   capital       Float
   interest      Float
   balance       Float
+  paidAmount    Float             @default(0)
   status        InstallmentStatus @default(PENDING)
   createdAt     DateTime          @default(now())
 }
