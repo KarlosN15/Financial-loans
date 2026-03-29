@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # Base de Datos (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: santana_db_prod
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pablo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pablo123}
+      POSTGRES_DB: ${POSTGRES_DB:-fac_pablo_db}
+    ports:
+      - "5433:5432" # Mantiene compatibilidad con el puerto 5433 local si es necesario
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Volume de permanencia de datos
+    networks:
+      - santana_network
+    restart: always
+
+  # Backend (NestJS API)
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: santana_api_prod
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://pablo:pablo123@db:5432/fac_pablo_db?schema=public}
+      JWT_SECRET: ${JWT_SECRET:-mi_secreto_super_seguro_12345}
+      JWT_EXPIRES_IN: "1h"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - santana_network
+    restart: always
+
+networks:
+  santana_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

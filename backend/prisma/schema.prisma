@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  AGENT
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(ADMIN)
+  adminId   Int?     // Si es AGENT, aquí guardamos el ID de su ADMIN
+  admin     User?    @relation("AdminAgents", fields: [adminId], references: [id])
+  agents    User[]   @relation("AdminAgents")
+  clients   Client[]
+  loans     Loan[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Client {
+  id             Int      @id @default(autoincrement())
+  userId         Int      // Usuario dueño del cliente
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  email          String?  @unique
+  identification String   @unique // Cédula
+  phone          String?
+  loans          Loan[]
+  createdAt      DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum LoanStatus {
+  ACTIVE
+  ARREARS
+  COMPLETED
+}
+
+enum PaymentFrequency {
+  MONTHLY
+  WEEKLY
+}
+
+model Loan {
+  id            Int              @id @default(autoincrement())
+  userId        Int              // Usuario dueño del préstamo
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId      Int
+  client        Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  amount        Float
+  interestRate  Float
+  term          Int              // Número de cuotas
+  frequency     PaymentFrequency @default(MONTHLY)
+  status        LoanStatus       @default(ACTIVE)
+  installments  Installment[]
+  payments      Payment[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+enum InstallmentStatus {
+  PENDING
+  PAID
+}
+
+model Installment {
+  id            Int               @id @default(autoincrement())
+  loanId        Int
+  loan          Loan              @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  number        Int               // No. de cuota
+  dueDate       DateTime
+  amount        Float             // Cuota total
+  capital       Float
+  interest      Float
+  balance       Float
+  status        InstallmentStatus @default(PENDING)
+  createdAt     DateTime          @default(now())
+}
+
+enum PaymentMethod {
+  CASH
+  TRANSFER
+}
+
+model Payment {
+  id            Int           @id @default(autoincrement())
+  loanId        Int
+  loan          Loan          @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  clientName    String?       
+  amount        Float
+  method        PaymentMethod @default(CASH)
+  date          DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+}
+

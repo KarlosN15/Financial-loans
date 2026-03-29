@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import "tailwindcss";
+
+
+@theme {
+  --font-headline: "Manrope", sans-serif;
+  --font-body: "Inter", sans-serif;
+  
+  --color-primary: #003461;
+  --color-primary-container: #004b87;
+  --color-secondary: #016b54;
+  --color-secondary-container: #9bf0d3;
+  --color-tertiary: #003c25;
+  --color-error: #ba1a1a;
+  --color-background: #f9f9fd;
+  --color-on-surface: #191c1e;
+  --color-on-surface-variant: #424750;
+  --color-surface-container-low: #f3f3f7;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #e7e8eb;
+  --color-outline-variant: #c2c6d1;
+}
+
+@layer base {
+  :root {
+    --primary: #003461;
+    --on-primary: #ffffff;
+    --primary-container: #004b87;
+    --secondary: #016b54;
+    --on-secondary: #ffffff;
+    --secondary-container: #9bf0d3;
+    --tertiary: #003c25;
+    --error: #ba1a1a;
+    --background: #f9f9fd;
+    --on-surface: #191c1e;
+    --surface-container-low: #f3f3f7;
+    --surface-container-lowest: #ffffff;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--on-surface);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, .headline-font {
+    font-family: 'Manrope', sans-serif;
+  }
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'liga';
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@media print {
+  .no-print, nav, aside, .sidebar-class {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+  }
+}
+
+.print-only {
+  display: none;
+}
+
+/* Global Invisible Scrollbar keeping functionality */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Brave */
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent body scroll, use Layout container */
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+

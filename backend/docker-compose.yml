@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fac_pablo_db
+    restart: always
+    environment:
+      POSTGRES_USER: pablo
+      POSTGRES_PASSWORD: pablo123
+      POSTGRES_DB: fac_pablo_db
+    ports:
+      - '5433:5432'
+    volumes:
+      - fac_pablo_pgdata:/var/lib/postgresql/data
+
+volumes:
+  fac_pablo_pgdata:
