@@ -164,21 +164,23 @@ const Billing = () => {
          </div>
       </section>
 
-      {/* Ledger Table Section */}
-      <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-6 lg:p-10 shadow-sm border border-slate-100 no-print overflow-hidden">
+      {/* Ledger Section */}
+      <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-5 md:p-10 shadow-sm border border-slate-100 no-print overflow-hidden">
          <div className="flex items-center justify-between mb-8 md:mb-12">
             <div>
-               <h3 className="font-black text-xl md:text-2xl text-primary font-headline tracking-tighter uppercase underline decoration-emerald-500/30 decoration-4 underline-offset-4">Historial Transaccional</h3>
-               <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2">Personal Loans Intelligence Ledger</p>
+               <h3 className="font-black text-xl md:text-2xl text-primary font-headline tracking-tighter uppercase underline decoration-emerald-500/30 decoration-4 underline-offset-4">Historial</h3>
+               <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-1.5">Ledger Intelligence</p>
             </div>
          </div>
-         <div className="overflow-x-auto min-w-full -mx-6 px-6 md:mx-0 md:px-0">
+         
+         {/* Desktop Table View */}
+         <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left">
                <thead>
                   <tr className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] border-b border-slate-50">
                      <th className="pb-6 pr-4">ID</th>
                      <th className="pb-6">Cliente</th>
-                     <th className="pb-6 hidden sm:table-cell">Método</th>
+                     <th className="pb-6">Método</th>
                      <th className="pb-6 text-right">Monto</th>
                      <th className="pb-6 text-right">Fecha</th>
                      <th className="pb-6 text-center">Docs</th>
@@ -186,45 +188,64 @@ const Billing = () => {
                </thead>
                <tbody className="divide-y divide-slate-50">
                   {loadingPayments ? (
-                     <tr><td colSpan={6} className="py-20 text-center text-slate-400 italic font-medium">Sincronizando con el servidor...</td></tr>
-                  ) : payments.length === 0 ? (
-                     <tr>
-                        <td colSpan={6} className="py-32 text-center opacity-20">
-                           <span className="material-symbols-outlined text-7xl block mb-4">move_to_inbox</span>
-                           <p className="text-lg font-black uppercase tracking-widest">Sin datos</p>
-                        </td>
-                     </tr>
+                     <tr><td colSpan={6} className="py-20 text-center text-slate-400 italic">Sincronizando...</td></tr>
                   ) : payments.map((p: any) => (
                      <tr key={p.id} className="hover:bg-slate-50/50 transition-all group">
                         <td className="py-6">
-                           <span className="text-[10px] font-black text-slate-400 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100">#{p.id.toString().padStart(4, '0')}</span>
+                           <span className="text-[10px] font-black text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">#{p.id.toString().padStart(4, '0')}</span>
                         </td>
                         <td className="py-6">
                            <p className="text-sm font-black text-primary tracking-tight">{p.clientName || p.loan?.client?.name}</p>
                         </td>
-                        <td className="py-6 hidden sm:table-cell">
-                           <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase border ${p.method === 'CASH' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                        <td className="py-6">
+                           <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase border ${p.method === 'CASH' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
                               {p.method === 'CASH' ? 'Efectivo' : 'Transferencia'}
                            </span>
                         </td>
                         <td className="py-6 text-right text-sm font-black text-emerald-600">RD$ {formatDOP(p.amount)}</td>
                         <td className="py-6 text-right">
-                           <p className="text-xs font-bold text-slate-500 uppercase">{new Date(p.date).toLocaleDateString('es-DO', { day: '2-digit', month: 'short' })}</p>
+                           <p className="text-[10px] font-bold text-slate-500 uppercase">{new Date(p.date).toLocaleDateString()}</p>
                         </td>
-                        <td className="py-6">
-                           <div className="flex justify-center">
-                              <button 
-                                onClick={() => { setRecentPayment(p); setShowReceipt(true); }}
-                                className="w-9 h-9 rounded-xl bg-slate-50 text-slate-400 hover:bg-primary hover:text-white transition-all flex items-center justify-center border border-slate-100"
-                              >
-                                 <span className="material-symbols-outlined text-[18px]">visibility</span>
-                              </button>
-                           </div>
+                        <td className="py-6 text-center">
+                           <button onClick={() => { setRecentPayment(p); setShowReceipt(true); }} className="p-2 text-slate-400 hover:text-primary transition-colors">
+                              <span className="material-symbols-outlined text-[18px]">visibility</span>
+                           </button>
                         </td>
                      </tr>
                   ))}
                </tbody>
             </table>
+         </div>
+
+         {/* Mobile Card View */}
+         <div className="md:hidden space-y-4">
+            {loadingPayments ? (
+               <p className="text-center py-10 text-slate-400 italic text-xs tracking-widest uppercase">Cargando datos...</p>
+            ) : payments.length === 0 ? (
+               <div className="text-center py-20 opacity-20">
+                  <span className="material-symbols-outlined text-5xl">folder_off</span>
+                  <p className="text-[10px] font-black uppercase mt-2">Sin Historial</p>
+               </div>
+            ) : payments.map((p: any) => (
+               <div key={p.id} className="bg-slate-50/50 p-5 rounded-3xl border border-slate-100 flex flex-col gap-4 active:scale-95 transition-all" onClick={() => { setRecentPayment(p); setShowReceipt(true); }}>
+                  <div className="flex justify-between items-start">
+                     <div>
+                        <div className="flex items-center gap-2 mb-1">
+                           <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest border border-slate-200 px-1.5 py-0.5 rounded">#{p.id.toString().padStart(4, '0')}</span>
+                           <span className={`text-[7px] font-black uppercase px-2 py-0.5 rounded border ${p.method === 'CASH' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                              {p.method === 'CASH' ? 'Efectivo' : 'Transferencia'}
+                           </span>
+                        </div>
+                        <h4 className="text-base font-black text-slate-900 tracking-tighter uppercase">{p.clientName || p.loan?.client?.name}</h4>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase">{new Date(p.date).toLocaleDateString('es-DO', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                     </div>
+                     <div className="text-right">
+                        <p className="text-[8px] font-black text-emerald-600/50 uppercase tracking-widest mb-0.5">Monto Cobrado</p>
+                        <p className="text-xl font-black text-emerald-600 leading-none">RD$ {formatDOP(p.amount)}</p>
+                     </div>
+                  </div>
+               </div>
+            ))}
          </div>
       </div>
 
