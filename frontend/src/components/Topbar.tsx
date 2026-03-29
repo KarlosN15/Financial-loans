@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Topbar = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: 'dashboard' },
@@ -53,11 +55,18 @@ const Topbar = () => {
             <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{user?.role === 'ADMIN' ? 'Administrador' : 'Agente Pro'}</span>
           </div>
           
-          <div className="relative group">
-            <button className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 hover:bg-primary hover:text-white transition-all overflow-hidden shadow-sm">
+          <div className="relative">
+            <button 
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center transition-all overflow-hidden shadow-sm border ${
+                    isProfileOpen ? 'bg-primary text-white border-primary' : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-primary hover:text-white'
+                }`}
+            >
                 <span className="material-symbols-outlined">person</span>
             </button>
-            <div className="absolute right-0 top-full pt-2 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-[100]">
+            <div className={`absolute right-0 top-full pt-2 transition-all duration-300 z-[100] ${
+                isProfileOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 pointer-events-none'
+            }`}>
                 <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 min-w-[200px]">
                     <div className="pb-4 mb-4 border-b border-slate-50">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Conectado como</p>
