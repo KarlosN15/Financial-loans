@@ -34,6 +34,39 @@ const Reports = () => {
     ? Math.min(100, ((summary?.totalCollected || 0) / ((summary?.totalCollected || 0) + (summary?.expectedCollections || 0))) * 100)
     : 0;
 
+  const handleExport = () => {
+    if (loans.length === 0) return;
+
+    // Cabezeras del reporte
+    const headers = ["ID Préstamo", "Cliente", "Cédula", "Monto Principal", "Tasa Interés", "Cuotas", "Frecuencia", "Estado", "Fecha Registro"];
+    
+    // Contenido de las filas
+    const rows = loans.map((l: any) => [
+      `PR-${l.id.toString().padStart(4, '0')}`,
+      `"${l.client?.name}"`,
+      l.client?.identification,
+      l.amount,
+      `${l.interestRate}%`,
+      l.term,
+      l.frequency === 'MONTHLY' ? 'Mensual' : 'Semanal',
+      l.status,
+      new Date(l.createdAt).toLocaleDateString()
+    ].join(","));
+
+    // Generar el blob con codificación para acentos en Excel
+    const csvContent = "\uFEFF" + [headers.join(",")].concat(rows).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Cartera_Pro_${new Date().toLocaleDateString('es-DO').replace(/\//g, '-')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-10">
       <div className="flex items-center justify-between">
@@ -41,7 +74,10 @@ const Reports = () => {
           <h2 className="text-3xl font-black text-primary font-headline tracking-tighter">Reportes de Cartera</h2>
           <p className="text-slate-500 mt-1 text-sm font-medium">Análisis en tiempo real de rentabilidad y salud financiera.</p>
         </div>
-        <button className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-lg text-sm">
+        <button 
+          onClick={handleExport}
+          className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-lg text-sm"
+        >
           <span className="material-symbols-outlined text-base">download</span>
           Exportar
         </button>
