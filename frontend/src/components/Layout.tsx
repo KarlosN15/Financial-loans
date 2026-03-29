@@ -25,7 +25,7 @@ const Layout = () => {
   };
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden relative">
+    <div className="flex min-h-screen bg-background relative">
       {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div 
@@ -35,12 +35,12 @@ const Layout = () => {
       )}
 
       {/* Sidebar Container - Desktop Only */}
-      <aside className="no-print hidden lg:block sticky top-0 h-screen w-72 bg-white transition-all duration-500 ease-in-out border-r border-slate-100">
+      <aside className="no-print hidden lg:block sticky top-0 h-screen w-72 bg-white border-r border-slate-100">
         <Sidebar isOpen={true} onClose={() => {}} />
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0">
         <div className="no-print sticky top-0 z-30 bg-white/60 dark:bg-slate-950/60 backdrop-blur-[20px] border-b border-slate-100">
           <Topbar 
             title={getTitle()} 
@@ -48,7 +48,7 @@ const Layout = () => {
           />
         </div>
         
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 pb-24 md:p-8 lg:p-12 max-w-full w-full custom-scrollbar animate-in fade-in duration-500 scroll-smooth overscroll-contain">
+        <main className="flex-1 p-4 pb-32 md:p-8 lg:p-12 max-w-full w-full animate-in fade-in duration-500">
           <Outlet />
         </main>
 

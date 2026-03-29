@@ -104,17 +104,18 @@
 }
 
 html, body {
-  height: 100%;
+  min-height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Prevent body scroll, use Layout container */
-  touch-action: pan-y;
+  overflow-x: hidden;
+  overflow-y: auto; /* Enable natural scrolling */
+  touch-action: manipulation;
   -webkit-overflow-scrolling: touch;
 }
 
 #root {
-  height: 100%;
+  min-height: 100%;
   width: 100%;
 }
 
