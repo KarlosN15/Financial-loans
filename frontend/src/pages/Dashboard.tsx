@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import api from '../api/api';
+import api, { getPayments } from '../api/api';
 import { Link } from 'react-router-dom';
 import { formatDOP } from '../utils/format';
 
@@ -14,6 +14,11 @@ const Dashboard = () => {
     refetchOnWindowFocus: true,
   });
 
+  const { data: payments = [] } = useQuery({
+    queryKey: ['payments'],
+    queryFn: getPayments,
+  });
+
   if (isLoading) return <div className="p-8 text-center text-slate-500">Analizando cartera...</div>;
 
   return (
@@ -21,7 +26,7 @@ const Dashboard = () => {
       <div className="flex items-center justify-between mb-2 md:mb-6">
         <div className="hidden md:block">
           <h2 className="text-3xl font-extrabold text-primary font-headline tracking-tight">Dashboard Principal</h2>
-          <p className="text-slate-500 mt-1">Resumen operacional de hoy 25 Mar 2026.</p>
+          <p className="text-slate-500 mt-1">Resumen operacional de hoy {new Date().toLocaleDateString('es-DO', { day: '2-digit', month: 'short', year: 'numeric' })}.</p>
         </div>
       </div>
 
@@ -87,9 +92,38 @@ const Dashboard = () => {
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">Últimos movimientos de cartera</p>
             </div>
           </div>
-          <div className="h-48 md:h-64 flex flex-col justify-center items-center opacity-30 italic text-slate-400">
-            <span className="material-symbols-outlined text-6xl mb-4">insights</span>
-            <p className="text-sm font-black uppercase tracking-widest">Sin datos hoy</p>
+          <div className="space-y-4">
+            {payments.length === 0 ? (
+              <div className="h-48 md:h-64 flex flex-col justify-center items-center opacity-30 italic text-slate-400">
+                <span className="material-symbols-outlined text-6xl mb-4">insights</span>
+                <p className="text-sm font-black uppercase tracking-widest">Sin datos hoy</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {payments.slice(0, 5).map((p: any) => (
+                  <div key={p.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-primary/20 transition-all group">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-xl">stat_1</span>
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-primary uppercase tracking-tighter">{p.clientName || p.loan?.client?.name}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cobro Recibido</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-black text-emerald-600">RD$ {formatDOP(p.amount)}</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(p.date).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                ))}
+                {payments.length > 5 && (
+                  <Link to="/billing" className="block text-center text-[10px] font-black text-primary uppercase tracking-widest hover:underline pt-2">
+                    Ver todos los movimientos
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
