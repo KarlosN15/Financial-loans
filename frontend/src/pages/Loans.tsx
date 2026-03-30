@@ -122,11 +122,11 @@ const Loans = () => {
                     <span className="text-sm font-black text-primary">RD$ {formatDOP(loan.amount)}</span>
                   </td>
                   <td className="px-8 py-6 text-sm font-bold text-slate-600">
-                    {loan.interestRate}% <span className="text-[10px] text-slate-400 uppercase ml-1 block font-black">Mensual</span>
+                    {loan.interestRate}% <span className="text-[10px] text-slate-400 uppercase ml-1 block font-black">{loan.frequency === 'MONTHLY' ? 'Mensual' : 'Semanal'}</span>
                   </td>
                   <td className="px-8 py-6 text-sm font-bold text-slate-600">
                     {loan.term} <span className="text-[10px] text-slate-400 uppercase ml-1 font-black">Cuotas</span>
-                    <p className="text-[10px] text-slate-400 uppercase italic font-bold">Mensual</p>
+                    <p className="text-[10px] text-slate-400 uppercase italic font-bold">{loan.frequency === 'MONTHLY' ? 'Mensual' : 'Semanal'}</p>
                   </td>
                   <td className="px-8 py-6">
                     <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter ${
@@ -343,7 +343,7 @@ const Loans = () => {
                       <header className="text-[10px] font-black uppercase tracking-widest mb-4 border-b pb-2">Resumen del Crédito</header>
                       <div className="flex justify-between mb-1"><span className="text-xs font-bold font-mono">Principal:</span> <span className="text-sm font-black">RD$ {formatDOP(selectedLoan?.amount || 0)}</span></div>
                       <div className="flex justify-between mb-1"><span className="text-xs font-bold font-mono">Tasa Int.:</span> <span className="text-sm font-black">{selectedLoan?.interestRate}%</span></div>
-                      <div className="flex justify-between"><span className="text-xs font-bold font-mono">N. Cuotas:</span> <span className="text-sm font-black">{selectedLoan?.term} Meses</span></div>
+                      <div className="flex justify-between"><span className="text-xs font-bold font-mono">N. Cuotas:</span> <span className="text-sm font-black">{selectedLoan?.term} {selectedLoan?.frequency === 'MONTHLY' ? 'Meses' : 'Semanas'}</span></div>
                   </div>
               </div>
 
@@ -387,7 +387,7 @@ const Loans = () => {
                        </div>
                        <div>
                            <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Concepto:</p>
-                           <p className="text-sm font-bold leading-relaxed">Desembolso de préstamo personal bajo contrato amortizable a {selectedLoan?.term} meses con tasa del {selectedLoan?.interestRate}%.</p>
+                           <p className="text-sm font-bold leading-relaxed">Desembolso de préstamo personal bajo contrato amortizable a {selectedLoan?.term} {selectedLoan?.frequency === 'MONTHLY' ? 'meses' : 'semanas'} con tasa del {selectedLoan?.interestRate}%.</p>
                        </div>
                    </div>
                    <div className="flex flex-col items-end justify-center text-right">

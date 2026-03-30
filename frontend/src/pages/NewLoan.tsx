@@ -65,7 +65,9 @@ const NewLoan = () => {
     const ratePerPeriod = (formData.frequency === 'MONTHLY' ? monthlyRate : monthlyRate / 4) / 100;
     
     // Monthly installment (French Amortization)
-    const installment = amount * (ratePerPeriod * Math.pow(1 + ratePerPeriod, term)) / (Math.pow(1 + ratePerPeriod, term) - 1);
+    const installment = ratePerPeriod === 0 
+      ? amount / term 
+      : amount * (ratePerPeriod * Math.pow(1 + ratePerPeriod, term)) / (Math.pow(1 + ratePerPeriod, term) - 1);
     
     let currentBalance = amount;
     const schedule = [];
@@ -233,7 +235,7 @@ const NewLoan = () => {
               <div className="absolute inset-0 bg-blue-600 opacity-[0.03] backdrop-blur-3xl"></div>
               <div className="p-10 relative z-10 border-b border-white/5">
                  <h2 className="text-xl font-black text-white font-headline tracking-tight">Tabla de Amortización</h2>
-                 <p className="text-slate-500 text-[10px] uppercase font-black tracking-widest mt-1">Semanas a proyectar: {amortization.length}</p>
+                 <p className="text-slate-500 text-[10px] uppercase font-black tracking-widest mt-1">{formData.frequency === 'MONTHLY' ? 'Meses' : 'Semanas'} a proyectar: {amortization.length}</p>
               </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar relative z-10">
                  {amortization.length === 0 ? (

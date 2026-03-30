@@ -12,9 +12,15 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
-  
-  if (loading) return null; // Or a spinner
+  if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+};
+
+// Admin-only route: redirect agents to /billing
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+  if (user?.role === 'AGENT') return <Navigate to="/billing" replace />;
   return <>{children}</>;
 };
 
@@ -24,18 +30,31 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
-          
+
           <Route path="/" element={
             <ProtectedRoute>
               <Layout />
             </ProtectedRoute>
           }>
-            <Route index element={<Dashboard />} />
-            <Route path="clients" element={<Clients />} />
-            <Route path="loans" element={<Loans />} />
-            <Route path="loans/new" element={<NewLoan />} />
+            {/* Root: admins go to Dashboard, agents go to Billing */}
+            <Route index element={
+              <AdminRoute>
+                <Dashboard />
+              </AdminRoute>
+            } />
+            <Route path="clients" element={
+              <AdminRoute><Clients /></AdminRoute>
+            } />
+            <Route path="loans" element={
+              <AdminRoute><Loans /></AdminRoute>
+            } />
+            <Route path="loans/new" element={
+              <AdminRoute><NewLoan /></AdminRoute>
+            } />
             <Route path="billing" element={<Billing />} />
-            <Route path="reports" element={<Reports />} />
+            <Route path="reports" element={
+              <AdminRoute><Reports /></AdminRoute>
+            } />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

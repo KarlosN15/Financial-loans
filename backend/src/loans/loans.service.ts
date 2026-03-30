@@ -26,7 +26,9 @@ export class LoansService {
     const ratePerPeriod = (frequency === 'MONTHLY' ? interestRate : interestRate / 4) / 100;
     
     // Calcular cuota fija (Amortización francesa)
-    const installmentAmount = amount * (ratePerPeriod * Math.pow(1 + ratePerPeriod, term)) / (Math.pow(1 + ratePerPeriod, term) - 1);
+    const installmentAmount = ratePerPeriod === 0 
+      ? amount / term 
+      : amount * (ratePerPeriod * Math.pow(1 + ratePerPeriod, term)) / (Math.pow(1 + ratePerPeriod, term) - 1);
     
     // Crear el préstamo siempre vinculado al administrador de la cartera
     const loan = await this.prisma.loan.create({

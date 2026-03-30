@@ -2,8 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import api, { getPayments } from '../api/api';
 import { Link } from 'react-router-dom';
 import { formatDOP } from '../utils/format';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const { data: summary, isLoading } = useQuery({
     queryKey: ['summary'],
     queryFn: async () => {
@@ -143,7 +145,7 @@ const Dashboard = () => {
             </div>
             <div className="mt-auto px-4 py-8 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-center">
               <p className="text-[10px] uppercase font-black tracking-widest text-slate-300 mb-4">Motor de Inteligencia</p>
-              <p className="text-xs text-slate-500 italic font-medium leading-relaxed">"Bienvenido Pablo. Registra un nuevo cliente para activar las proyecciones de cobro hoy."</p>
+              <p className="text-xs text-slate-500 italic font-medium leading-relaxed">"Bienvenido {user?.name?.split(' ')[0] || 'Usuario'}. Registra un nuevo cliente para activar las proyecciones de cobro hoy."</p>
             </div>
             <Link to="/loans/new" className="mt-6 w-full py-4 bg-primary text-white font-black text-[12px] uppercase tracking-[0.2em] rounded-xl hover:brightness-110 shadow-xl shadow-primary/20 transition-all flex items-center justify-center gap-2 active:scale-95">
               <span className="material-symbols-outlined text-sm">add_circle</span>

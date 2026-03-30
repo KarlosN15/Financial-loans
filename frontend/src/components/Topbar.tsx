@@ -8,12 +8,12 @@ const Topbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: 'dashboard' },
-    { path: '/clients', label: 'Clientes', icon: 'group' },
-    { path: '/loans', label: 'Préstamos', icon: 'payments' },
-    { path: '/billing', label: 'Pagos', icon: 'receipt_long' },
-    { path: '/reports', label: 'Reportes', icon: 'bar_chart' },
-  ];
+    { path: '/', label: 'Dashboard', icon: 'dashboard', roles: ['ADMIN'] },
+    { path: '/clients', label: 'Clientes', icon: 'group', roles: ['ADMIN'] },
+    { path: '/loans', label: 'Préstamos', icon: 'payments', roles: ['ADMIN'] },
+    { path: '/billing', label: 'Pagos', icon: 'receipt_long', roles: ['ADMIN', 'AGENT'] },
+    { path: '/reports', label: 'Reportes', icon: 'bar_chart', roles: ['ADMIN'] },
+  ].filter(item => item.roles.includes(user?.role || ''));
 
   return (
     <header className="sticky top-0 z-[50] bg-white/80 backdrop-blur-xl border-b border-slate-100 no-print">

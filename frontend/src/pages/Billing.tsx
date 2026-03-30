@@ -49,7 +49,7 @@ const Billing = () => {
     loans.filter((l: any) => l.status === 'ACTIVE' || l.status === 'ARREARS').map((l: any) => ({
       id: l.id,
       label: l.client.name,
-      sublabel: `PR-${l.id.toString().padStart(4, '0')} - Balance: RD$ ${formatDOP(l.amount)}`,
+      sublabel: `Céd: ${l.client.identification} • PR-${l.id.toString().padStart(4, '0')} • Balance: RD$ ${formatDOP(l.amount)}`,
       original: l
     })), [loans]);
 
@@ -311,7 +311,7 @@ const Billing = () => {
 
                   {loanInfo && (
                      <div className="space-y-3">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Meses a Liquidar</label>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{loanInfo?.loan?.frequency === 'MONTHLY' ? 'Meses' : 'Semanas'} a Liquidar</label>
                         <div className="flex gap-2">
                            {[1, 2, 3].map(q => (
                               <button 
@@ -320,7 +320,7 @@ const Billing = () => {
                                  onClick={() => updateInstallments(q)}
                                  className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 transition-all ${formData.numInstallments === q ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-50 border-transparent text-slate-400 hover:border-slate-200'}`}
                               >
-                                 {q} Mes{q > 1 ? 'es' : ''}
+                                 {q} {loanInfo?.loan?.frequency === 'MONTHLY' ? (q > 1 ? 'Meses' : 'Mes') : (q > 1 ? 'Semanas' : 'Semana')}
                               </button>
                            ))}
                         </div>

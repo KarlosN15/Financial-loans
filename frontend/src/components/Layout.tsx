@@ -7,7 +7,7 @@ const Layout = () => {
       {/* Refined Topbar with integrated navigation */}
       <Topbar />
       
-      <main className="flex-1 p-4 pb-20 md:p-8 lg:p-12 max-w-7xl mx-auto w-full animate-in fade-in duration-700">
+      <main className="flex-1 p-4 pb-32 md:p-8 lg:p-12 max-w-7xl mx-auto w-full animate-in fade-in duration-700">
         <Outlet />
       </main>
 
