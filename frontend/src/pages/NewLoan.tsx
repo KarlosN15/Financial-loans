@@ -152,7 +152,7 @@ const NewLoan = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Tasa Mensual (%)</label>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Tasa del Préstamo (%)</label>
                   <input 
                     required
                     className="w-full bg-slate-50 border-0 border-b-2 border-slate-100 focus:border-primary focus:ring-0 rounded-none py-4 px-0 text-sm font-black transition-all"

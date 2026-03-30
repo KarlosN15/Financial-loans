@@ -19,6 +19,7 @@ const Loans = () => {
 
   const filteredLoans = loans.filter((l: any) => 
     l.client.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    l.client.identification.includes(searchTerm) ||
     (`#PR-${1000 + l.id}`).includes(searchTerm)
   );
 

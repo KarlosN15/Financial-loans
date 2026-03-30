@@ -22,6 +22,16 @@ const Billing = () => {
     queryFn: getPayments,
   });
 
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredPayments = useMemo(() => {
+    return payments.filter((p: any) => 
+      (p.clientName || p.loan?.client?.name)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.loan?.client?.identification)?.includes(searchTerm) ||
+      (`#${p.id.toString().padStart(4, '0')}`).includes(searchTerm)
+    );
+  }, [payments, searchTerm]);
+
   const { data: upcoming = [] } = useQuery({
     queryKey: ['upcoming-installments'],
     queryFn: getUpcomingInstallments,
@@ -87,7 +97,7 @@ const Billing = () => {
     },
   });
 
-  const totalPaidGlobal = payments.reduce((sum: number, p: any) => sum + p.amount, 0);
+  const totalPaidGlobal = filteredPayments.reduce((sum: number, p: any) => sum + p.amount, 0);
 
   const handleRegisterPayment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,12 +176,22 @@ const Billing = () => {
 
       {/* Ledger Section */}
       <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-5 md:p-10 shadow-sm border border-slate-100 no-print overflow-hidden">
-         <div className="flex items-center justify-between mb-8 md:mb-12">
-            <div>
-               <h3 className="font-black text-xl md:text-2xl text-primary font-headline tracking-tighter uppercase underline decoration-emerald-500/30 decoration-4 underline-offset-4">Historial</h3>
-               <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-1.5">Ledger Intelligence</p>
-            </div>
-         </div>
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8 md:mb-12">
+             <div>
+                <h3 className="font-black text-xl md:text-2xl text-primary font-headline tracking-tighter uppercase underline decoration-emerald-500/30 decoration-4 underline-offset-4">Historial</h3>
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-1.5">Ledger Intelligence</p>
+             </div>
+             <div className="relative group max-w-xs w-full">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-emerald-500 transition-colors text-sm">search</span>
+                <input 
+                  className="w-full bg-slate-50/50 border border-slate-100 focus:ring-2 focus:ring-emerald-500/10 rounded-xl py-2.5 pl-10 pr-4 text-xs font-bold transition-all"
+                  placeholder="Buscar por nombre o cédula..." 
+                  type="text" 
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                />
+             </div>
+          </div>
          
          {/* Desktop Table View */}
          <div className="hidden md:block overflow-x-auto">
@@ -189,7 +209,7 @@ const Billing = () => {
                <tbody className="divide-y divide-slate-50">
                   {loadingPayments ? (
                      <tr><td colSpan={6} className="py-20 text-center text-slate-400 italic">Sincronizando...</td></tr>
-                  ) : payments.map((p: any) => (
+                  ) : filteredPayments.map((p: any) => (
                      <tr key={p.id} className="hover:bg-slate-50/50 transition-all group">
                         <td className="py-6">
                            <span className="text-[10px] font-black text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">#{p.id.toString().padStart(4, '0')}</span>
@@ -221,12 +241,12 @@ const Billing = () => {
          <div className="md:hidden space-y-4">
             {loadingPayments ? (
                <p className="text-center py-10 text-slate-400 italic text-xs tracking-widest uppercase">Cargando datos...</p>
-            ) : payments.length === 0 ? (
+            ) : filteredPayments.length === 0 ? (
                <div className="text-center py-20 opacity-20">
                   <span className="material-symbols-outlined text-5xl">folder_off</span>
-                  <p className="text-[10px] font-black uppercase mt-2">Sin Historial</p>
+                  <p className="text-[10px] font-black uppercase mt-2">Sin Resultados</p>
                </div>
-            ) : payments.map((p: any) => (
+            ) : filteredPayments.map((p: any) => (
                <div key={p.id} className="bg-slate-50/50 p-5 rounded-3xl border border-slate-100 flex flex-col gap-4 active:scale-95 transition-all" onClick={() => { setRecentPayment(p); setShowReceipt(true); }}>
                   <div className="flex justify-between items-start">
                      <div>
