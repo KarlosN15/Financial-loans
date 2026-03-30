@@ -23,6 +23,54 @@
   --color-outline-variant: #c2c6d1;
 }
 
+@media print {
+  @page {
+    margin: 0;
+    size: 80mm auto; /* Standard thermal paper width */
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  #printable-receipt {
+    width: 80mm !important;
+    padding: 4mm !important;
+    margin: 0 auto !important;
+    font-family: "Inter", "Courier New", Courier, monospace !important;
+    font-size: 11pt !important;
+    color: black !important;
+    line-height: 1.2 !important;
+    background: white !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Force elements to be black for thermal printers */
+  #printable-receipt * {
+    color: black !important;
+    text-shadow: none !important;
+    border-color: black !important;
+  }
+
+  /* Thermal printer doesn't like rounded corners or shadows */
+  #printable-receipt div, 
+  #printable-receipt span, 
+  #printable-receipt table {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
 @layer base {
   :root {
     --primary: #003461;

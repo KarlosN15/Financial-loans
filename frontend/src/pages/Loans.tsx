@@ -318,112 +318,99 @@ const Loans = () => {
       )}
 
       {/* PRINT VIEW (Only visible when printing) */}
-      <div className="print-only p-10 hidden text-left bg-white text-black leading-normal">
-          <div className="flex justify-between items-start border-b-4 border-slate-900 pb-8 mb-8">
-              <div>
-                  <h1 className="text-4xl font-black tracking-tighter mb-2">PRÉSTAMO PRO</h1>
-                  <p className="text-xs font-black uppercase tracking-[0.3em] opacity-40">Financial Management Systems</p>
-                  <p className="text-xs font-medium mt-4 italic">Documento emitido: {new Date().toLocaleDateString('es-DO', { dateStyle: 'long' })}</p>
-              </div>
-              <div className="text-right">
-                  <p className="text-xs font-black uppercase tracking-widest mb-1">{printType === 'STATEMENT' ? 'Estado de Cuenta' : 'Recibo de Desembolso'}</p>
-                  <p className="text-2xl font-black text-primary">#PR-{1000 + (selectedLoan?.id || 0)}</p>
-              </div>
-          </div>
-
+      {/* PRINT VIEW (Only visible when printing) */}
+      <div className="print-only hidden" id="printable-receipt">
           {printType === 'STATEMENT' ? (
             <>
-              <div className="grid grid-cols-2 gap-10 mb-10">
-                  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
-                      <header className="text-[10px] font-black uppercase tracking-widest mb-4 border-b pb-2">Información del Beneficiario</header>
-                      <p className="text-xl font-black uppercase mb-1">{selectedLoan?.client?.name}</p>
-                      <p className="text-sm font-bold text-slate-600">ID: {selectedLoan?.client?.identification}</p>
-                      <p className="text-sm font-bold text-slate-600">Email: {selectedLoan?.client?.email || 'N/A'}</p>
-                  </div>
-                  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
-                      <header className="text-[10px] font-black uppercase tracking-widest mb-4 border-b pb-2">Resumen del Crédito</header>
-                      <div className="flex justify-between mb-1"><span className="text-xs font-bold font-mono">Principal:</span> <span className="text-sm font-black">RD$ {formatDOP(selectedLoan?.amount || 0)}</span></div>
-                      <div className="flex justify-between mb-1"><span className="text-xs font-bold font-mono">Tasa Int.:</span> <span className="text-sm font-black">{selectedLoan?.interestRate}%</span></div>
-                      <div className="flex justify-between"><span className="text-xs font-bold font-mono">N. Cuotas:</span> <span className="text-sm font-black">{selectedLoan?.term} {selectedLoan?.frequency === 'MONTHLY' ? 'Meses' : 'Semanas'}</span></div>
-                  </div>
+              <div className="text-center mb-6 space-y-1">
+                 <h4 className="text-xl font-black text-black font-headline uppercase">ESTADO DE CUENTA</h4>
+                 <p className="text-[10px] font-bold text-black uppercase tracking-widest border-b border-black pb-2">PRESTAMO PRO - SISTEMAFAC</p>
+              </div>
+              
+              <div className="mb-6 space-y-1 text-xs text-black font-bold uppercase">
+                 <p><span className="font-black">CLIENTE:</span> {selectedLoan?.client?.name}</p>
+                 <p><span className="font-black">CEDULA:</span> {selectedLoan?.client?.identification}</p>
+                 <p><span className="font-black">PRESTAMO:</span> #PR-{1000 + (selectedLoan?.id || 0)}</p>
+                 <div className="border-t border-black mt-2 pt-2">
+                     <p><span className="font-black">CAPITAL:</span> RD$ {formatDOP(selectedLoan?.amount || 0)}</p>
+                     <p><span className="font-black">TASA:</span> {selectedLoan?.interestRate}%</p>
+                     <p><span className="font-black">PLAZO:</span> {selectedLoan?.term} {selectedLoan?.frequency === 'MONTHLY' ? 'Meses' : 'Semanas'}</p>
+                 </div>
               </div>
 
-              <h2 className="text-[10px] font-black uppercase tracking-widest mb-4 border-b-2 border-black pb-2">Tabla de Amortización</h2>
-              <table className="w-full text-sm mb-10">
-                  <thead className="border-b-2 border-black">
-                      <tr className="text-left font-black uppercase text-[10px]">
-                          <th className="py-3 pr-4">No.</th>
-                          <th className="py-3">Vencimiento</th>
-                          <th className="py-3">Monto Cuota</th>
-                          <th className="py-3 text-right">Saldo Restante</th>
-                          <th className="py-3 text-right">Status</th>
-                      </tr>
-                  </thead>
-                  <tbody className="divide-y border-b-2 border-black">
-                      {selectedLoan?.installments?.map((inst: any) => (
-                          <tr key={inst.id}>
-                              <td className="py-3 pr-4 font-black">{inst.number}</td>
-                              <td className="py-3">{new Date(inst.dueDate).toLocaleDateString('es-DO')}</td>
-                              <td className="py-3 font-bold">RD$ {formatDOP(inst.amount)}</td>
-                              <td className="py-3 text-right">RD$ {formatDOP(inst.balance)}</td>
-                              <td className="py-3 text-right font-black uppercase text-[10px] italic">{inst.status === 'PAID' ? 'LIQUIDADA' : 'PENDIENTE'}</td>
-                          </tr>
-                      ))}
-                  </tbody>
+              <h2 className="text-[10px] font-black uppercase tracking-widest mt-6 mb-2 border-b border-black pb-1">Cronograma de Pagos</h2>
+              <table className="w-full text-[9px] mb-6">
+                 <thead className="border-b border-black">
+                     <tr className="text-left font-black uppercase">
+                         <th className="py-2">No.</th>
+                         <th className="py-2">Fecha</th>
+                         <th className="py-2">Cuota</th>
+                         <th className="py-2 text-right">Balance</th>
+                         <th className="py-2 text-right">Status</th>
+                     </tr>
+                 </thead>
+                 <tbody className="divide-y border-b border-black text-black font-bold">
+                     {selectedLoan?.installments?.map((inst: any) => (
+                         <tr key={inst.id}>
+                             <td className="py-2 font-black">{inst.number}</td>
+                             <td className="py-2">{new Date(inst.dueDate).toLocaleDateString('es-DO')}</td>
+                             <td className="py-2 font-bold">${formatDOP(inst.amount)}</td>
+                             <td className="py-2 text-right">${formatDOP(inst.balance)}</td>
+                             <td className="py-2 text-right font-black uppercase italic">{inst.status === 'PAID' ? 'LIQ' : 'PEND'}</td>
+                         </tr>
+                     ))}
+                 </tbody>
               </table>
             </>
           ) : (
-            <div className="py-10 space-y-12">
-               <div className="text-center space-y-4">
-                   <h2 className="text-3xl font-black uppercase tracking-widest underline decoration-emerald-500 decoration-8 underline-offset-[12px]">Voucher de Desembolso</h2>
-                   <p className="text-slate-400 font-bold uppercase tracking-[0.4em] text-[10px]">Comprobante de Entrega de Capital</p>
+            <div className="space-y-6 text-black">
+               <div className="text-center mb-6 space-y-1">
+                  <h4 className="text-xl font-black font-headline uppercase">VALE DE DESEMBOLSO</h4>
+                  <p className="text-[10px] font-bold uppercase tracking-widest border-b border-black pb-2">PRESTAMO PRO - SISTEMAFAC</p>
                </div>
 
-               <div className="bg-slate-50 p-10 rounded-[3rem] border-2 border-slate-200 grid grid-cols-2 gap-10">
-                   <div className="space-y-6">
-                       <div>
-                           <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Entregado a:</p>
-                           <p className="text-2xl font-black uppercase">{selectedLoan?.client?.name}</p>
-                           <p className="text-sm font-bold text-slate-500">{selectedLoan?.client?.identification}</p>
-                       </div>
-                       <div>
-                           <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Concepto:</p>
-                           <p className="text-sm font-bold leading-relaxed">Desembolso de préstamo personal bajo contrato amortizable a {selectedLoan?.term} {selectedLoan?.frequency === 'MONTHLY' ? 'meses' : 'semanas'} con tasa del {selectedLoan?.interestRate}%.</p>
-                       </div>
-                   </div>
-                   <div className="flex flex-col items-end justify-center text-right">
-                       <p className="text-[10px] font-black uppercase text-slate-400 mb-2">Monto Neto Entregado</p>
-                       <p className="text-6xl font-black text-emerald-600 font-headline italic">RD$ {formatDOP(selectedLoan?.amount || 0)}</p>
-                       <p className="text-[10px] font-black uppercase text-slate-400 mt-4 italic">Cero Comisiones · Entrega Inmediata</p>
-                   </div>
-               </div>
+               <div className="space-y-4 text-xs font-bold uppercase">
+                  <div className="flex flex-col gap-1">
+                     <p className="text-[10px] font-black uppercase">NRO. OPERACION: {String(selectedLoan?.id || 0).padStart(5, '0')}</p>
+                     <p className="text-[10px] font-black uppercase">VALE NO: DIS-{String(selectedLoan?.id || 0).padStart(4, '0')}</p>
+                  </div>
 
-               <div className="grid grid-cols-2 gap-20 pt-20">
-                   <div className="text-center space-y-2">
-                       <div className="border-b-2 border-black h-12"></div>
-                       <p className="text-[10px] font-black uppercase tracking-widest">Firma del Prestamista</p>
-                       <p className="text-[8px] font-bold text-slate-400 uppercase">Préstamo Pro Admin</p>
-                   </div>
-                   <div className="text-center space-y-2">
-                       <div className="border-b-2 border-black h-12"></div>
-                       <p className="text-[10px] font-black uppercase tracking-widest">Firma del Cliente</p>
-                       <p className="text-[8px] font-bold text-slate-400 uppercase">Acepto conforme los términos</p>
-                   </div>
+                  <div className="border-t border-black pt-2 flex flex-col gap-1">
+                     <p><span className="font-black">DESTINATARIO:</span> {selectedLoan?.client?.name}</p>
+                     <p><span className="font-black">CEDULA:</span> {selectedLoan?.client?.identification}</p>
+                  </div>
+
+                  <div className="border-t border-black pt-2 flex flex-col gap-1">
+                     <p><span className="font-black">REMITENTE:</span> ADMINISTRACION PRO</p>
+                     <p><span className="font-black">CONCEPTO:</span> DESEMBOLSO DE CAPITAL</p>
+                     <p><span className="font-black">PLAZO:</span> {selectedLoan?.term} {selectedLoan?.frequency === 'MONTHLY' ? 'MESES' : 'SEMANAS'}</p>
+                     <p><span className="font-black">TASA:</span> {selectedLoan?.interestRate}%</p>
+                  </div>
+
+                  <div className="border-t border-black pt-2">
+                     <div className="flex justify-between items-center bg-black/5 p-3 border border-black">
+                        <span className="font-black uppercase tracking-tighter text-[10px]">MONTO NETO ENTREGADO:</span>
+                        <span className="text-2xl font-black italic">RD$ {formatDOP(selectedLoan?.amount || 0)}</span>
+                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-10 pt-16">
+                     <div className="text-center">
+                        <div className="border-b border-black h-8"></div>
+                        <p className="text-[8px] font-black uppercase mt-1">Firma Entregado</p>
+                     </div>
+                     <div className="text-center">
+                        <div className="border-b border-black h-8"></div>
+                        <p className="text-[8px] font-black uppercase mt-1">Firma Recibido</p>
+                     </div>
+                  </div>
                </div>
             </div>
           )}
 
-          <div className="mt-20 flex justify-between gap-10 items-end border-t pt-8 border-dashed">
-              <div className="text-left">
-                 <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Generado por Préstamo Pro SaaS</p>
-                 <p className="text-[8px] font-bold text-slate-300">Este documento es una representación digital de la transacción.</p>
-              </div>
-              {printType === 'STATEMENT' && (
-                <div className="w-64 p-6 bg-slate-900 text-white rounded-2xl text-right">
-                    <p className="text-[10px] font-black text-white/50 uppercase mb-1">Balance Pendiente Hoy</p>
-                    <p className="text-2xl font-black">RD$ {formatDOP(selectedLoan?.installments?.filter((i:any) => i.status === 'PENDING').reduce((acc:number, i:any) => acc + i.amount, 0) || 0)}</p>
-                </div>
-              )}
+          <div className="mt-10 border-t border-dashed border-black pt-4 text-center text-black">
+             <p className="text-[9px] font-black uppercase">SANTIAGO, REP. DOM.</p>
+             <p className="text-[9px] font-medium italic mt-2">Este documento representa la entrega formal de valores. Validado por SistemaFac Pro.</p>
           </div>
       </div>
     </div>

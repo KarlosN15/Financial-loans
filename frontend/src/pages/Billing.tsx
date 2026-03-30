@@ -399,68 +399,55 @@ const Billing = () => {
                {/* Scrollable Receipt Area */}
                <div className="flex-1 overflow-y-auto custom-scrollbar">
                   
-                  {/* Printable Area - ID used by browser print */}
-                  <div className="p-8 md:p-10 text-left bg-white" id="printable-receipt">
-                      <div className="text-center mb-10">
-                          <h4 className="text-2xl font-black text-primary font-headline tracking-tighter uppercase underline decoration-emerald-500 decoration-4 underline-offset-4">PRÉSTAMO PRO</h4>
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2">Personal Loan Management Systems</p>
-                      </div>
+                   {/* Printable Area - ID used by browser print */}
+                   <div className="p-8 md:p-10 text-left bg-white" id="printable-receipt">
+                       <div className="text-center mb-6 space-y-1">
+                           <h4 className="text-xl font-black text-black font-headline tracking-tighter uppercase">RECIBO DE PAGO</h4>
+                           <p className="text-[10px] font-bold text-black uppercase tracking-widest border-b border-black pb-2">PRESTAMO PRO - SISTEMAFAC</p>
+                       </div>
 
-                      <div className="space-y-6">
-                          <div className="flex justify-between items-end border-b-2 border-slate-100 pb-4">
-                              <div>
-                                  <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Cliente Beneficiario</p>
-                                  <p className="text-lg font-black text-primary uppercase">{recentPayment.clientName || recentPayment.loan?.client?.name}</p>
-                              </div>
-                              <div className="text-right">
-                                  <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Recibo No.</p>
-                                  <p className="font-black text-primary">PAY-{String(recentPayment.id).padStart(4, '0')}</p>
-                              </div>
-                          </div>
+                       <div className="space-y-4 text-[13px] font-medium text-black">
+                           <div className="flex flex-col gap-1">
+                               <p className="text-[10px] font-black uppercase">NRO. DE OPERACION: {String(recentPayment.id).padStart(5, '0')}</p>
+                               <p className="text-[10px] font-black uppercase">RECIBO NO: PAY-{String(recentPayment.id).padStart(4, '0')}</p>
+                           </div>
 
-                          <div className="py-6 space-y-4">
-                              <div className="flex justify-between items-center text-xs">
-                                  <span className="font-bold text-slate-400 uppercase tracking-widest text-[10px]">Monto Recibido:</span>
-                                  <span className="text-3xl font-black text-emerald-600 font-headline italic">RD$ {formatDOP(recentPayment.amount)}</span>
-                              </div>
-                              <div className="flex justify-between items-center text-xs">
-                                  <span className="font-bold text-slate-400 uppercase tracking-widest text-[10px]">Método de Pago:</span>
-                                  <span className="font-black text-primary bg-slate-50 px-3 py-1 rounded-lg border border-slate-100 uppercase">{recentPayment.method === 'CASH' ? 'Efectivo' : 'Transferencia'}</span>
-                              </div>
-                              <div className="flex justify-between items-center text-xs">
-                                  <span className="font-bold text-slate-400 uppercase tracking-widest text-[10px]">Fecha del Cobro:</span>
-                                  <span className="font-bold text-slate-600 tracking-tight">{new Date(recentPayment.date).toLocaleDateString('es-DO', { dateStyle: 'full' })}</span>
-                              </div>
-                          </div>
+                           <div className="border-t border-black pt-2 flex flex-col gap-1">
+                               <p className="font-bold uppercase"><span className="font-black">CLIENTE:</span> {recentPayment.clientName || recentPayment.loan?.client?.name}</p>
+                               <p className="font-bold uppercase"><span className="font-black">CEDULA:</span> {recentPayment.loan?.client?.identification}</p>
+                           </div>
 
-                          <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 space-y-4">
-                              <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2 border-b-2 border-white pb-2">Desglose del Crédito (#PR-{1000 + (recentPayment.loan?.id || 0)})</p>
-                              
-                              <div className="flex justify-between items-center text-xs font-black">
-                                  <span className="text-slate-400">MONTO DEL PRÉSTAMO:</span>
-                                  <span className="text-primary italic">RD$ {formatDOP(recentPayment.loan?.amount || 0)}</span>
-                              </div>
-                              
-                              <div className="flex justify-between items-center text-xs font-black border-t border-white pt-2">
-                                  <span className="text-slate-400 uppercase">PRÓXIMA CUOTA:</span>
-                                  <span className="text-rose-500 font-bold underline underline-offset-4">
-                                      RD$ {formatDOP(recentPayment.loan?.installments?.find((i:any) => i.status === 'PENDING')?.amount || 0)}
-                                  </span>
-                              </div>
+                           <div className="border-t border-black pt-2 flex flex-col gap-1">
+                               <p className="font-bold uppercase"><span className="font-black">REMITENTE:</span> ADMINISTRACION PRO</p>
+                               <p className="font-bold uppercase"><span className="font-black">SERVICIO:</span> COBRO DE CUOTA</p>
+                               <p className="font-bold uppercase"><span className="font-black">METODO:</span> {recentPayment.method === 'CASH' ? 'EFECTIVO' : 'TRANSFERENCIA'}</p>
+                           </div>
 
-                              <div className="flex justify-between items-center text-xs font-black border-t-2 border-primary/10 pt-4 bg-primary/[0.03] -mx-4 px-4 py-2 rounded-xl">
-                                  <span className="text-primary uppercase tracking-tighter">SALDO RESTANTE ACTUAL:</span>
-                                  <span className="text-primary text-lg font-black tracking-tight">
-                                      RD$ {formatDOP(recentPayment.loan?.installments?.filter((i:any) => i.status === 'PENDING').reduce((acc:number, i:any) => acc + i.amount, 0) || 0)}
-                                  </span>
-                              </div>
-                          </div>
+                           <div className="border-t border-black pt-2 space-y-2">
+                               <div className="flex justify-between items-center bg-black/5 p-2 border border-black">
+                                   <span className="font-black uppercase tracking-tighter">VALOR A COBRAR:</span>
+                                   <span className="text-lg font-black italic">RD$ {formatDOP(recentPayment.amount)}</span>
+                               </div>
+                               
+                               <div className="flex justify-between items-center text-[11px] font-bold">
+                                   <span className="uppercase font-black">SALDO RESTANTE:</span>
+                                   <span className="font-black">RD$ {formatDOP(recentPayment.loan?.installments?.filter((i:any) => i.status === 'PENDING').reduce((acc:number, i:any) => acc + i.amount, 0) || 0)}</span>
+                               </div>
+                           </div>
 
-                          <div className="text-center pt-8 border-t-2 border-dashed border-slate-100">
-                              <p className="text-[10px] font-bold text-slate-400 italic">"Gracias por su puntualidad. Préstamo Pro, seriedad y confianza."</p>
-                          </div>
-                      </div>
-                  </div>
+                           <div className="border-t border-black pt-4 text-[10px] space-y-1">
+                               <p className="font-black uppercase">FECHA COBRO: {new Date(recentPayment.date).toLocaleDateString('es-DO')} {new Date(recentPayment.date).toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}</p>
+                               <p className="font-black uppercase">ATENDIDO POR: {user?.name || 'Admin System'}</p>
+                           </div>
+
+                           <div className="text-center pt-6 border-t border-dashed border-black">
+                               <p className="text-[9px] font-bold italic leading-tight">
+                                   El cliente reconoce haber realizado el pago correspondiente a la cuota del préstamo mencionado. 
+                                   Conserve este comprobante para cualquier reclamación.
+                               </p>
+                           </div>
+                       </div>
+                   </div>
                </div>
 
                {/* Action Footer - No Print */}
