@@ -32,14 +32,17 @@ export class PaymentsService {
       });
 
       for (const inst of pendingInstallments) {
-        const needed = inst.amount - inst.paidAmount;
+        const amount = Number(inst.amount);
+        const paidAmount = Number(inst.paidAmount);
+        const needed = amount - paidAmount;
+        
         if (remainingAmount <= 0) break;
 
         if (remainingAmount >= needed) {
           await tx.installment.update({
             where: { id: inst.id },
             data: { 
-              paidAmount: inst.amount,
+              paidAmount: amount, // Se paga completo
               status: 'PAID' 
             },
           });
@@ -48,7 +51,7 @@ export class PaymentsService {
           await tx.installment.update({
             where: { id: inst.id },
             data: { 
-              paidAmount: inst.paidAmount + remainingAmount 
+              paidAmount: paidAmount + remainingAmount 
             },
           });
           remainingAmount = 0;

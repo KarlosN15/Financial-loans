@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { LoansService } from './loans.service';
-import { PaymentFrequency } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateLoanDto } from './dto/create-loan.dto';
 
 @Controller('loans')
 @UseGuards(JwtAuthGuard)
@@ -9,7 +9,7 @@ export class LoansController {
   constructor(private readonly loansService: LoansService) {}
 
   @Post()
-  create(@Request() req: any, @Body() data: { clientId: number; amount: number; interestRate: number; term: number; frequency: PaymentFrequency }) {
+  create(@Request() req: any, @Body() data: CreateLoanDto) {
     return this.loansService.createLoan(req.user, data);
   }
 

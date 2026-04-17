@@ -100,6 +100,52 @@
   }
 }
 
+.dark {
+  --primary: #bac7ff;
+  --on-primary: #002971;
+  --primary-container: #003d9d;
+  --secondary: #d1e3ee;
+  --on-secondary: #00344b;
+  --secondary-container: #004c6a;
+  --tertiary: #b4ebff;
+  --error: #ffb4ab;
+  --background: #111318;
+  --on-surface: #e2e2e9;
+  --surface-container-low: #1a1c22;
+  --surface-container-lowest: #0c0e13;
+  
+  --color-primary: #bac7ff;
+  --color-background: #111318;
+  --color-on-surface: #e2e2e9;
+  --color-surface-container-low: #1a1c22;
+  --color-surface-container-lowest: #0c0e13;
+}
+
+.dark body {
+  background-color: var(--background);
+  color: var(--on-surface);
+}
+
+.dark .bg-white {
+  background-color: var(--surface-container-low) !important;
+}
+
+.dark .text-primary {
+  color: var(--primary) !important;
+}
+
+.dark .border-slate-100 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .bg-slate-50 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .glass-panel {
+  background: rgba(16, 18, 24, 0.7);
+}
+
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;

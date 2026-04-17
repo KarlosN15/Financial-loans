@@ -19,7 +19,7 @@ const MobileNav = () => {
   );
 
   return (
-    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[400px] bg-white/70 backdrop-blur-2xl border border-white/40 rounded-[2.5rem] px-2 py-3.5 flex justify-around items-center z-50 lg:hidden shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)] ring-1 ring-slate-900/5 transition-all duration-500">
+    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[400px] bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border border-white/40 dark:border-slate-800/40 rounded-[2.5rem] px-2 py-3.5 flex justify-around items-center z-50 lg:hidden shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)] ring-1 ring-slate-900/5 transition-all duration-500">
       {navItems.map((item) => {
         const isActive = item.path === '/' 
           ? location.pathname === '/' 

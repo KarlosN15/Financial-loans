@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -6,6 +6,22 @@ const Topbar = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem('theme') === 'dark' || 
+           (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: 'dashboard', roles: ['ADMIN'] },
@@ -16,7 +32,7 @@ const Topbar = () => {
   ].filter(item => item.roles.includes(user?.role || ''));
 
   return (
-    <header className="sticky top-0 z-[50] bg-white/80 backdrop-blur-xl border-b border-slate-100 no-print">
+    <header className="sticky top-0 z-[50] bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 no-print">
       <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 md:h-24 flex items-center justify-between">
         
         {/* Logo Section */}
@@ -49,7 +65,17 @@ const Topbar = () => {
         </nav>
 
         {/* User Actions */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
+          <button
+            onClick={toggleDarkMode}
+            className="w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700 hover:bg-primary hover:text-white dark:hover:bg-primary transition-all shadow-sm active:scale-90"
+            title={isDarkMode ? 'Activar Modo Claro' : 'Activar Modo Oscuro'}
+          >
+            <span className="material-symbols-outlined">
+              {isDarkMode ? 'light_mode' : 'dark_mode'}
+            </span>
+          </button>
+
           <div className="hidden md:flex flex-col text-right mr-2">
             <span className="text-[10px] font-black text-primary uppercase tracking-tighter">{user?.name || 'Usuario'}</span>
             <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{user?.role === 'ADMIN' ? 'Administrador' : 'Agente Pro'}</span>
@@ -67,11 +93,11 @@ const Topbar = () => {
             <div className={`absolute right-0 top-full pt-2 transition-all duration-300 z-[100] ${
                 isProfileOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 pointer-events-none'
             }`}>
-                <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 min-w-[200px]">
-                    <div className="pb-4 mb-4 border-b border-slate-50">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Conectado como</p>
-                        <p className="text-sm font-black text-primary tracking-tight">{user?.email}</p>
-                    </div>
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 p-4 min-w-[200px]">
+                        <div className="pb-4 mb-4 border-b border-slate-50 dark:border-slate-800">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Conectado como</p>
+                            <p className="text-sm font-black text-primary dark:text-white tracking-tight">{user?.email}</p>
+                        </div>
                     <button 
                         onClick={logout}
                         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white transition-all text-xs font-black uppercase tracking-widest"

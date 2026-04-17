@@ -3,6 +3,7 @@ import api, { getPayments } from '../api/api';
 import { Link } from 'react-router-dom';
 import { formatDOP } from '../utils/format';
 import { useAuth } from '../context/AuthContext';
+import { DashboardSkeleton } from '../components/Skeleton';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -21,7 +22,7 @@ const Dashboard = () => {
     queryFn: getPayments,
   });
 
-  if (isLoading) return <div className="p-8 text-center text-slate-500">Analizando cartera...</div>;
+  if (isLoading) return <DashboardSkeleton />;
 
   return (
     <div className="space-y-10">

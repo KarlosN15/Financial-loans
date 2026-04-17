@@ -4,6 +4,8 @@ import { getLoans, deleteLoan } from '../api/api';
 import { Link } from 'react-router-dom';
 import { formatDOP } from '../utils/format';
 
+import { LoansSkeleton } from '../components/Skeleton';
+
 const Loans = () => {
   const queryClient = useQueryClient();
   const [selectedLoan, setSelectedLoan] = useState<any>(null);
@@ -31,12 +33,7 @@ const Loans = () => {
     },
   });
 
-  if (isLoading) return (
-     <div className="flex flex-col items-center justify-center py-24 gap-3 text-primary animate-pulse">
-        <span className="material-symbols-outlined text-4xl animate-spin">progress_activity</span>
-        <p className="text-xs font-black uppercase tracking-[0.3em]">Sincronizando préstamos...</p>
-     </div>
-  );
+  if (isLoading) return <LoansSkeleton />;
 
   const handleDelete = (id: number) => {
     if (window.confirm('¿Está seguro de que desea eliminar este préstamo? Esta acción también eliminará todas las cuotas y pagos asociados.')) {

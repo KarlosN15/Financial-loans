@@ -37,11 +37,13 @@ model Client {
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name           String
   email          String?  @unique
-  identification String   @unique // Cédula
+  identification String   // Cédula (Quitamos @unique de aquí)
   phone          String?
   loans          Loan[]
   createdAt      DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, identification]) // Único por administrador
 }
 
 enum LoanStatus {
@@ -61,8 +63,8 @@ model Loan {
   user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   clientId      Int
   client        Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  amount        Float
-  interestRate  Float
+  amount        Decimal          @db.Decimal(15, 2)
+  interestRate  Decimal          @db.Decimal(5, 2)
   term          Int              // Número de cuotas
   frequency     PaymentFrequency @default(MONTHLY)
   status        LoanStatus       @default(ACTIVE)
@@ -83,11 +85,11 @@ model Installment {
   loan          Loan              @relation(fields: [loanId], references: [id], onDelete: Cascade)
   number        Int               // No. de cuota
   dueDate       DateTime
-  amount        Float             // Cuota total
-  capital       Float
-  interest      Float
-  balance       Float
-  paidAmount    Float             @default(0)
+  amount        Decimal           @db.Decimal(15, 2)
+  capital       Decimal           @db.Decimal(15, 2)
+  interest      Decimal           @db.Decimal(15, 2)
+  balance       Decimal           @db.Decimal(15, 2)
+  paidAmount    Decimal           @default(0) @db.Decimal(15, 2)
   status        InstallmentStatus @default(PENDING)
   createdAt     DateTime          @default(now())
 }
@@ -102,9 +104,8 @@ model Payment {
   loanId        Int
   loan          Loan          @relation(fields: [loanId], references: [id], onDelete: Cascade)
   clientName    String?       
-  amount        Float
+  amount        Decimal       @db.Decimal(15, 2)
   method        PaymentMethod @default(CASH)
   date          DateTime      @default(now())
   createdAt     DateTime      @default(now())
 }
-
