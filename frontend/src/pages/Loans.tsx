@@ -214,7 +214,7 @@ const Loans = () => {
                  </div>
               </div>
               <div className="p-8 bg-slate-50 text-center">
-                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Saldo Restante: RD$ {formatDOP(selectedLoan.installments?.filter((i:any) => i.status === 'PENDING').reduce((acc:number, i:any) => acc + i.amount, 0) || 0)}</p>
+                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Saldo Restante: RD$ {formatDOP(selectedLoan.installments?.filter((i:any) => i.status === 'PENDING').reduce((acc:number, i:any) => acc + Number(i.amount), 0) || 0)}</p>
               </div>
            </div>
         </div>
@@ -276,21 +276,21 @@ const Loans = () => {
                  <div className="space-y-3 py-4 border-y border-slate-100">
                     <div className="flex justify-between text-xs font-black">
                        <span className="text-slate-400 uppercase">Capital Recuperado</span>
-                       <span className="text-primary">RD$ {formatDOP(selectedLoan.installments?.filter((i:any) => i.status === 'PAID').reduce((acc:number, i:any) => acc + i.capital, 0) || 0)}</span>
+                       <span className="text-primary">RD$ {formatDOP(selectedLoan.installments?.filter((i:any) => i.status === 'PAID').reduce((acc:number, i:any) => acc + Number(i.capital), 0) || 0)}</span>
                     </div>
                     <div className="flex justify-between text-xs font-black">
                        <span className="text-slate-400 uppercase">Interés Devengado</span>
-                       <span className="text-primary">RD$ {formatDOP(selectedLoan.installments?.filter((i:any) => i.status === 'PAID').reduce((acc:number, i:any) => acc + i.interest, 0) || 0)}</span>
+                       <span className="text-primary">RD$ {formatDOP(selectedLoan.installments?.filter((i:any) => i.status === 'PAID').reduce((acc:number, i:any) => acc + Number(i.interest), 0) || 0)}</span>
                     </div>
                     <div className="flex justify-between text-sm font-black pt-3 border-t-2 border-emerald-500/20 text-emerald-600">
                        <span className="uppercase tracking-tight">Total Retornado</span>
-                       <span className="underline decoration-2">RD$ {formatDOP(selectedLoan.installments?.filter((i:any) => i.status === 'PAID').reduce((acc:number, i:any) => acc + i.amount, 0) || 0)}</span>
+                       <span className="underline decoration-2">RD$ {formatDOP(selectedLoan.installments?.filter((i:any) => i.status === 'PAID').reduce((acc:number, i:any) => acc + Number(i.amount), 0) || 0)}</span>
                     </div>
                  </div>
 
                  <div className="pt-2 text-right">
                     <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Saldo Exigible</p>
-                    <p className="text-3xl font-black text-primary font-headline italic">RD$ {formatDOP(selectedLoan.installments?.filter((i:any) => i.status === 'PENDING').reduce((acc:number, i:any) => acc + i.amount, 0) || 0)}</p>
+                    <p className="text-3xl font-black text-primary font-headline italic">RD$ {formatDOP(selectedLoan.installments?.filter((i:any) => i.status === 'PENDING').reduce((acc:number, i:any) => acc + Number(i.amount), 0) || 0)}</p>
                  </div>
               </div>
 
