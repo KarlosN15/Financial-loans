@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 
 const Layout = () => {
   return (
-    <div className="min-h-screen bg-background flex flex-col relative overflow-x-hidden">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Refined Topbar with integrated navigation */}
       <Topbar />
       
