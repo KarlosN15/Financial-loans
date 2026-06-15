@@ -28,6 +28,9 @@ const Clients = () => {
       setIsModalOpen(false);
       setNewClient({ name: '', email: '', identification: '', phone: '' });
     },
+    onError: (error: any) => {
+       alert(error.response?.data?.message || 'Error al crear el cliente. Verifique que la cédula o correo no estén duplicados.');
+    }
   });
 
   const deleteMutation = useMutation({
@@ -59,7 +62,11 @@ const Clients = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate(newClient);
+    const payload: any = { ...newClient };
+    if (!payload.email || payload.email.trim() === '') {
+       delete payload.email;
+    }
+    mutation.mutate(payload);
   };
 
   const getInitials = (name: string) => {
