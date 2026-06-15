@@ -180,7 +180,12 @@ const Clients = () => {
                         </div>
                         <div>
                           <p className="font-black text-primary text-sm tracking-tight">{client.name}</p>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{client.email || '— Sin Correo —'}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[8px] font-black tracking-widest uppercase">
+                              CLI-{String(client.id).padStart(4, '0')}
+                            </span>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{client.email || '— Sin Correo —'}</p>
+                          </div>
                         </div>
                       </div>
                     </td>

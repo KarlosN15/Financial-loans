@@ -437,7 +437,7 @@ const Billing = () => {
 
                            <div className="border-t border-black pt-4 text-[10px] space-y-1">
                                <p className="font-black uppercase">FECHA COBRO: {new Date(recentPayment.date).toLocaleDateString('es-DO')} {new Date(recentPayment.date).toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}</p>
-                               <p className="font-black uppercase">ATENDIDO POR: {user?.name || 'Admin System'}</p>
+                               <p className="font-black uppercase">ATENDIDO POR: Admin System</p>
                            </div>
 
                            <div className="text-center pt-6 border-t border-dashed border-black">
