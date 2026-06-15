@@ -6,6 +6,7 @@ import NewLoan from './pages/NewLoan';
 import Loans from './pages/Loans';
 import Reports from './pages/Reports';
 import Billing from './pages/Billing';
+import Agents from './pages/Agents';
 import Login from './pages/Login';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -54,6 +55,9 @@ function App() {
             <Route path="billing" element={<Billing />} />
             <Route path="reports" element={
               <AdminRoute><Reports /></AdminRoute>
+            } />
+            <Route path="agents" element={
+              <AdminRoute><Agents /></AdminRoute>
             } />
           </Route>
 

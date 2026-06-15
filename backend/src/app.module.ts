@@ -7,6 +7,7 @@ import { ClientsModule } from './clients/clients.module';
 import { LoansModule } from './loans/loans.module';
 import { PaymentsModule } from './payments/payments.module';
 import { AuthModule } from './auth/auth.module';
+import { AgentsModule } from './agents/agents.module';
 
 
 @Module({
@@ -17,6 +18,7 @@ import { AuthModule } from './auth/auth.module';
     LoansModule,
     PaymentsModule,
     AuthModule,
+    AgentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

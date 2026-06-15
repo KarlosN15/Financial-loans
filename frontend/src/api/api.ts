@@ -80,4 +80,19 @@ export const getLoansSummary = async () => {
   return response.data;
 };
 
+export const getAgents = async () => {
+  const response = await api.get('/agents');
+  return response.data;
+};
+
+export const createAgent = async (data: any) => {
+  const response = await api.post('/agents', data);
+  return response.data;
+};
+
+export const deleteAgent = async (id: number) => {
+  const response = await api.delete(`/agents/${id}`);
+  return response.data;
+};
+
 export default api;

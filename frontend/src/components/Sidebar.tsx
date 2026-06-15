@@ -17,6 +17,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
     { name: 'Clientes', icon: 'group', path: '/clients', roles: ['ADMIN'] },
     { name: 'Facturación', icon: 'receipt_long', path: '/billing', roles: ['ADMIN', 'AGENT'] },
     { name: 'Reportes', icon: 'analytics', path: '/reports', roles: ['ADMIN'] },
+    { name: 'Equipo', icon: 'badge', path: '/agents', roles: ['ADMIN'] },
   ];
 
   const menuItems = allMenuItems.filter(item => 
