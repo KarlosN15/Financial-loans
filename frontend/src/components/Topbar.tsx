@@ -114,21 +114,24 @@ const Topbar = () => {
       </div>
 
       {/* Mobile Navigation Bar */}
-      <nav className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-xl border border-slate-200/50 rounded-[2rem] px-4 py-3 flex items-center gap-2 shadow-2xl z-[100] w-[90%] max-w-sm border-t border-white">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 transition-all ${
-                location.pathname === item.path 
-                ? 'text-primary scale-110' 
-                : 'text-slate-400'
-              }`}
-            >
-              <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: location.pathname === item.path ? "'FILL' 1" : "'FILL' 0" }}>{item.icon}</span>
-              <span className="text-[7px] font-black uppercase tracking-[0.2em]">{item.label}</span>
-            </Link>
-          ))}
+      <nav className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-xl border border-slate-200/50 rounded-full p-2 flex items-center justify-between gap-1 shadow-2xl z-[100] w-[95%] max-w-md">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center justify-center gap-1.5 transition-all duration-300 rounded-full py-2.5 ${
+                  isActive 
+                  ? 'flex-[1.5] bg-primary text-white shadow-lg shadow-primary/20' 
+                  : 'flex-1 text-slate-400 hover:bg-slate-50'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}>{item.icon}</span>
+                {isActive && <span className="text-[8px] font-black uppercase tracking-widest truncate">{item.label}</span>}
+              </Link>
+            );
+          })}
       </nav>
     </header>
   );
