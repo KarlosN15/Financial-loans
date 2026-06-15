@@ -71,8 +71,8 @@ const Billing = () => {
 
     const pending = loan.installments.filter((i: any) => i.status === 'PENDING').sort((a: any, b: any) => a.number - b.number);
     const nextInst = pending[0];
-    const perInst = nextInst?.amount || 0;
-    const totalRemaining = pending.reduce((acc: number, i: any) => acc + i.amount, 0);
+    const perInst = Number(nextInst?.amount) || 0;
+    const totalRemaining = pending.reduce((acc: number, i: any) => acc + Number(i.amount), 0);
 
     return {
       loan,
@@ -431,7 +431,7 @@ const Billing = () => {
                                
                                <div className="flex justify-between items-center text-[11px] font-bold">
                                    <span className="uppercase font-black">SALDO RESTANTE:</span>
-                                   <span className="font-black">RD$ {formatDOP(recentPayment.loan?.installments?.filter((i:any) => i.status === 'PENDING').reduce((acc:number, i:any) => acc + i.amount, 0) || 0)}</span>
+                                   <span className="font-black">RD$ {formatDOP(recentPayment.loan?.installments?.filter((i:any) => i.status === 'PENDING').reduce((acc:number, i:any) => acc + Number(i.amount), 0) || 0)}</span>
                                </div>
                            </div>
 
