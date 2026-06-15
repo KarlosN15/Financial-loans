@@ -33,17 +33,17 @@ const Topbar = () => {
   ].filter(item => item.roles.includes(user?.role || ''));
 
   return (
-    <header className="sticky top-0 z-[50] bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 no-print">
+    <header className="sticky top-0 z-[50] bg-primary text-white shadow-xl shadow-primary/10 border-b border-white/10 no-print">
       <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 md:h-24 flex items-center justify-between">
         
         {/* Logo Section */}
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 md:w-12 md:h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 rotate-3 group-hover:rotate-0 transition-all duration-300">
-            <span className="material-symbols-outlined text-white text-xl md:text-2xl">account_balance</span>
+          <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-black/10 rotate-3 group-hover:rotate-0 transition-all duration-300">
+            <span className="material-symbols-outlined text-primary text-xl md:text-2xl">account_balance</span>
           </div>
           <div className="hidden sm:block">
-            <h1 className="text-lg md:text-xl font-black text-primary font-headline tracking-tighter uppercase leading-none">Préstamo Pro</h1>
-            <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Management SaaS</p>
+            <h1 className="text-lg md:text-xl font-black text-white font-headline tracking-tighter uppercase leading-none">Préstamo Pro</h1>
+            <p className="text-[8px] font-black text-white/50 uppercase tracking-[0.2em] mt-1">Management SaaS</p>
           </div>
         </Link>
 
@@ -55,8 +55,8 @@ const Topbar = () => {
               to={item.path}
               className={`px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${
                 location.pathname === item.path 
-                ? 'bg-slate-900 text-white shadow-lg shadow-slate-200' 
-                : 'text-slate-400 hover:text-primary hover:bg-slate-50'
+                ? 'bg-white/20 text-white shadow-lg shadow-black/5' 
+                : 'text-white/60 hover:text-white hover:bg-white/10'
               }`}
             >
               <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
@@ -69,7 +69,7 @@ const Topbar = () => {
         <div className="flex items-center gap-2 md:gap-4">
           <button
             onClick={toggleDarkMode}
-            className="w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700 hover:bg-primary hover:text-white dark:hover:bg-primary transition-all shadow-sm active:scale-90"
+            className="w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center bg-white/10 text-white border border-white/20 hover:bg-white hover:text-primary transition-all shadow-sm active:scale-90"
             title={isDarkMode ? 'Activar Modo Claro' : 'Activar Modo Oscuro'}
           >
             <span className="material-symbols-outlined">
@@ -78,15 +78,15 @@ const Topbar = () => {
           </button>
 
           <div className="hidden md:flex flex-col text-right mr-2">
-            <span className="text-[10px] font-black text-primary uppercase tracking-tighter">{user?.name || 'Usuario'}</span>
-            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{user?.role === 'ADMIN' ? 'Administrador' : 'Agente Pro'}</span>
+            <span className="text-[10px] font-black text-white uppercase tracking-tighter">{user?.name || 'Usuario'}</span>
+            <span className="text-[8px] font-bold text-white/50 uppercase tracking-widest">{user?.role === 'ADMIN' ? 'Administrador' : 'Agente Pro'}</span>
           </div>
           
           <div className="relative">
             <button 
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center transition-all overflow-hidden shadow-sm border ${
-                    isProfileOpen ? 'bg-primary text-white border-primary' : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-primary hover:text-white'
+                    isProfileOpen ? 'bg-white text-primary border-white' : 'bg-white/10 text-white border-white/20 hover:bg-white hover:text-primary'
                 }`}
             >
                 <span className="material-symbols-outlined">person</span>
