@@ -97,7 +97,7 @@ const Billing = () => {
     },
   });
 
-  const totalPaidGlobal = filteredPayments.reduce((sum: number, p: any) => sum + p.amount, 0);
+  const totalPaidGlobal = filteredPayments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
 
   const handleRegisterPayment = (e: React.FormEvent) => {
     e.preventDefault();
