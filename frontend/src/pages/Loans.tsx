@@ -406,7 +406,7 @@ const Loans = () => {
           )}
 
           <div className="mt-10 border-t border-dashed border-black pt-4 text-center text-black">
-             <p className="text-[9px] font-black uppercase">SANTIAGO, REP. DOM.</p>
+             <p className="text-[9px] font-black uppercase">LA ROMANA, REP. DOM.</p>
              <p className="text-[9px] font-medium italic mt-2">Este documento representa la entrega formal de valores. Validado por SistemaFac Pro.</p>
           </div>
       </div>
