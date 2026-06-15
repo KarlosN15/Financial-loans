@@ -29,6 +29,7 @@ const Topbar = () => {
     { path: '/loans', label: 'Préstamos', icon: 'payments', roles: ['ADMIN'] },
     { path: '/billing', label: 'Pagos', icon: 'receipt_long', roles: ['ADMIN', 'AGENT'] },
     { path: '/reports', label: 'Reportes', icon: 'bar_chart', roles: ['ADMIN'] },
+    { path: '/agents', label: 'Equipo', icon: 'badge', roles: ['ADMIN'] },
   ].filter(item => item.roles.includes(user?.role || ''));
 
   return (

@@ -50,7 +50,7 @@ const Clients = () => {
   const calculateDebt = (loans: any[]) => {
     return loans.reduce((total, loan) => {
        const pending = loan.installments?.filter((i: any) => i.status === 'PENDING')
-                                        .reduce((acc: number, i: any) => acc + i.amount, 0) || 0;
+                                        .reduce((acc: number, i: any) => acc + Number(i.amount), 0) || 0;
        return total + pending;
     }, 0);
   };
