@@ -225,6 +225,7 @@ const Billing = () => {
                         <td className="py-6 text-right text-sm font-black text-emerald-600">RD$ {formatDOP(p.amount)}</td>
                         <td className="py-6 text-right">
                            <p className="text-[10px] font-bold text-slate-500 uppercase">{new Date(p.date).toLocaleDateString()}</p>
+                           <p className="text-[8px] font-bold text-primary mt-1 uppercase truncate max-w-[100px] inline-block">{p.user?.name || 'Administrador'}</p>
                         </td>
                         <td className="py-6 text-center">
                            <button onClick={() => { setRecentPayment(p); setShowReceipt(true); }} className="p-2 text-slate-400 hover:text-primary transition-colors">
@@ -437,7 +438,7 @@ const Billing = () => {
 
                            <div className="border-t border-black pt-4 text-[10px] space-y-1">
                                <p className="font-black uppercase">FECHA COBRO: {new Date(recentPayment.date).toLocaleDateString('es-DO')} {new Date(recentPayment.date).toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}</p>
-                               <p className="font-black uppercase">ATENDIDO POR: Admin System</p>
+                               <p className="font-black uppercase">ATENDIDO POR: {recentPayment.user?.name || 'Administrador'}</p>
                            </div>
 
                            <div className="text-center pt-6 border-t border-dashed border-black">

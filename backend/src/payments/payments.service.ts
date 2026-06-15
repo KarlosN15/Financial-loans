@@ -21,7 +21,8 @@ export class PaymentsService {
           loanId: data.loanId,
           amount: data.amount,
           method: data.method,
-          clientName: loan.client.name
+          clientName: loan.client.name,
+          userId: user.userId
         }
       });
       // ... logic for installments remains same since it's inside tx and loan is checked
@@ -73,6 +74,7 @@ export class PaymentsService {
       return tx.payment.findUnique({
         where: { id: payment.id },
         include: {
+          user: true,
           loan: {
             include: {
               client: true,
@@ -92,6 +94,7 @@ export class PaymentsService {
         loan: { userId: adminId }
       },
       include: {
+        user: true,
         loan: {
           include: { client: true }
         }

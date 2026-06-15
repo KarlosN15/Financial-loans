@@ -27,6 +27,7 @@ model User {
   agents    User[]   @relation("AdminAgents")
   clients   Client[]
   loans     Loan[]
+  payments  Payment[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -103,6 +104,8 @@ model Payment {
   id            Int           @id @default(autoincrement())
   loanId        Int
   loan          Loan          @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  userId        Int?          
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   clientName    String?       
   amount        Decimal       @db.Decimal(15, 2)
   method        PaymentMethod @default(CASH)

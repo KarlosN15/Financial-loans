@@ -1,12 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAgents, createAgent, deleteAgent } from '../api/api';
+import { getAgents, createAgent, deleteAgent, getPayments } from '../api/api';
 import { useState } from 'react';
+import { formatDOP } from '../utils/format';
 
 const Agents = () => {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [newAgent, setNewAgent] = useState({ name: '', email: '', password: '' });
+  const [selectedAgent, setSelectedAgent] = useState<any>(null);
+
+  const { data: allPayments = [] } = useQuery({
+    queryKey: ['payments'],
+    queryFn: getPayments
+  });
 
   const { data: agents = [], isLoading } = useQuery({
     queryKey: ['agents'],
@@ -146,17 +153,27 @@ const Agents = () => {
                     </td>
                     <td className="px-8 py-6">
                        <div className="flex justify-center gap-2">
-                          <button 
-                            onClick={(e) => {
-                               e.stopPropagation();
-                               handleDelete(agent.id);
-                            }}
-                            disabled={deleteMutation.isPending}
-                            className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-100 text-rose-400 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center active:scale-90 shadow-sm disabled:opacity-50"
-                            title="Revocar Acceso"
-                          >
-                             <span className="material-symbols-outlined text-xl">person_remove</span>
-                          </button>
+                           <button 
+                             onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedAgent(agent);
+                             }}
+                             className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 hover:bg-slate-900 hover:text-white transition-all flex items-center justify-center active:scale-90 shadow-sm"
+                             title="Ver Cobros"
+                           >
+                              <span className="material-symbols-outlined text-xl">receipt_long</span>
+                           </button>
+                           <button 
+                             onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(agent.id);
+                             }}
+                             disabled={deleteMutation.isPending}
+                             className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-100 text-rose-400 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center active:scale-90 shadow-sm disabled:opacity-50"
+                             title="Revocar Acceso"
+                           >
+                              <span className="material-symbols-outlined text-xl">person_remove</span>
+                           </button>
                        </div>
                     </td>
                   </tr>
@@ -279,6 +296,82 @@ const Agents = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Modal de Cobros del Agente */}
+      {selectedAgent && (
+         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-md" onClick={() => setSelectedAgent(null)}></div>
+            <div className="bg-white rounded-[2rem] w-full max-w-2xl relative z-10 shadow-2xl overflow-hidden animate-in zoom-in-95 fade-in duration-300 flex flex-col max-h-[90vh]">
+               <div className="relative bg-slate-900 px-8 pt-8 pb-10 overflow-hidden flex-shrink-0">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full blur-3xl -translate-y-1/4 translate-x-1/4 pointer-events-none"></div>
+                  <div className="relative flex items-center justify-between gap-4">
+                     <div className="flex items-center gap-4">
+                       <div className="w-14 h-14 rounded-2xl bg-white/10 text-white flex items-center justify-center shadow-lg shadow-black/30 flex-shrink-0">
+                         <span className="material-symbols-outlined text-white text-2xl">receipt_long</span>
+                       </div>
+                       <div>
+                         <h3 className="text-xl md:text-2xl font-black text-white font-headline tracking-tighter">Cobros de {selectedAgent.name}</h3>
+                         <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em] mt-0.5">Historial de Recaudación</p>
+                       </div>
+                     </div>
+                     <button onClick={() => setSelectedAgent(null)} className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all flex items-center justify-center">
+                        <span className="material-symbols-outlined text-lg">close</span>
+                     </button>
+                  </div>
+               </div>
+
+               <div className="p-8 overflow-y-auto custom-scrollbar flex-1 bg-slate-50">
+                  {(() => {
+                     const agentPayments = allPayments.filter((p: any) => p.userId === selectedAgent.id);
+                     const totalAgent = agentPayments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+
+                     if (agentPayments.length === 0) {
+                        return (
+                           <div className="text-center py-20 opacity-40">
+                              <span className="material-symbols-outlined text-5xl mb-3 block">receipt_long</span>
+                              <p className="text-xs font-black uppercase tracking-widest">Aún no ha registrado cobros</p>
+                           </div>
+                        );
+                     }
+
+                     return (
+                        <div className="space-y-6">
+                           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 text-center">
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Recaudado</p>
+                              <p className="text-3xl font-black text-emerald-600">RD$ {formatDOP(totalAgent)}</p>
+                           </div>
+                           
+                           <div className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+                              <table className="w-full text-left">
+                                 <thead className="bg-slate-50/50">
+                                    <tr className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
+                                       <th className="px-6 py-4">Recibo</th>
+                                       <th className="px-6 py-4">Cliente</th>
+                                       <th className="px-6 py-4">Fecha</th>
+                                       <th className="px-6 py-4 text-right">Monto</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody className="divide-y divide-slate-50">
+                                    {agentPayments.map((p: any) => (
+                                       <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
+                                          <td className="px-6 py-4">
+                                             <span className="text-[9px] font-black text-slate-400 bg-slate-100 px-2 py-1 rounded">#{p.id.toString().padStart(4, '0')}</span>
+                                          </td>
+                                          <td className="px-6 py-4 text-xs font-bold">{p.clientName || p.loan?.client?.name}</td>
+                                          <td className="px-6 py-4 text-[10px] font-black text-slate-400">{new Date(p.date).toLocaleDateString()}</td>
+                                          <td className="px-6 py-4 text-right text-xs font-black text-emerald-600">RD$ {formatDOP(p.amount)}</td>
+                                       </tr>
+                                    ))}
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                     );
+                  })()}
+               </div>
+            </div>
+         </div>
       )}
 
     </div>
