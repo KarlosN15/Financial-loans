@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getLoans, deleteLoan } from '../api/api';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { formatDOP } from '../utils/format';
 
 import { LoansSkeleton } from '../components/Skeleton';
 
 const Loans = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [selectedLoan, setSelectedLoan] = useState<any>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
@@ -100,7 +101,18 @@ const Loans = () => {
             <tbody className="divide-y divide-slate-50">
               {filteredLoans.length === 0 ? (
                 <tr>
-                   <td colSpan={7} className="py-24 text-center opacity-30 italic font-medium">Buscando expedientes...</td>
+                   <td colSpan={7} className="py-24 text-center">
+                     <p className="opacity-30 italic font-medium mb-6">Buscando expedientes...</p>
+                     {searchTerm && (
+                       <button
+                         onClick={() => navigate('/clients/new', { state: { initialName: searchTerm } })}
+                         className="mx-auto px-6 py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all flex items-center gap-2"
+                       >
+                         <span className="material-symbols-outlined text-sm">person_add</span>
+                         Registrar Cliente "{searchTerm}"
+                       </button>
+                     )}
+                   </td>
                 </tr>
               ) : filteredLoans.map((loan: any) => (
                 <tr key={loan.id} className="hover:bg-slate-50/50 transition-all group">
