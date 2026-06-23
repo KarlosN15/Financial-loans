@@ -29,10 +29,6 @@ const Layout = () => {
           <div className="max-w-7xl mx-auto">
             <Outlet />
           </div>
-          
-          <footer className="mt-12 py-8 text-center border-t border-slate-200 bg-white/50 backdrop-blur-sm no-print rounded-t-3xl">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Préstamo Pro System v2.0 • 2026</p>
-          </footer>
         </main>
       </div>
     </div>
