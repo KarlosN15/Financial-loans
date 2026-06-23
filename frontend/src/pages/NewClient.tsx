@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createClient } from '../api/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { createClient, getRoutes } from '../api/api';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Swal from 'sweetalert2';
@@ -17,7 +17,10 @@ const NewClient = () => {
     phone: '',
     email: '',
     address: '',
+    routeId: '' as string | number,
   });
+
+  const { data: routes = [] } = useQuery({ queryKey: ['routes'], queryFn: getRoutes });
 
   const mutation = useMutation({
     mutationFn: createClient,
@@ -40,6 +43,8 @@ const NewClient = () => {
     const payload: any = { ...formData };
     if (!payload.email?.trim()) delete payload.email;
     if (!payload.address?.trim()) delete payload.address;
+    if (!payload.routeId) delete payload.routeId;
+    else payload.routeId = Number(payload.routeId);
     
     mutation.mutate(payload);
   };
@@ -178,6 +183,20 @@ const NewClient = () => {
                         value={formData.address}
                         onChange={e => setFormData({ ...formData, address: e.target.value })}
                       />
+                    </div>
+
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ruta (Opcional)</label>
+                      <select
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
+                        value={formData.routeId}
+                        onChange={e => setFormData({ ...formData, routeId: e.target.value })}
+                      >
+                        <option value="">Ninguna</option>
+                        {routes.map((r: any) => (
+                          <option key={r.id} value={r.id}>{r.name}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </motion.div>

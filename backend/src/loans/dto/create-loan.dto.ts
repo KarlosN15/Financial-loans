@@ -1,4 +1,4 @@
-import { IsNumber, IsPositive, IsEnum, IsNotEmpty } from 'class-validator';
+import { IsNumber, IsPositive, IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 import { PaymentFrequency } from '@prisma/client';
 
 export class CreateLoanDto {
@@ -20,4 +20,8 @@ export class CreateLoanDto {
 
   @IsEnum(PaymentFrequency)
   frequency: PaymentFrequency;
+
+  @IsNumber()
+  @IsOptional()
+  portfolioId?: number;
 }

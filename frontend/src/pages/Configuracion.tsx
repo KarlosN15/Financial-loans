@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
 import { 
-  getBranches, createBranch, 
-  getRoutes, createRoute, 
-  getPortfolios, createPortfolio 
+  getBranches, createBranch, updateBranch, deleteBranch,
+  getRoutes, createRoute, updateRoute, deleteRoute,
+  getPortfolios, createPortfolio, updatePortfolio, deletePortfolio
 } from '../api/api';
 
 const Configuracion = () => {
@@ -17,14 +17,38 @@ const Configuracion = () => {
     mutationFn: createBranch,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['branches'] })
   });
+  const updateBranchMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number, data: any }) => updateBranch(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['branches'] })
+  });
+  const deleteBranchMutation = useMutation({
+    mutationFn: deleteBranch,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['branches'] })
+  });
 
   const routeMutation = useMutation({
     mutationFn: createRoute,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['routes'] })
   });
+  const updateRouteMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number, data: any }) => updateRoute(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['routes'] })
+  });
+  const deleteRouteMutation = useMutation({
+    mutationFn: deleteRoute,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['routes'] })
+  });
 
   const portfolioMutation = useMutation({
     mutationFn: createPortfolio,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['portfolios'] })
+  });
+  const updatePortfolioMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number, data: any }) => updatePortfolio(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['portfolios'] })
+  });
+  const deletePortfolioMutation = useMutation({
+    mutationFn: deletePortfolio,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['portfolios'] })
   });
 
@@ -90,8 +114,22 @@ const Configuracion = () => {
           </button>
           <div className="space-y-2">
              {branches.map((b: any) => (
-                <div key={b.id} className="p-3 bg-slate-50 rounded-xl flex items-center justify-between">
+                <div key={b.id} className="p-3 bg-slate-50 rounded-xl flex items-center justify-between group">
                    <span className="text-xs font-bold text-slate-700">{b.name}</span>
+                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                     <button onClick={async () => {
+                        const { value: name } = await Swal.fire({ title: 'Editar', input: 'text', inputValue: b.name, showCancelButton: true });
+                        if (name) updateBranchMutation.mutate({ id: b.id, data: { name } });
+                     }} className="text-slate-400 hover:text-blue-500">
+                        <span className="material-symbols-outlined text-[16px]">edit</span>
+                     </button>
+                     <button onClick={async () => {
+                        const res = await Swal.fire({ title: '¿Eliminar?', icon: 'warning', showCancelButton: true });
+                        if (res.isConfirmed) deleteBranchMutation.mutate(b.id);
+                     }} className="text-slate-400 hover:text-red-500">
+                        <span className="material-symbols-outlined text-[16px]">delete</span>
+                     </button>
+                   </div>
                 </div>
              ))}
           </div>
@@ -116,8 +154,22 @@ const Configuracion = () => {
           </button>
           <div className="space-y-2">
              {routes.map((r: any) => (
-                <div key={r.id} className="p-3 bg-slate-50 rounded-xl flex items-center justify-between">
+                <div key={r.id} className="p-3 bg-slate-50 rounded-xl flex items-center justify-between group">
                    <span className="text-xs font-bold text-slate-700">{r.name}</span>
+                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                     <button onClick={async () => {
+                        const { value: name } = await Swal.fire({ title: 'Editar', input: 'text', inputValue: r.name, showCancelButton: true });
+                        if (name) updateRouteMutation.mutate({ id: r.id, data: { name } });
+                     }} className="text-slate-400 hover:text-blue-500">
+                        <span className="material-symbols-outlined text-[16px]">edit</span>
+                     </button>
+                     <button onClick={async () => {
+                        const res = await Swal.fire({ title: '¿Eliminar?', icon: 'warning', showCancelButton: true });
+                        if (res.isConfirmed) deleteRouteMutation.mutate(r.id);
+                     }} className="text-slate-400 hover:text-red-500">
+                        <span className="material-symbols-outlined text-[16px]">delete</span>
+                     </button>
+                   </div>
                 </div>
              ))}
           </div>
@@ -142,8 +194,22 @@ const Configuracion = () => {
           </button>
           <div className="space-y-2">
              {portfolios.map((p: any) => (
-                <div key={p.id} className="p-3 bg-slate-50 rounded-xl flex items-center justify-between">
+                <div key={p.id} className="p-3 bg-slate-50 rounded-xl flex items-center justify-between group">
                    <span className="text-xs font-bold text-slate-700">{p.name}</span>
+                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                     <button onClick={async () => {
+                        const { value: name } = await Swal.fire({ title: 'Editar', input: 'text', inputValue: p.name, showCancelButton: true });
+                        if (name) updatePortfolioMutation.mutate({ id: p.id, data: { name } });
+                     }} className="text-slate-400 hover:text-blue-500">
+                        <span className="material-symbols-outlined text-[16px]">edit</span>
+                     </button>
+                     <button onClick={async () => {
+                        const res = await Swal.fire({ title: '¿Eliminar?', icon: 'warning', showCancelButton: true });
+                        if (res.isConfirmed) deletePortfolioMutation.mutate(p.id);
+                     }} className="text-slate-400 hover:text-red-500">
+                        <span className="material-symbols-outlined text-[16px]">delete</span>
+                     </button>
+                   </div>
                 </div>
              ))}
           </div>

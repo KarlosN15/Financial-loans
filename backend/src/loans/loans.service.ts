@@ -9,7 +9,7 @@ export class LoansService {
   constructor(private prisma: PrismaService) {}
 
   async createLoan(user: any, data: CreateLoanDto) {
-    const { clientId, amount, interestRate, term, frequency } = data;
+    const { clientId, amount, interestRate, term, frequency, portfolioId } = data;
     const adminId = user.role === 'AGENT' ? user.adminId : user.userId;
     
     // Verificar límites del plan
@@ -52,6 +52,7 @@ export class LoansService {
           interestRate,
           term,
           frequency,
+          portfolioId,
         },
       });
 
@@ -102,7 +103,8 @@ export class LoansService {
       include: { 
         client: true,
         installments: true,
-        payments: true
+        payments: true,
+        portfolio: true
       },
       orderBy: { createdAt: 'desc' }
     });

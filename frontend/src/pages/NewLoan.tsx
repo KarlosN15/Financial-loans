@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getClients, createLoan, getLoans } from '../api/api';
+import { getClients, createLoan, getLoans, getPortfolios } from '../api/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { formatDOP } from '../utils/format';
@@ -15,8 +15,11 @@ const NewLoan = () => {
     amount: '',
     interestRate: '',
     term: '',
-    frequency: 'MONTHLY' as 'MONTHLY' | 'WEEKLY'
+    frequency: 'MONTHLY' as 'MONTHLY' | 'WEEKLY',
+    portfolioId: '' as string | number
   });
+
+  const { data: portfolios = [] } = useQuery({ queryKey: ['portfolios'], queryFn: getPortfolios });
 
   const { data: clients = [], isLoading: loadingClients } = useQuery({
     queryKey: ['clients'],
@@ -127,7 +130,8 @@ const NewLoan = () => {
       amount: amountVal,
       interestRate: parseFloat(formData.interestRate),
       term: parseInt(formData.term),
-      frequency: formData.frequency
+      frequency: formData.frequency,
+      ...(formData.portfolioId && { portfolioId: parseInt(String(formData.portfolioId)) })
     });
   };
 
@@ -177,6 +181,20 @@ const NewLoan = () => {
                   onClick: (term) => navigate('/clients/new', { state: { initialName: term } })
                 }}
               />
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Cartera (Opcional)</label>
+                <select
+                  className="w-full bg-slate-50 border-0 border-b-2 border-slate-100 focus:border-primary focus:ring-0 rounded-none py-4 text-sm font-black transition-all appearance-none"
+                  value={formData.portfolioId}
+                  onChange={e => setFormData({ ...formData, portfolioId: e.target.value })}
+                >
+                  <option value="">Seleccione una Cartera</option>
+                  {portfolios.map((p: any) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">

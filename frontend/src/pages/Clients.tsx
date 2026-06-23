@@ -191,6 +191,12 @@ const Clients = () => {
                             <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[8px] font-black tracking-widest uppercase">
                               CLI-{String(client.id).padStart(4, '0')}
                             </span>
+                            {client.route && (
+                               <span className="bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded text-[8px] font-black tracking-widest uppercase flex items-center gap-1">
+                                  <span className="material-symbols-outlined text-[10px]">route</span>
+                                  {client.route.name}
+                               </span>
+                            )}
                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{client.email || '— Sin Correo —'}</p>
                           </div>
                         </div>

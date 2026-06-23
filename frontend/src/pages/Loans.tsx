@@ -128,7 +128,15 @@ const Loans = () => {
                 </tr>
               ) : filteredLoans.map((loan: any) => (
                 <tr key={loan.id} className="hover:bg-slate-50/50 transition-all group">
-                  <td className="px-8 py-6 text-xs font-black text-slate-400 group-hover:text-primary tracking-tighter">#PR-{1000 + loan.id}</td>
+                  <td className="px-8 py-6 text-xs font-black text-slate-400 group-hover:text-primary tracking-tighter">
+                    <p>#PR-{1000 + loan.id}</p>
+                    {loan.portfolio && (
+                      <span className="bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[8px] font-black tracking-widest uppercase inline-flex items-center gap-1 mt-1">
+                        <span className="material-symbols-outlined text-[10px]">folder</span>
+                        {loan.portfolio.name}
+                      </span>
+                    )}
+                  </td>
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-primary text-[10px] font-black">

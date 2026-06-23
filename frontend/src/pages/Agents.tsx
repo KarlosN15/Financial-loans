@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAgents, createAgent, deleteAgent, getPayments } from '../api/api';
+import { getAgents, createAgent, deleteAgent, getPayments, getBranches } from '../api/api';
 import { useState } from 'react';
 import { formatDOP } from '../utils/format';
 import { useAuth } from '../context/AuthContext';
@@ -9,8 +9,10 @@ const Agents = () => {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [newAgent, setNewAgent] = useState({ name: '', email: '', password: '' });
+  const [newAgent, setNewAgent] = useState({ name: '', email: '', password: '', branchId: '' as string | number });
   const [selectedAgent, setSelectedAgent] = useState<any>(null);
+
+  const { data: branches = [] } = useQuery({ queryKey: ['branches'], queryFn: getBranches });
 
   const { data: allPayments = [] } = useQuery({
     queryKey: ['payments'],
@@ -35,7 +37,7 @@ const Agents = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['agents'] });
       setIsModalOpen(false);
-      setNewAgent({ name: '', email: '', password: '' });
+      setNewAgent({ name: '', email: '', password: '', branchId: '' });
     },
     onError: (error: any) => {
       Swal.fire({
@@ -73,7 +75,11 @@ const Agents = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate(newAgent);
+    const payload: any = { ...newAgent };
+    if (!payload.branchId) delete payload.branchId;
+    else payload.branchId = Number(payload.branchId);
+    
+    mutation.mutate(payload);
   };
 
   const getInitials = (name: string) => {
@@ -166,6 +172,12 @@ const Agents = () => {
                             <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-[8px] font-black tracking-widest uppercase">
                               AGN-{String(agent.id).padStart(4, '0')}
                             </span>
+                            {agent.branch && (
+                              <span className="bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded text-[8px] font-black tracking-widest uppercase flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[10px]">store</span>
+                                {agent.branch.name}
+                              </span>
+                            )}
                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{agent.email}</p>
                           </div>
                         </div>
@@ -298,6 +310,24 @@ const Agents = () => {
                   value={newAgent.password}
                   onChange={e => setNewAgent({ ...newAgent, password: e.target.value })}
                 />
+              </div>
+
+              {/* Sucursal */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <span className="material-symbols-outlined text-xs text-primary">store</span>
+                  Sucursal (Opcional)
+                </label>
+                <select
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
+                  value={newAgent.branchId}
+                  onChange={e => setNewAgent({ ...newAgent, branchId: e.target.value })}
+                >
+                  <option value="">Sin Asignar</option>
+                  {branches.map((b: any) => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                </select>
               </div>
 
               {/* Buttons */}

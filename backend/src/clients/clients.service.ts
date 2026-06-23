@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ClientsService {
   constructor(private prisma: PrismaService) { }
 
-  async create(user: any, data: { name: string; email?: string; identification: string; phone?: string; address?: string; guarantorName?: string; guarantorPhone?: string }) {
+  async create(user: any, data: { name: string; email?: string; identification: string; phone?: string; address?: string; guarantorName?: string; guarantorPhone?: string; routeId?: number }) {
     const adminId = user.role === 'AGENT' ? user.adminId : user.userId;
     return this.prisma.client.create({ 
       data: { ...data, userId: adminId } 
@@ -17,6 +17,7 @@ export class ClientsService {
     return this.prisma.client.findMany({
       where: { userId: adminId },
       include: {
+        route: true,
         loans: {
           include: {
             installments: true,
@@ -31,7 +32,7 @@ export class ClientsService {
     const adminId = user.role === 'AGENT' ? user.adminId : user.userId;
     return this.prisma.client.findFirst({
       where: { id, userId: adminId },
-      include: { loans: true },
+      include: { loans: true, route: true },
     });
   }
 

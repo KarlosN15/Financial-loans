@@ -36,15 +36,16 @@ export class AgentsService {
         password: hashedPassword,
         role: 'AGENT',
         adminId: adminId, // Enlazamos el agente a este administrador
+        ...(data.branchId && { branchId: data.branchId }),
       },
-      select: { id: true, name: true, email: true, role: true, createdAt: true }
+      select: { id: true, name: true, email: true, role: true, createdAt: true, branch: true }
     });
   }
 
   async findAll(adminId: number) {
     return this.prisma.user.findMany({
       where: { adminId: adminId, role: 'AGENT' },
-      select: { id: true, name: true, email: true, role: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, createdAt: true, branch: true },
       orderBy: { createdAt: 'desc' }
     });
   }

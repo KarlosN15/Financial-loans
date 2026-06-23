@@ -19,6 +19,19 @@ export class ConfigService {
     return this.prisma.branch.findMany({ where: { userId: adminId } });
   }
 
+  async updateBranch(adminId: number, id: number, data: { name: string, address?: string }) {
+    return this.prisma.branch.updateMany({
+      where: { id, userId: adminId },
+      data: { name: data.name, address: data.address },
+    });
+  }
+
+  async deleteBranch(adminId: number, id: number) {
+    return this.prisma.branch.deleteMany({
+      where: { id, userId: adminId },
+    });
+  }
+
   async createRoute(adminId: number, data: { name: string }) {
     return this.prisma.route.create({
       data: {
@@ -32,6 +45,19 @@ export class ConfigService {
     return this.prisma.route.findMany({ where: { userId: adminId } });
   }
 
+  async updateRoute(adminId: number, id: number, data: { name: string }) {
+    return this.prisma.route.updateMany({
+      where: { id, userId: adminId },
+      data: { name: data.name },
+    });
+  }
+
+  async deleteRoute(adminId: number, id: number) {
+    return this.prisma.route.deleteMany({
+      where: { id, userId: adminId },
+    });
+  }
+
   async createPortfolio(adminId: number, data: { name: string }) {
     return this.prisma.portfolio.create({
       data: {
@@ -43,5 +69,18 @@ export class ConfigService {
 
   async getPortfolios(adminId: number) {
     return this.prisma.portfolio.findMany({ where: { userId: adminId } });
+  }
+
+  async updatePortfolio(adminId: number, id: number, data: { name: string }) {
+    return this.prisma.portfolio.updateMany({
+      where: { id, userId: adminId },
+      data: { name: data.name },
+    });
+  }
+
+  async deletePortfolio(adminId: number, id: number) {
+    return this.prisma.portfolio.deleteMany({
+      where: { id, userId: adminId },
+    });
   }
 }

@@ -35,7 +35,7 @@ export const getClients = async () => {
   return response.data;
 };
 
-export const createClient = async (data: any) => {
+export const createClient = async (data: { name: string; email?: string; identification: string; phone?: string; address?: string; guarantorName?: string; guarantorPhone?: string; routeId?: number }) => {
   const response = await api.post('/clients', data);
   return response.data;
 };
@@ -136,6 +136,14 @@ export const createBranch = async (data: { name: string, address?: string }) => 
   const response = await api.post('/config/branches', data);
   return response.data;
 };
+export const updateBranch = async (id: number, data: { name: string, address?: string }) => {
+  const response = await api.put(`/config/branches/${id}`, data);
+  return response.data;
+};
+export const deleteBranch = async (id: number) => {
+  const response = await api.delete(`/config/branches/${id}`);
+  return response.data;
+};
 
 export const getRoutes = async () => {
   const response = await api.get('/config/routes');
@@ -145,6 +153,14 @@ export const createRoute = async (data: { name: string }) => {
   const response = await api.post('/config/routes', data);
   return response.data;
 };
+export const updateRoute = async (id: number, data: { name: string }) => {
+  const response = await api.put(`/config/routes/${id}`, data);
+  return response.data;
+};
+export const deleteRoute = async (id: number) => {
+  const response = await api.delete(`/config/routes/${id}`);
+  return response.data;
+};
 
 export const getPortfolios = async () => {
   const response = await api.get('/config/portfolios');
@@ -152,6 +168,14 @@ export const getPortfolios = async () => {
 };
 export const createPortfolio = async (data: { name: string }) => {
   const response = await api.post('/config/portfolios', data);
+  return response.data;
+};
+export const updatePortfolio = async (id: number, data: { name: string }) => {
+  const response = await api.put(`/config/portfolios/${id}`, data);
+  return response.data;
+};
+export const deletePortfolio = async (id: number) => {
+  const response = await api.delete(`/config/portfolios/${id}`);
   return response.data;
 };
 
