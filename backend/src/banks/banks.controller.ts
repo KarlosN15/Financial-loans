@@ -12,14 +12,14 @@ export class BanksController {
   @Roles('ADMIN')
   @Post()
   create(@Request() req, @Body() data: { bankName: string, accountNumber: string, balance: number }) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.id : req.user.adminId;
+    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
     return this.banksService.create(adminId, data);
   }
 
   @Roles('ADMIN')
   @Get()
   findAll(@Request() req) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.id : req.user.adminId;
+    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
     return this.banksService.findAll(adminId);
   }
 
@@ -30,7 +30,7 @@ export class BanksController {
     @Param('id') id: string,
     @Body() data: { type: 'INCOME' | 'EXPENSE', amount: number, description: string }
   ) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.id : req.user.adminId;
+    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
     return this.banksService.addTransaction(adminId, +id, data);
   }
 }

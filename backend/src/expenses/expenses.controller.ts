@@ -12,21 +12,21 @@ export class ExpensesController {
   @Roles('ADMIN')
   @Post()
   create(@Request() req, @Body() data: { amount: number, description: string, status?: 'PAID' | 'PENDING' }) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.id : req.user.adminId;
+    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
     return this.expensesService.create(adminId, data);
   }
 
   @Roles('ADMIN')
   @Get()
   findAll(@Request() req) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.id : req.user.adminId;
+    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
     return this.expensesService.findAll(adminId);
   }
 
   @Roles('ADMIN')
   @Put(':id/pay')
   markAsPaid(@Request() req, @Param('id') id: string) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.id : req.user.adminId;
+    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
     return this.expensesService.markAsPaid(adminId, +id);
   }
 }
