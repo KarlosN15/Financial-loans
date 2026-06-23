@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { login as loginApi } from '../api/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { motion } from 'framer-motion';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const Login = () => {
     mutationFn: loginApi,
     onSuccess: (data) => {
       login(data.access_token, data.user);
-      navigate('/');
+      navigate('/dashboard');
     },
     onError: (err: any) => {
       setError(err.response?.data?.message || 'Error al iniciar sesión');
@@ -28,18 +29,40 @@ const Login = () => {
     mutation.mutate({ email, password });
   };
 
+  // Framer motion variants
+  const scaleUp = {
+    hidden: { opacity: 0, scale: 0.9, y: 20 },
+    visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.6 } }
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6 relative overflow-hidden">
       {/* Dynamic Background */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"></div>
+      <motion.div 
+        animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.2, 0.1] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"
+      />
+      <motion.div 
+        animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.1, 0.05] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"
+      />
 
-      <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-700">
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        variants={scaleUp}
+        className="w-full max-w-md relative z-10"
+      >
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[3rem] p-12 shadow-3xl">
           <div className="text-center mb-10">
-            <div className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-primary/20 rotate-12 hover:rotate-0 transition-transform duration-500">
+            <motion.div 
+              whileHover={{ rotate: 0, scale: 1.05 }}
+              className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-primary/20 rotate-12 transition-transform duration-500 cursor-pointer"
+            >
                <span className="material-symbols-outlined text-4xl text-white">account_balance</span>
-            </div>
+            </motion.div>
             <h1 className="text-3xl font-black text-white font-headline tracking-tighter uppercase mb-2">Préstamo Pro</h1>
             <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">Financial Management SaaS</p>
           </div>
@@ -76,15 +99,21 @@ const Login = () => {
             </div>
 
             {error && (
-               <div className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-xl flex items-center gap-3 text-rose-400 animate-in slide-in-from-top-2">
+               <motion.div 
+                 initial={{ opacity: 0, y: -10 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-xl flex items-center gap-3 text-rose-400"
+               >
                   <span className="material-symbols-outlined text-sm">error</span>
                   <p className="text-[10px] font-black uppercase tracking-widest leading-none">{error}</p>
-               </div>
+               </motion.div>
             )}
 
-            <button 
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               disabled={mutation.isPending}
-              className="w-full bg-primary text-white font-black py-5 rounded-2xl mt-4 flex items-center justify-center gap-3 hover:brightness-110 shadow-xl shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50"
+              className="w-full bg-primary text-white font-black py-5 rounded-2xl mt-4 flex items-center justify-center gap-3 shadow-xl shadow-primary/20 transition-colors hover:brightness-110 disabled:opacity-50"
             >
               {mutation.isPending ? (
                  <span className="material-symbols-outlined animate-spin">progress_activity</span>
@@ -94,7 +123,7 @@ const Login = () => {
                   INICIAR SISTEMA
                 </>
               )}
-            </button>
+            </motion.button>
           </form>
 
           <div className="mt-12 pt-8 border-t border-white/5 text-center">
@@ -105,9 +134,9 @@ const Login = () => {
         </div>
         
         <div className="mt-8 text-center">
-           <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] italic">Préstamo Pro Software © 2026</p>
+           <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] italic">Préstamo Pro Software © {new Date().getFullYear()}</p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
