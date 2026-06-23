@@ -150,9 +150,18 @@ const Clients = () => {
             <tbody className="divide-y divide-slate-50">
               {filteredClients.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-8 py-32 text-center opacity-30">
-                    <span className="material-symbols-outlined text-7xl mb-4 block">person_cancel</span>
-                    <p className="text-sm font-black uppercase tracking-widest font-headline">No se encontraron clientes</p>
+                  <td colSpan={5} className="px-8 py-20 text-center">
+                    <span className="material-symbols-outlined text-7xl mb-4 block opacity-30 text-slate-400">person_cancel</span>
+                    <p className="text-sm font-black uppercase tracking-widest font-headline opacity-30 text-slate-400 mb-6">No se encontraron clientes</p>
+                    {searchTerm && (
+                      <button
+                        onClick={() => navigate('/clients/new', { state: { initialName: searchTerm } })}
+                        className="mx-auto px-6 py-3 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all flex items-center gap-2"
+                      >
+                        <span className="material-symbols-outlined text-sm">person_add</span>
+                        Registrar "{searchTerm}"
+                      </button>
+                    )}
                   </td>
                 </tr>
               ) : filteredClients.map((client: any) => {
