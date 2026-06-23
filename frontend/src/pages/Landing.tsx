@@ -22,10 +22,10 @@ const Landing = () => {
         </div>
         
         <div className="hidden lg:flex items-center gap-8 text-sm font-bold text-slate-500">
-          <a href="#" className="hover:text-blue-600 transition-colors">Plataforma</a>
+          <a href="#plataforma" className="hover:text-blue-600 transition-colors">Plataforma</a>
           <a href="#planes" className="hover:text-blue-600 transition-colors">Precios</a>
-          <a href="#" className="hover:text-blue-600 transition-colors">Casos de Éxito</a>
-          <a href="#" className="hover:text-blue-600 transition-colors">Recursos</a>
+          <a href="#modulos" className="hover:text-blue-600 transition-colors">Módulos</a>
+          <a href="https://wa.me/18097368555" target="_blank" className="hover:text-blue-600 transition-colors">Contacto</a>
         </div>
 
         <div className="flex items-center gap-4">
@@ -57,14 +57,14 @@ const Landing = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-            <button className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white text-base font-bold rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-600/30 transition-all hover:-translate-y-1 flex items-center justify-center gap-2">
+            <a href="https://wa.me/18097368555?text=Hola,%20quiero%20comenzar%20una%20prueba%20gratuita." target="_blank" className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white text-base font-bold rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-600/30 transition-all hover:-translate-y-1 flex items-center justify-center gap-2">
               Comenzar Prueba Gratuita
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
-            </button>
-            <button className="w-full sm:w-auto px-8 py-4 bg-white text-slate-700 border border-slate-200 text-base font-bold rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2">
-              <span className="material-symbols-outlined text-blue-600">play_circle</span>
-              Ver Demostración
-            </button>
+            </a>
+            <a href="#modulos" className="w-full sm:w-auto px-8 py-4 bg-white text-slate-700 border border-slate-200 text-base font-bold rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2">
+              <span className="material-symbols-outlined text-blue-600">info</span>
+              Ver Módulos
+            </a>
           </div>
         </div>
         
@@ -85,7 +85,7 @@ const Landing = () => {
             </div>
 
             <div className="space-y-4">
-               <a href="#" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-green-50 hover:text-green-700 border border-slate-100 transition-all group/item">
+               <a href="https://wa.me/18097368555" target="_blank" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-green-50 hover:text-green-700 border border-slate-100 transition-all group/item">
                  <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-green-500 group-hover/item:scale-110 transition-transform">
                    <span className="material-symbols-outlined">chat</span>
                  </div>
@@ -95,7 +95,7 @@ const Landing = () => {
                  </div>
                </a>
                
-               <a href="#" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 hover:text-blue-700 border border-slate-100 transition-all group/item">
+               <a href="mailto:ventas@prestamopro.com" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 hover:text-blue-700 border border-slate-100 transition-all group/item">
                  <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-blue-500 group-hover/item:scale-110 transition-transform">
                    <span className="material-symbols-outlined">mail</span>
                  </div>
@@ -110,7 +110,7 @@ const Landing = () => {
       </section>
 
       {/* Info Section (Replaces the plain text section) */}
-      <section className="bg-white py-24 border-y border-slate-100 relative overflow-hidden">
+      <section id="plataforma" className="bg-white py-24 border-y border-slate-100 relative overflow-hidden">
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
           <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 transform -rotate-3 hover:rotate-3 transition-transform duration-500">
              <span className="material-symbols-outlined text-3xl">verified_user</span>
@@ -125,7 +125,7 @@ const Landing = () => {
       </section>
 
       {/* Modulos Section (Dark Grid) */}
-      <section className="bg-slate-950 py-32 px-6 relative overflow-hidden">
+      <section id="modulos" className="bg-slate-950 py-32 px-6 relative overflow-hidden">
         {/* Background glow for dark section */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/20 rounded-full blur-[100px] pointer-events-none"></div>
 
@@ -252,7 +252,7 @@ const Landing = () => {
                  <span className="text-slate-500 font-bold text-sm">/ 15 días</span>
               </div>
               <p className="text-sm text-slate-500 mb-8 font-medium">Ideal para conocer el sistema operativo sin compromisos.</p>
-              <button className="w-full py-3.5 bg-slate-100 text-slate-700 font-bold rounded-xl mb-8 hover:bg-slate-200 transition-colors">Probar Gratis</button>
+              <a href="https://wa.me/18097368555?text=Me%20interesa%20probar%20gratis" target="_blank" className="block text-center w-full py-3.5 bg-slate-100 text-slate-700 font-bold rounded-xl mb-8 hover:bg-slate-200 transition-colors">Probar Gratis</a>
               <ul className="space-y-4 text-sm font-bold text-slate-600">
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Hasta 50 Préstamos</li>
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 1 Usuario Administrativo</li>
@@ -272,7 +272,7 @@ const Landing = () => {
                  <span className="text-slate-500 font-bold text-sm">/ mes</span>
               </div>
               <p className="text-sm text-slate-500 mb-8 font-medium">Para negocios en crecimiento que necesitan orden.</p>
-              <button className="w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl mb-8 hover:bg-blue-600 transition-colors">Elegir Estándar</button>
+              <a href="https://wa.me/18097368555?text=Quiero%20contratar%20el%20plan%20Est%C3%A1ndar" target="_blank" className="block text-center w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl mb-8 hover:bg-blue-600 transition-colors">Elegir Estándar</a>
               <ul className="space-y-4 text-sm font-bold text-slate-600">
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Hasta 100 Préstamos</li>
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 2 Usuarios en total</li>
@@ -295,7 +295,7 @@ const Landing = () => {
                  <span className="text-blue-200 font-bold text-sm">/ mes</span>
               </div>
               <p className="text-sm text-blue-100/80 mb-8 font-medium">Equipos profesionales con múltiples cobradores.</p>
-              <button className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl mb-8 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5">Elegir Avanzado</button>
+              <a href="https://wa.me/18097368555?text=Quiero%20contratar%20el%20plan%20Avanzado" target="_blank" className="block text-center w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl mb-8 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5">Elegir Avanzado</a>
               <ul className="space-y-4 text-sm font-bold text-blue-50">
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-blue-400 text-lg">check_circle</span> Créditos Ilimitados</li>
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-blue-400 text-lg">check_circle</span> 4 Usuarios en total</li>
@@ -316,7 +316,7 @@ const Landing = () => {
                  <span className="text-slate-500 font-bold text-sm">/ mes</span>
               </div>
               <p className="text-sm text-slate-500 mb-8 font-medium">Financieras con alto volumen operativo.</p>
-              <button className="w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl mb-8 hover:bg-indigo-600 transition-colors">Contactar Ventas</button>
+              <a href="https://wa.me/18097368555?text=Deseo%20informaci%C3%B3n%20sobre%20el%20plan%20Corporativo" target="_blank" className="block text-center w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl mb-8 hover:bg-indigo-600 transition-colors">Contactar Ventas</a>
               <ul className="space-y-4 text-sm font-bold text-slate-600">
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Infraestructura Dedicada</li>
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Sucursales Ilimitadas</li>
@@ -335,9 +335,9 @@ const Landing = () => {
           <h2 className="text-4xl md:text-5xl font-black text-white mb-8 tracking-tight">
             Digitaliza tu financiera hoy mismo.
           </h2>
-          <button className="px-10 py-5 bg-white text-blue-700 text-lg font-black rounded-2xl hover:scale-105 shadow-2xl shadow-blue-900/50 transition-transform">
+          <a href="https://wa.me/18097368555?text=Hola,%20quiero%20crear%20mi%20cuenta" target="_blank" className="inline-block px-10 py-5 bg-white text-blue-700 text-lg font-black rounded-2xl hover:scale-105 shadow-2xl shadow-blue-900/50 transition-transform">
             Crear mi cuenta gratis
-          </button>
+          </a>
         </div>
       </section>
 
@@ -358,27 +358,27 @@ const Landing = () => {
           <div>
             <h4 className="text-white font-bold mb-6">Producto</h4>
             <ul className="space-y-3 text-sm font-semibold text-slate-400">
-              <li><a href="#" className="hover:text-blue-400 transition-colors">Características</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors">Precios</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors">Aplicación Móvil</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors">Actualizaciones</a></li>
+              <li><a href="#plataforma" className="hover:text-blue-400 transition-colors">Características</a></li>
+              <li><a href="#planes" className="hover:text-blue-400 transition-colors">Precios</a></li>
+              <li><a href="#modulos" className="hover:text-blue-400 transition-colors">Aplicación Móvil</a></li>
+              <li><a href="#plataforma" className="hover:text-blue-400 transition-colors">Actualizaciones</a></li>
             </ul>
           </div>
           <div>
             <h4 className="text-white font-bold mb-6">Recursos</h4>
             <ul className="space-y-3 text-sm font-semibold text-slate-400">
-              <li><a href="#" className="hover:text-blue-400 transition-colors">Centro de Ayuda</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors">Videotutoriales</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors">API Docs</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors">Blog</a></li>
+              <li><a href="https://wa.me/18097368555" target="_blank" className="hover:text-blue-400 transition-colors">Centro de Ayuda</a></li>
+              <li><a href="https://wa.me/18097368555" target="_blank" className="hover:text-blue-400 transition-colors">Videotutoriales</a></li>
+              <li><a href="https://wa.me/18097368555" target="_blank" className="hover:text-blue-400 transition-colors">API Docs</a></li>
+              <li><a href="https://wa.me/18097368555" target="_blank" className="hover:text-blue-400 transition-colors">Blog</a></li>
             </ul>
           </div>
           <div>
             <h4 className="text-white font-bold mb-6">Legal</h4>
             <ul className="space-y-3 text-sm font-semibold text-slate-400">
-              <li><a href="#" className="hover:text-blue-400 transition-colors">Términos de Servicio</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors">Política de Privacidad</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors">Acuerdo de Seguridad</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition-colors cursor-not-allowed">Términos de Servicio</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition-colors cursor-not-allowed">Política de Privacidad</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition-colors cursor-not-allowed">Acuerdo de Seguridad</a></li>
             </ul>
           </div>
         </div>
