@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getLoans, deleteLoan } from '../api/api';
 import { Link, useNavigate } from 'react-router-dom';
 import { formatDOP } from '../utils/format';
+import Swal from 'sweetalert2';
 
 import { LoansSkeleton } from '../components/Skeleton';
 
@@ -37,9 +38,20 @@ const Loans = () => {
   if (isLoading) return <LoansSkeleton />;
 
   const handleDelete = (id: number) => {
-    if (window.confirm('¿Está seguro de que desea eliminar este préstamo? Esta acción también eliminará todas las cuotas y pagos asociados.')) {
-      deleteMutation.mutate(id);
-    }
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Desea eliminar este préstamo? Esta acción también eliminará todas las cuotas y pagos asociados.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteMutation.mutate(id);
+      }
+    });
   };
 
   const openDetails = (loan: any) => {

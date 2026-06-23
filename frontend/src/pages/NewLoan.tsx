@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { formatDOP } from '../utils/format';
 import SearchableSelect from '../components/SearchableSelect';
+import Swal from 'sweetalert2';
 
 const NewLoan = () => {
   const queryClient = useQueryClient();
@@ -44,7 +45,12 @@ const NewLoan = () => {
       navigate('/loans');
     },
     onError: (error: any) => {
-      alert('⚠️ ' + (error.response?.data?.message || 'Ocurrió un error al crear el préstamo.'));
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'Ocurrió un error al crear el préstamo.',
+        confirmButtonColor: '#2563eb'
+      });
     }
   });
 

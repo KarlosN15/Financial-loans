@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../api/api';
+import Swal from 'sweetalert2';
 
 const steps = [
   { id: 1, title: 'Información Personal' },
@@ -77,7 +78,12 @@ export default function Register() {
       setRegisteredEmail(formData.correo);
     } catch (error) {
       console.error('Error al registrar:', error);
-      alert('Hubo un error al crear la cuenta. Es posible que el correo ya esté en uso.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de Registro',
+        text: 'Hubo un error al crear la cuenta. Es posible que el correo ya esté en uso.',
+        confirmButtonColor: '#2563eb'
+      });
     } finally {
       setLoading(false);
     }

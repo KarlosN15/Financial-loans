@@ -3,6 +3,7 @@ import { getAgents, createAgent, deleteAgent, getPayments } from '../api/api';
 import { useState } from 'react';
 import { formatDOP } from '../utils/format';
 import { useAuth } from '../context/AuthContext';
+import Swal from 'sweetalert2';
 
 const Agents = () => {
   const queryClient = useQueryClient();
@@ -37,7 +38,12 @@ const Agents = () => {
       setNewAgent({ name: '', email: '', password: '' });
     },
     onError: (error: any) => {
-      alert('⚠️ ' + (error.response?.data?.message || 'Error al crear el agente'));
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'Error al crear el agente',
+        confirmButtonColor: '#0f172a'
+      });
     }
   });
 
@@ -49,9 +55,20 @@ const Agents = () => {
   });
 
   const handleDelete = (id: number) => {
-    if (window.confirm('¿Está seguro de que desea revocar el acceso de este agente?')) {
-      deleteMutation.mutate(id);
-    }
+    Swal.fire({
+      title: '¿Revocar acceso?',
+      text: '¿Está seguro de que desea revocar el acceso de este agente?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, revocar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteMutation.mutate(id);
+      }
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {

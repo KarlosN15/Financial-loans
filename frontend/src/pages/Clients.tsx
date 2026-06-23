@@ -3,6 +3,7 @@ import { getClients, deleteClient } from '../api/api';
 import { useState } from 'react';
 import { formatDOP } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const Clients = () => {
   const queryClient = useQueryClient();
@@ -31,9 +32,20 @@ const Clients = () => {
       ? `Este cliente tiene una deuda pendiente de RD$ ${formatDOP(debt)}. ¿Está seguro de que desea eliminarlo? Se borrarán TODOS sus préstamos y pagos.`
       : '¿Está seguro de que desea eliminar este cliente? Se borrará todo su historial.';
     
-    if (window.confirm(message)) {
-      deleteMutation.mutate(id);
-    }
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: message,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteMutation.mutate(id);
+      }
+    });
   };
 
   const calculateDebt = (loans: any[]) => {

@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '../api/api';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import Swal from 'sweetalert2';
 
 const NewClient = () => {
   const queryClient = useQueryClient();
@@ -25,7 +26,12 @@ const NewClient = () => {
       navigate('/clients');
     },
     onError: (error: any) => {
-      alert(error.response?.data?.message || 'Error al crear el cliente. Verifique la cédula.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'Error al crear el cliente. Verifique la cédula.',
+        confirmButtonColor: '#2563eb'
+      });
     }
   });
 
