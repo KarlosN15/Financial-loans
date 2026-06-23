@@ -95,4 +95,36 @@ export const deleteAgent = async (id: number) => {
   return response.data;
 };
 
+// --- Expenses ---
+export const getExpenses = async () => {
+  const response = await api.get('/expenses');
+  return response.data;
+};
+
+export const createExpense = async (data: { amount: number; description: string; status?: 'PAID' | 'PENDING' }) => {
+  const response = await api.post('/expenses', data);
+  return response.data;
+};
+
+export const markExpenseAsPaid = async (id: number) => {
+  const response = await api.patch(`/expenses/${id}/pay`);
+  return response.data;
+};
+
+// --- Banks ---
+export const getBanks = async () => {
+  const response = await api.get('/banks');
+  return response.data;
+};
+
+export const createBank = async (data: { bankName: string; accountNumber: string; balance: number }) => {
+  const response = await api.post('/banks', data);
+  return response.data;
+};
+
+export const addBankTransaction = async (bankId: number, data: { type: 'INCOME' | 'EXPENSE'; amount: number; description: string }) => {
+  const response = await api.post(`/banks/${bankId}/transactions`, data);
+  return response.data;
+};
+
 export default api;
