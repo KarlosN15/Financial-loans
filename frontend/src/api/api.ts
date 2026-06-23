@@ -123,7 +123,7 @@ export const createBank = async (data: { bankName: string; accountNumber: string
 };
 
 export const addBankTransaction = async (bankId: number, data: { type: 'INCOME' | 'EXPENSE'; amount: number; description: string }) => {
-  const response = await api.post(`/banks/${bankId}/transactions`, data);
+  const response = await api.post(`/banks/${bankId}/transaction`, data);
   return response.data;
 };
 
