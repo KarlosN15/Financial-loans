@@ -13,14 +13,14 @@ export class ConfigController {
   @Roles('ADMIN')
   @Post('branches')
   createBranch(@Request() req, @Body() data: { name: string, address?: string }) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
+    const adminId = Number(req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId);
     return this.configService.createBranch(adminId, data);
   }
 
   @Roles('ADMIN')
   @Get('branches')
   getBranches(@Request() req) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
+    const adminId = Number(req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId);
     return this.configService.getBranches(adminId);
   }
 
@@ -28,14 +28,14 @@ export class ConfigController {
   @Roles('ADMIN')
   @Post('routes')
   createRoute(@Request() req, @Body() data: { name: string }) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
+    const adminId = Number(req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId);
     return this.configService.createRoute(adminId, data);
   }
 
   @Roles('ADMIN')
   @Get('routes')
   getRoutes(@Request() req) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
+    const adminId = Number(req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId);
     return this.configService.getRoutes(adminId);
   }
 
@@ -43,14 +43,14 @@ export class ConfigController {
   @Roles('ADMIN')
   @Post('portfolios')
   createPortfolio(@Request() req, @Body() data: { name: string }) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
+    const adminId = Number(req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId);
     return this.configService.createPortfolio(adminId, data);
   }
 
   @Roles('ADMIN')
   @Get('portfolios')
   getPortfolios(@Request() req) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
+    const adminId = Number(req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId);
     return this.configService.getPortfolios(adminId);
   }
 }
