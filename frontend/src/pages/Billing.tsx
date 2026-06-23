@@ -352,17 +352,32 @@ const Billing = () => {
                   {loanInfo && (
                      <div className="space-y-3">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{loanInfo?.loan?.frequency === 'MONTHLY' ? 'Meses' : 'Semanas'} a Liquidar</label>
-                        <div className="flex gap-2">
-                           {[1, 2, 3].map(q => (
+                        <div className="flex flex-wrap gap-2">
+                           {[1, 2, 3].filter(q => q <= loanInfo.pendingCount && q !== loanInfo.pendingCount).map(q => (
                               <button 
                                  key={q}
                                  type="button"
                                  onClick={() => updateInstallments(q)}
-                                 className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 transition-all ${formData.numInstallments === q ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-50 border-transparent text-slate-400 hover:border-slate-200'}`}
+                                 className={`flex-1 min-w-[80px] py-3 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 transition-all ${formData.numInstallments === q ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-50 border-transparent text-slate-400 hover:border-slate-200'}`}
                               >
                                  {q} {loanInfo?.loan?.frequency === 'MONTHLY' ? (q > 1 ? 'Meses' : 'Mes') : (q > 1 ? 'Semanas' : 'Semana')}
                               </button>
                            ))}
+                           {loanInfo.pendingCount > 0 && (
+                              <button 
+                                 type="button"
+                                 onClick={() => {
+                                    setFormData({ 
+                                       ...formData, 
+                                       numInstallments: loanInfo.pendingCount, 
+                                       amount: formatAmountInput(loanInfo.totalRemaining.toFixed(2)) 
+                                    });
+                                 }}
+                                 className={`flex-1 min-w-[120px] py-3 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 transition-all ${formData.numInstallments === loanInfo.pendingCount ? 'border-rose-500 bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-rose-50 border-rose-100 text-rose-600 hover:bg-rose-100'}`}
+                              >
+                                 LIQUIDAR TODO ({loanInfo.pendingCount})
+                              </button>
+                           )}
                         </div>
                      </div>
                   )}
