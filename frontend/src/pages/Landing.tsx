@@ -258,7 +258,7 @@ const Landing = () => {
                  <span className="text-slate-500 font-bold text-sm">/ 15 días</span>
               </div>
               <p className="text-sm text-slate-500 mb-8 font-medium">Ideal para conocer el sistema operativo sin compromisos.</p>
-              <a href="https://wa.me/8492705770?text=Me%20interesa%20probar%20gratis" target="_blank" className="block text-center w-full py-3.5 bg-slate-100 text-slate-700 font-bold rounded-xl mb-8 hover:bg-slate-200 transition-colors">Probar Gratis</a>
+              <a href="/register?plan=inicio" className="block text-center w-full py-3.5 bg-slate-100 text-slate-700 font-bold rounded-xl mb-8 hover:bg-slate-200 transition-colors">Probar Gratis</a>
               <ul className="space-y-4 text-sm font-bold text-slate-600">
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Hasta 3 Préstamos</li>
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 1 Usuario Administrativo</li>
@@ -278,7 +278,7 @@ const Landing = () => {
                  <span className="text-slate-500 font-bold text-sm">/ mes</span>
               </div>
               <p className="text-sm text-slate-500 mb-8 font-medium">Para negocios en crecimiento que necesitan orden.</p>
-              <a href="https://wa.me/8492705770?text=Quiero%20contratar%20el%20plan%20Est%C3%A1ndar" target="_blank" className="block text-center w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl mb-8 hover:bg-blue-600 transition-colors">Elegir Estándar</a>
+              <a href="/register?plan=estandar" className="block text-center w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl mb-8 hover:bg-blue-600 transition-colors">Elegir Estándar</a>
               <ul className="space-y-4 text-sm font-bold text-slate-600">
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Hasta 50 Préstamos</li>
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 2 Usuarios en total</li>
@@ -301,7 +301,7 @@ const Landing = () => {
                  <span className="text-blue-200 font-bold text-sm">/ mes</span>
               </div>
               <p className="text-sm text-blue-100/80 mb-8 font-medium">Equipos profesionales con múltiples cobradores.</p>
-              <a href="https://wa.me/8492705770?text=Quiero%20contratar%20el%20plan%20Avanzado" target="_blank" className="block text-center w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl mb-8 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition-all">Elegir Avanzado</a>
+              <a href="/register?plan=avanzado" className="block text-center w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl mb-8 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition-all">Elegir Avanzado</a>
               <ul className="space-y-4 text-sm font-bold text-blue-50">
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-blue-400 text-lg">check_circle</span> Créditos Ilimitados</li>
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-blue-400 text-lg">check_circle</span> Sucursales Ilimitadas</li>

@@ -15,6 +15,7 @@ import Gastos from './pages/Gastos';
 import Inversiones from './pages/Inversiones';
 import Bancos from './pages/Bancos';
 import Configuracion from './pages/Configuracion';
+import Register from './pages/Register';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Protected Route Component
@@ -38,6 +39,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
 
           <Route element={
