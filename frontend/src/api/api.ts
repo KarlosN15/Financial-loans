@@ -124,6 +124,36 @@ export const createBank = async (data: { bankName: string; accountNumber: string
 
 export const addBankTransaction = async (bankId: number, data: { type: 'INCOME' | 'EXPENSE'; amount: number; description: string }) => {
   const response = await api.post(`/banks/${bankId}/transaction`, data);
+export const addBankTransaction = async (bankId: number, data: { type: 'INCOME' | 'EXPENSE'; amount: number; description: string }) => {
+  const response = await api.post(`/banks/${bankId}/transaction`, data);
+  return response.data;
+};
+
+// --- Config ---
+export const getBranches = async () => {
+  const response = await api.get('/config/branches');
+  return response.data;
+};
+export const createBranch = async (data: { name: string, address?: string }) => {
+  const response = await api.post('/config/branches', data);
+  return response.data;
+};
+
+export const getRoutes = async () => {
+  const response = await api.get('/config/routes');
+  return response.data;
+};
+export const createRoute = async (data: { name: string }) => {
+  const response = await api.post('/config/routes', data);
+  return response.data;
+};
+
+export const getPortfolios = async () => {
+  const response = await api.get('/config/portfolios');
+  return response.data;
+};
+export const createPortfolio = async (data: { name: string }) => {
+  const response = await api.post('/config/portfolios', data);
   return response.data;
 };
 
