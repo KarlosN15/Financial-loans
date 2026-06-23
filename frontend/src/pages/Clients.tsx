@@ -191,7 +191,7 @@ const Clients = () => {
                     <td className="px-8 py-6">
                        <div className="flex justify-center gap-2">
                            <button 
-                             onClick={() => navigate('/billing')}
+                             onClick={() => navigate('/billing', { state: { autoOpenModal: true, clientId: client.id } })}
                              className="px-4 py-2 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center gap-2 active:scale-95 shadow-sm"
                            >
                               <span className="material-symbols-outlined text-sm">payments</span>

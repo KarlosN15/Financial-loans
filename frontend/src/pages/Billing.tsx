@@ -3,9 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getPayments, getUpcomingInstallments, createPayment, getLoans } from '../api/api';
 import { formatDOP } from '../utils/format';
 import SearchableSelect from '../components/SearchableSelect';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const Billing = () => {
   const queryClient = useQueryClient();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [recentPayment, setRecentPayment] = useState<any>(null);
@@ -41,6 +45,21 @@ const Billing = () => {
     queryKey: ['loans'],
     queryFn: getLoans,
   });
+
+  useEffect(() => {
+    if (location.state?.autoOpenModal) {
+      setShowModal(true);
+      if (location.state?.clientId && loans.length > 0) {
+        const activeLoan = loans.find((l: any) => l.clientId === location.state.clientId && (l.status === 'ACTIVE' || l.status === 'ARREARS'));
+        if (activeLoan) {
+          setFormData(prev => ({ ...prev, loanId: String(activeLoan.id) }));
+        }
+      }
+      if (loans.length > 0 || !location.state?.clientId) {
+        navigate('.', { replace: true, state: {} });
+      }
+    }
+  }, [location.state, loans, navigate]);
 
   // Utility to handle amounts with commas
   const formatAmountInput = (val: string) => {
