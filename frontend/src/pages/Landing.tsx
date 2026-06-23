@@ -203,11 +203,7 @@ const Landing = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { icon: 'real_estate_agent', title: 'Core de Créditos', desc: 'Motor de amortización avanzado. Gestiona desembolsos, reestructuraciones, pagos anticipados, cálculos de mora y generación automática de contratos legales.' },
-              { icon: 'trending_up', title: 'Captación & Inversión', desc: 'Administración de cartera de inversores. Emisión de certificados financieros, cálculo automático de rendimientos y programación de pagos de intereses.' },
-              { icon: 'point_of_sale', title: 'Control de Bóveda', desc: 'Flujo de efectivo blindado. Monitoreo en tiempo real de múltiples sucursales, cuadres ciegos, arqueos de caja y alertas de límites de efectivo.', gradient: true },
-              { icon: 'account_balance', title: 'Conciliación Bancaria', desc: 'Sincronización de transacciones corporativas. Control de depósitos en tránsito, emisión de cheques, transferencias y reportería de saldos disponibles.' },
-              { icon: 'map', title: 'Rutas Móviles', desc: 'Optimización para cobradores de calle. Geolocalización, impresión portátil vía Bluetooth y funcionamiento sin conexión a internet.' },
-              { icon: 'analytics', title: 'Motor Contable', desc: 'Asientos automáticos por cada transacción. Generación de Estados Financieros, Balances de Comprobación y cierres fiscales sin esfuerzo.' },
+              { icon: 'account_balance', title: 'Conciliación Bancaria', desc: 'Sincronización de transacciones corporativas. Control de depósitos en tránsito, emisión de cheques, transferencias y reportería de saldos disponibles.', gradient: true },
               { icon: 'receipt_long', title: 'Gastos & Compras', desc: 'Control estricto de egresos. Manejo de proveedores, órdenes de pago, reposición de caja chica y generación de reportes tributarios gubernamentales.' },
               { icon: 'recent_actors', title: 'CRM Integrado', desc: 'Expediente digital 360° del cliente. Historial crediticio, recordatorios de cobro, envío de notificaciones y calificación de buró interno.' },
             ].map((mod, i) => (
