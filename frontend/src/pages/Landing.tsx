@@ -2,233 +2,226 @@ import { Link } from 'react-router-dom';
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-800">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 overflow-x-hidden selection:bg-blue-600 selection:text-white">
+      {/* Decorative Background Blobs */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-[20%] right-[-5%] w-[30rem] h-[30rem] bg-indigo-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
+
       {/* Navbar */}
-      <nav className="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-100 sticky top-0 z-50">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-700 text-white rounded flex items-center justify-center font-bold text-lg">
-            P
+      <nav className="flex items-center justify-between px-6 md:px-12 py-5 bg-white/70 backdrop-blur-md border-b border-slate-200/50 sticky top-0 z-50 transition-all">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-800 text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 transform rotate-3 hover:rotate-0 transition-transform duration-300">
+            <span className="material-symbols-outlined font-bold text-xl">account_balance</span>
           </div>
-          <span className="text-xl font-black text-blue-900 tracking-tighter">Préstamo Pro</span>
+          <div>
+            <span className="block text-xl font-black text-slate-900 tracking-tight leading-none">Préstamo Pro</span>
+            <span className="block text-[9px] font-bold text-blue-600 uppercase tracking-widest mt-0.5">Gestión Inteligente</span>
+          </div>
         </div>
         
-        <div className="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-500">
-          <a href="#" className="hover:text-blue-600 transition-colors">Inicio</a>
-          <a href="#planes" className="hover:text-blue-600 transition-colors">Planes</a>
-          <a href="#" className="hover:text-blue-600 transition-colors">Soporte</a>
-          <a href="#" className="hover:text-blue-600 transition-colors">Guía de registro</a>
+        <div className="hidden lg:flex items-center gap-8 text-sm font-bold text-slate-500">
+          <a href="#" className="hover:text-blue-600 transition-colors">Plataforma</a>
+          <a href="#planes" className="hover:text-blue-600 transition-colors">Precios</a>
+          <a href="#" className="hover:text-blue-600 transition-colors">Casos de Éxito</a>
+          <a href="#" className="hover:text-blue-600 transition-colors">Recursos</a>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button className="px-5 py-2.5 bg-blue-600 text-white text-sm font-bold rounded hover:bg-blue-700 transition-colors">
-            Registrarme
-          </button>
-          <Link to="/login" className="px-5 py-2.5 bg-[#0a1128] text-white text-sm font-bold rounded hover:bg-slate-800 transition-colors">
-            Iniciar sesión
+        <div className="flex items-center gap-4">
+          <Link to="/login" className="hidden md:block text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors">
+            Acceso Clientes
+          </Link>
+          <Link to="/login" className="px-6 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-blue-600 shadow-lg shadow-slate-900/20 hover:shadow-blue-600/30 transition-all hover:-translate-y-0.5">
+            Iniciar Sesión
           </Link>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="max-w-6xl mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center gap-12">
-        <div className="flex-1 space-y-6">
-          <h1 className="text-5xl md:text-6xl font-black text-blue-600 leading-[1.1] tracking-tight">
-            SOFTWARE PARA <br/>
-            PRÉSTAMOS <span className="bg-blue-600 text-white px-2 rounded-md">MOVIL</span>
+      <section className="max-w-7xl mx-auto px-6 py-20 md:py-32 flex flex-col lg:flex-row items-center gap-16 relative">
+        <div className="flex-1 space-y-8 animate-in slide-in-from-bottom-8 duration-1000 fade-in">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-black uppercase tracking-widest">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+            </span>
+            Software de Próxima Generación
+          </div>
+          <h1 className="text-5xl md:text-7xl font-black text-slate-900 leading-[1.05] tracking-tighter">
+            Centraliza tu <br className="hidden md:block"/>
+            negocio de <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">créditos</span>.
           </h1>
-          <p className="text-xl font-bold text-slate-800 leading-snug max-w-lg">
-            Administra Tus Préstamos En La Computadora Y Cobra En Las Calles Con Dispositivos Moviles
+          <p className="text-xl font-medium text-slate-500 leading-relaxed max-w-2xl">
+            Optimiza la aprobación de préstamos, automatiza los cobros en terreno y obtén reportes financieros en tiempo real. Todo desde una plataforma en la nube segura y fácil de usar.
           </p>
+          
+          <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
+            <button className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white text-base font-bold rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-600/30 transition-all hover:-translate-y-1 flex items-center justify-center gap-2">
+              Comenzar Prueba Gratuita
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+            <button className="w-full sm:w-auto px-8 py-4 bg-white text-slate-700 border border-slate-200 text-base font-bold rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2">
+              <span className="material-symbols-outlined text-blue-600">play_circle</span>
+              Ver Demostración
+            </button>
+          </div>
         </div>
         
-        <div className="w-full md:w-[400px] flex-shrink-0 bg-slate-50 p-8 rounded-2xl border border-slate-100 flex flex-col items-center justify-center space-y-4">
-          <h3 className="text-xl font-black text-blue-600">SOLICITA INFORMACIÓN:</h3>
-          <div className="flex items-center gap-3 text-lg font-bold text-slate-700">
-            <span className="material-symbols-outlined text-green-500">chat</span>
-            + 1 (809) 736 - 8555
-          </div>
-          <div className="flex items-center gap-3 text-sm font-bold text-slate-600">
-            <span className="material-symbols-outlined text-blue-500">mail</span>
-            SOPORTE@PRESTAMOPRO.COM
-          </div>
-        </div>
-      </section>
-
-      {/* Planes Section */}
-      <section id="planes" className="bg-slate-50 py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-5xl font-black text-[#0a1128] mb-4">Planes</h2>
-            <div className="flex items-center justify-center gap-3 text-sm font-semibold text-slate-600">
-              <span>Planes ordenador - Movil</span>
-              <div className="w-10 h-5 bg-slate-300 rounded-full"></div>
-              <span>Planes solo movil</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Plan 1 */}
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
-              <h3 className="text-lg font-black text-[#0a1128] mb-4 uppercase">DEMO - 15 DIAS..</h3>
-              <div className="text-4xl font-black text-[#0a1128] mb-6">US$0.00</div>
-              <button className="w-full py-3 bg-[#0a1128] text-white font-bold rounded mb-8 hover:bg-slate-800 transition-colors">Contratar</button>
-              <ul className="space-y-4 text-sm font-semibold text-slate-600">
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Demo por 15 días gratis</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Soporta: 50 Préstamos activos.</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 1 Cobrador(es).</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 1 Sucursal(es).</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 2 Cartera(s).</li>
-              </ul>
+        {/* Floating Abstract Element representing the system */}
+        <div className="w-full lg:w-[500px] flex-shrink-0 relative animate-in fade-in slide-in-from-right-8 duration-1000 delay-300">
+          <div className="absolute inset-0 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-3xl transform rotate-3 opacity-10 blur-xl"></div>
+          <div className="bg-white p-8 rounded-3xl shadow-2xl border border-slate-100/50 relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+            
+            <div className="flex items-center justify-between mb-8">
+               <div>
+                  <h3 className="text-2xl font-black text-slate-900 tracking-tight">Hablemos de negocios</h3>
+                  <p className="text-sm font-semibold text-slate-500 mt-1">Nuestros asesores están listos.</p>
+               </div>
+               <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                  <span className="material-symbols-outlined">headset_mic</span>
+               </div>
             </div>
 
-            {/* Plan 2 */}
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
-              <h3 className="text-lg font-black text-[#0a1128] mb-4 uppercase">LC-100.</h3>
-              <div className="text-4xl font-black text-[#0a1128] mb-6">US$30.00</div>
-              <button className="w-full py-3 bg-[#0a1128] text-white font-bold rounded mb-8 hover:bg-slate-800 transition-colors">Contratar</button>
-              <ul className="space-y-4 text-sm font-semibold text-slate-600">
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Soporta: 100 Préstamos activos.</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 1 Cobrador(es).</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 1 Sucursal(es).</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 1 Cartera(s).</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 2 Usuarios.</li>
-              </ul>
-            </div>
-
-            {/* Plan 3 */}
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
-              <h3 className="text-lg font-black text-[#0a1128] mb-4 uppercase">LC-200.</h3>
-              <div className="text-4xl font-black text-[#0a1128] mb-6">US$35.00</div>
-              <button className="w-full py-3 bg-blue-600 text-white font-bold rounded mb-8 hover:bg-blue-700 transition-colors">Contratar</button>
-              <ul className="space-y-4 text-sm font-semibold text-slate-600">
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 2 Cobrador(es).</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 1 Sucursal(es).</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 2 Cartera(s).</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 4 Usuarios.</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 4 Rutas.</li>
-              </ul>
-            </div>
-
-            {/* Plan 4 */}
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
-              <h3 className="text-lg font-black text-[#0a1128] mb-4 uppercase">LC-300.</h3>
-              <div className="text-4xl font-black text-[#0a1128] mb-6">US$40.00</div>
-              <button className="w-full py-3 bg-[#0a1128] text-white font-bold rounded mb-8 hover:bg-slate-800 transition-colors">Contratar</button>
-              <ul className="space-y-4 text-sm font-semibold text-slate-600">
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Soporta: 300 Préstamos activos.</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 2 Cobrador(es).</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 1 Sucursal(es).</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 5 Cartera(s).</li>
-                <li className="flex items-start gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 4 Usuarios.</li>
-              </ul>
+            <div className="space-y-4">
+               <a href="#" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-green-50 hover:text-green-700 border border-slate-100 transition-all group/item">
+                 <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-green-500 group-hover/item:scale-110 transition-transform">
+                   <span className="material-symbols-outlined">chat</span>
+                 </div>
+                 <div>
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">WhatsApp Directo</p>
+                    <p className="text-base font-bold text-slate-700 group-hover/item:text-green-700">+1 (809) 736 - 8555</p>
+                 </div>
+               </a>
+               
+               <a href="#" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 hover:text-blue-700 border border-slate-100 transition-all group/item">
+                 <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-blue-500 group-hover/item:scale-110 transition-transform">
+                   <span className="material-symbols-outlined">mail</span>
+                 </div>
+                 <div>
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Correo Corporativo</p>
+                    <p className="text-base font-bold text-slate-700 group-hover/item:text-blue-700">ventas@prestamopro.com</p>
+                 </div>
+               </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Info Section */}
-      <section className="max-w-4xl mx-auto px-4 py-20 text-center">
-        <h2 className="text-3xl font-black text-blue-900 mb-6 flex items-center justify-center gap-2">
-          <span className="material-symbols-outlined text-red-500">cloud</span>
-          Préstamo Pro
-        </h2>
-        <p className="text-slate-600 leading-relaxed font-medium">
-          Sistema capaz de administrar y controlar toda la operación de Crédito desde un Prestamista hasta una financiera. Permite llevar el control absoluto e integrado de todas las áreas de la entidad, generando los documentos soportes tales como: Pagarés, solicitudes de crédito, comprobantes de egreso, notas contables, recibos de caja y en general cualquier documento que haya sido definido. Establece un ámbito de seguridad configurable y administrable desde cualquier parte, lo cual permite que cada profesional de la entidad tenga a su disponibilidad la información que sea relevante para su desempeño.
-        </p>
+      {/* Info Section (Replaces the plain text section) */}
+      <section className="bg-white py-24 border-y border-slate-100 relative overflow-hidden">
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+          <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 transform -rotate-3 hover:rotate-3 transition-transform duration-500">
+             <span className="material-symbols-outlined text-3xl">verified_user</span>
+          </div>
+          <h2 className="text-4xl font-black text-slate-900 mb-8 tracking-tight">
+            Control Financiero Absoluto
+          </h2>
+          <p className="text-xl text-slate-600 leading-relaxed font-medium">
+            Nuestra arquitectura permite dominar el ciclo de vida completo del crédito, desde el perfilamiento del cliente hasta el cuadre de bóveda. Automatiza pagarés, contratos, emisión de recibos y sincronización de cobradores móviles en tiempo real, garantizando máxima seguridad de la información.
+          </p>
+        </div>
       </section>
 
-      {/* Modulos Section */}
-      <section className="bg-[#0a1128] py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-5xl font-black text-white text-center mb-16">Módulos</h2>
+      {/* Modulos Section (Dark Grid) */}
+      <section className="bg-slate-950 py-32 px-6 relative overflow-hidden">
+        {/* Background glow for dark section */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center mb-20">
+             <span className="text-blue-500 font-black uppercase tracking-widest text-sm mb-4 block">Ecosistema Completo</span>
+             <h2 className="text-5xl md:text-6xl font-black text-white tracking-tight">Herramientas que potencian <br/> tu crecimiento</h2>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
             {/* Préstamos */}
-            <div className="bg-[#111c40] p-6 rounded-xl hover:bg-white hover:text-[#0a1128] group transition-colors cursor-pointer">
-              <h3 className="text-xl font-bold text-white group-hover:text-[#0a1128] flex items-center gap-3 mb-4">
-                <span className="material-symbols-outlined">payments</span>
-                Préstamos
-              </h3>
-              <p className="text-slate-400 group-hover:text-slate-600 text-sm leading-relaxed">
-                Este módulo permite gestionar toda la operación de préstamos, desde el registro de clientes hasta la apertura y administración de préstamos. Incluye la creación de pagarés, aplicación de pagos, ajustes de préstamos y gestión de rutas para cobradores.
+            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl hover:bg-blue-600 group transition-all duration-500 cursor-pointer hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-600/20">
+              <div className="w-14 h-14 bg-slate-800 group-hover:bg-white/20 rounded-2xl flex items-center justify-center mb-6 transition-colors">
+                 <span className="material-symbols-outlined text-blue-400 group-hover:text-white text-2xl">real_estate_agent</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">Core de Créditos</h3>
+              <p className="text-slate-400 group-hover:text-blue-100 text-sm leading-relaxed transition-colors">
+                Motor de amortización avanzado. Gestiona desembolsos, reestructuraciones, pagos anticipados, cálculos de mora y generación automática de contratos legales.
               </p>
             </div>
 
             {/* Inversiones */}
-            <div className="bg-white p-6 rounded-xl text-[#0a1128]">
-              <h3 className="text-xl font-bold flex items-center gap-3 mb-4">
-                <span className="material-symbols-outlined">folder_open</span>
-                Inversiones
-              </h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Para gestionar inversiones o certificados financieros. Permite registrar inversionistas, crear inversiones, calcular pagos, y registrar los pagos a los inversionistas. También permite cancelar inversiones y generar recibos para cada transacción.
-              </p>
-            </div>
-
-            {/* Compras */}
-            <div className="bg-[#111c40] p-6 rounded-xl hover:bg-white hover:text-[#0a1128] group transition-colors cursor-pointer">
-              <h3 className="text-xl font-bold text-white group-hover:text-[#0a1128] flex items-center gap-3 mb-4">
-                <span className="material-symbols-outlined">storefront</span>
-                Compras
-              </h3>
-              <p className="text-slate-400 group-hover:text-slate-600 text-sm leading-relaxed">
-                Gestiona el proceso de adquisición de bienes y servicios. Permite registrar órdenes de compra, gestionar proveedores, y controlar la recepción de los artículos. Además, genera reportes fiscales (como el 607) para asegurar el cumplimiento.
-              </p>
-            </div>
-
-            {/* Gastos */}
-            <div className="bg-[#111c40] p-6 rounded-xl hover:bg-white hover:text-[#0a1128] group transition-colors cursor-pointer">
-              <h3 className="text-xl font-bold text-white group-hover:text-[#0a1128] flex items-center gap-3 mb-4">
-                <span className="material-symbols-outlined">receipt_long</span>
-                Gastos
-              </h3>
-              <p className="text-slate-400 group-hover:text-slate-600 text-sm leading-relaxed">
-                Permite la administración de los gastos de la empresa, desde gastos menores hasta la gestión de caja chica. Este módulo registra todos los gastos y genera reportes para su análisis. También permite la reposición y pagos con caja chica.
+            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl hover:bg-blue-600 group transition-all duration-500 cursor-pointer hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-600/20">
+              <div className="w-14 h-14 bg-slate-800 group-hover:bg-white/20 rounded-2xl flex items-center justify-center mb-6 transition-colors">
+                 <span className="material-symbols-outlined text-blue-400 group-hover:text-white text-2xl">trending_up</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">Captación & Inversión</h3>
+              <p className="text-slate-400 group-hover:text-blue-100 text-sm leading-relaxed transition-colors">
+                Administración de cartera de inversores. Emisión de certificados financieros, cálculo automático de rendimientos y programación de pagos de intereses.
               </p>
             </div>
 
             {/* Cajas */}
-            <div className="bg-[#111c40] p-6 rounded-xl hover:bg-white hover:text-[#0a1128] group transition-colors cursor-pointer">
-              <h3 className="text-xl font-bold text-white group-hover:text-[#0a1128] flex items-center gap-3 mb-4">
-                <span className="material-symbols-outlined">point_of_sale</span>
-                Cajas
-              </h3>
-              <p className="text-slate-400 group-hover:text-slate-600 text-sm leading-relaxed">
-                El módulo de cajas gestiona el flujo de efectivo, permitiendo registrar y monitorear todas las transacciones diarias para mantener el cuadre exacto en cada sucursal.
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-3xl shadow-2xl shadow-blue-900/50 group transition-all duration-500 cursor-pointer hover:-translate-y-2 lg:-translate-y-4">
+              <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-sm">
+                 <span className="material-symbols-outlined text-white text-2xl">point_of_sale</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">Control de Bóveda</h3>
+              <p className="text-blue-100 text-sm leading-relaxed">
+                Flujo de efectivo blindado. Monitoreo en tiempo real de múltiples sucursales, cuadres ciegos, arqueos de caja y alertas de límites de efectivo.
               </p>
             </div>
 
             {/* Bancos */}
-            <div className="bg-[#111c40] p-6 rounded-xl hover:bg-white hover:text-[#0a1128] group transition-colors cursor-pointer">
-              <h3 className="text-xl font-bold text-white group-hover:text-[#0a1128] flex items-center gap-3 mb-4">
-                <span className="material-symbols-outlined">account_balance</span>
-                Bancos
-              </h3>
-              <p className="text-slate-400 group-hover:text-slate-600 text-sm leading-relaxed">
-                Gestiona las cuentas bancarias de la empresa, permitiendo registrar transacciones como depósitos, retiros y transferencias, así como realizar conciliaciones.
+            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl hover:bg-blue-600 group transition-all duration-500 cursor-pointer hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-600/20">
+              <div className="w-14 h-14 bg-slate-800 group-hover:bg-white/20 rounded-2xl flex items-center justify-center mb-6 transition-colors">
+                 <span className="material-symbols-outlined text-blue-400 group-hover:text-white text-2xl">account_balance</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">Conciliación Bancaria</h3>
+              <p className="text-slate-400 group-hover:text-blue-100 text-sm leading-relaxed transition-colors">
+                Sincronización de transacciones corporativas. Control de depósitos en tránsito, emisión de cheques, transferencias y reportería de saldos disponibles.
               </p>
             </div>
 
+            {/* Rutas */}
+            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl hover:bg-blue-600 group transition-all duration-500 cursor-pointer hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-600/20">
+               <div className="w-14 h-14 bg-slate-800 group-hover:bg-white/20 rounded-2xl flex items-center justify-center mb-6 transition-colors">
+                  <span className="material-symbols-outlined text-blue-400 group-hover:text-white text-2xl">map</span>
+               </div>
+               <h3 className="text-2xl font-bold text-white mb-4">Rutas Móviles</h3>
+               <p className="text-slate-400 group-hover:text-blue-100 text-sm leading-relaxed transition-colors">
+                 Optimización para cobradores de calle. Geolocalización, impresión portátil vía Bluetooth y funcionamiento sin conexión a internet.
+               </p>
+            </div>
+
             {/* Contabilidad */}
-            <div className="bg-[#111c40] p-6 rounded-xl hover:bg-white hover:text-[#0a1128] group transition-colors cursor-pointer">
-              <h3 className="text-xl font-bold text-white group-hover:text-[#0a1128] flex items-center gap-3 mb-4">
-                <span className="material-symbols-outlined">monitoring</span>
-                Contabilidad
-              </h3>
-              <p className="text-slate-400 group-hover:text-slate-600 text-sm leading-relaxed">
-                Integra todas las operaciones contables del sistema. Incluye la creación de asientos contables y reportes financieros completos para la toma de decisiones.
+            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl hover:bg-blue-600 group transition-all duration-500 cursor-pointer hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-600/20">
+              <div className="w-14 h-14 bg-slate-800 group-hover:bg-white/20 rounded-2xl flex items-center justify-center mb-6 transition-colors">
+                 <span className="material-symbols-outlined text-blue-400 group-hover:text-white text-2xl">analytics</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">Motor Contable</h3>
+              <p className="text-slate-400 group-hover:text-blue-100 text-sm leading-relaxed transition-colors">
+                Asientos automáticos por cada transacción. Generación de Estados Financieros, Balances de Comprobación y cierres fiscales sin esfuerzo.
+              </p>
+            </div>
+
+            {/* Gastos */}
+            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl hover:bg-blue-600 group transition-all duration-500 cursor-pointer hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-600/20">
+              <div className="w-14 h-14 bg-slate-800 group-hover:bg-white/20 rounded-2xl flex items-center justify-center mb-6 transition-colors">
+                 <span className="material-symbols-outlined text-blue-400 group-hover:text-white text-2xl">receipt_long</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">Gastos & Compras</h3>
+              <p className="text-slate-400 group-hover:text-blue-100 text-sm leading-relaxed transition-colors">
+                Control estricto de egresos. Manejo de proveedores, órdenes de pago, reposición de caja chica y generación de reportes tributarios gubernamentales.
               </p>
             </div>
 
             {/* Agenda */}
-            <div className="bg-[#111c40] p-6 rounded-xl hover:bg-white hover:text-[#0a1128] group transition-colors cursor-pointer">
-              <h3 className="text-xl font-bold text-white group-hover:text-[#0a1128] flex items-center gap-3 mb-4">
-                <span className="material-symbols-outlined">contact_page</span>
-                Agenda
-              </h3>
-              <p className="text-slate-400 group-hover:text-slate-600 text-sm leading-relaxed">
-                Gestiona los contactos de la empresa, permitiendo registrar y consultar información de los clientes, proveedores y prospectos de manera unificada.
+            <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl hover:bg-blue-600 group transition-all duration-500 cursor-pointer hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-600/20">
+              <div className="w-14 h-14 bg-slate-800 group-hover:bg-white/20 rounded-2xl flex items-center justify-center mb-6 transition-colors">
+                 <span className="material-symbols-outlined text-blue-400 group-hover:text-white text-2xl">recent_actors</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">CRM Integrado</h3>
+              <p className="text-slate-400 group-hover:text-blue-100 text-sm leading-relaxed transition-colors">
+                Expediente digital 360° del cliente. Historial crediticio, recordatorios de cobro, envío de notificaciones y calificación de buró interno.
               </p>
             </div>
 
@@ -236,11 +229,164 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Planes Section (Pricing) */}
+      <section id="planes" className="bg-slate-50 py-32 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl font-black text-slate-900 mb-6 tracking-tight">Escala sin límites</h2>
+            <div className="inline-flex bg-slate-200/50 p-1 rounded-full items-center">
+              <button className="px-6 py-2.5 rounded-full bg-white text-slate-900 font-bold shadow-sm text-sm">Facturación Anual (Ahorra 20%)</button>
+              <button className="px-6 py-2.5 rounded-full text-slate-500 font-bold text-sm hover:text-slate-900 transition-colors">Facturación Mensual</button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            {/* Plan Starter */}
+            <div className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 hover:-translate-y-2 transition-all duration-300">
+              <div className="w-12 h-12 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center mb-6">
+                 <span className="material-symbols-outlined">rocket_launch</span>
+              </div>
+              <h3 className="text-sm font-black text-slate-400 mb-2 uppercase tracking-widest">INICIO</h3>
+              <div className="flex items-baseline gap-1 mb-6">
+                 <span className="text-4xl font-black text-slate-900">$0</span>
+                 <span className="text-slate-500 font-bold text-sm">/ 15 días</span>
+              </div>
+              <p className="text-sm text-slate-500 mb-8 font-medium">Ideal para conocer el sistema operativo sin compromisos.</p>
+              <button className="w-full py-3.5 bg-slate-100 text-slate-700 font-bold rounded-xl mb-8 hover:bg-slate-200 transition-colors">Probar Gratis</button>
+              <ul className="space-y-4 text-sm font-bold text-slate-600">
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Hasta 50 Préstamos</li>
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 1 Usuario Administrativo</li>
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 1 Sucursal Básica</li>
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Soporte vía Email</li>
+              </ul>
+            </div>
+
+            {/* Plan Pro */}
+            <div className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 hover:-translate-y-2 transition-all duration-300">
+              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-6">
+                 <span className="material-symbols-outlined">work</span>
+              </div>
+              <h3 className="text-sm font-black text-blue-600 mb-2 uppercase tracking-widest">ESTÁNDAR</h3>
+              <div className="flex items-baseline gap-1 mb-6">
+                 <span className="text-4xl font-black text-slate-900">$30</span>
+                 <span className="text-slate-500 font-bold text-sm">/ mes</span>
+              </div>
+              <p className="text-sm text-slate-500 mb-8 font-medium">Para negocios en crecimiento que necesitan orden.</p>
+              <button className="w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl mb-8 hover:bg-blue-600 transition-colors">Elegir Estándar</button>
+              <ul className="space-y-4 text-sm font-bold text-slate-600">
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Hasta 100 Préstamos</li>
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 2 Usuarios en total</li>
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 1 Cobrador de Ruta</li>
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Impresión Bluetooth</li>
+              </ul>
+            </div>
+
+            {/* Plan Business */}
+            <div className="bg-gradient-to-b from-blue-900 to-indigo-950 p-8 rounded-3xl shadow-2xl shadow-blue-900/30 border border-blue-800 relative hover:-translate-y-2 transition-all duration-300 transform scale-105 z-10">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-b-lg">
+                 Más Popular
+              </div>
+              <div className="w-12 h-12 bg-white/10 text-white rounded-xl flex items-center justify-center mb-6">
+                 <span className="material-symbols-outlined">domain</span>
+              </div>
+              <h3 className="text-sm font-black text-blue-300 mb-2 uppercase tracking-widest">AVANZADO</h3>
+              <div className="flex items-baseline gap-1 mb-6">
+                 <span className="text-4xl font-black text-white">$45</span>
+                 <span className="text-blue-200 font-bold text-sm">/ mes</span>
+              </div>
+              <p className="text-sm text-blue-100/80 mb-8 font-medium">Equipos profesionales con múltiples cobradores.</p>
+              <button className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl mb-8 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5">Elegir Avanzado</button>
+              <ul className="space-y-4 text-sm font-bold text-blue-50">
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-blue-400 text-lg">check_circle</span> Créditos Ilimitados</li>
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-blue-400 text-lg">check_circle</span> 4 Usuarios en total</li>
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-blue-400 text-lg">check_circle</span> 4 Rutas de Cobro</li>
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-blue-400 text-lg">check_circle</span> Módulos Contables</li>
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-blue-400 text-lg">check_circle</span> Soporte Prioritario 24/7</li>
+              </ul>
+            </div>
+
+            {/* Plan Enterprise */}
+            <div className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 hover:-translate-y-2 transition-all duration-300">
+              <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-6">
+                 <span className="material-symbols-outlined">apartment</span>
+              </div>
+              <h3 className="text-sm font-black text-indigo-600 mb-2 uppercase tracking-widest">CORPORATIVO</h3>
+              <div className="flex items-baseline gap-1 mb-6">
+                 <span className="text-4xl font-black text-slate-900">$80</span>
+                 <span className="text-slate-500 font-bold text-sm">/ mes</span>
+              </div>
+              <p className="text-sm text-slate-500 mb-8 font-medium">Financieras con alto volumen operativo.</p>
+              <button className="w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl mb-8 hover:bg-indigo-600 transition-colors">Contactar Ventas</button>
+              <ul className="space-y-4 text-sm font-bold text-slate-600">
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Infraestructura Dedicada</li>
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Sucursales Ilimitadas</li>
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Cobradores Ilimitados</li>
+                <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> API de Integración</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Bottom */}
+      <section className="bg-blue-600 py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-8 tracking-tight">
+            Digitaliza tu financiera hoy mismo.
+          </h2>
+          <button className="px-10 py-5 bg-white text-blue-700 text-lg font-black rounded-2xl hover:scale-105 shadow-2xl shadow-blue-900/50 transition-transform">
+            Crear mi cuenta gratis
+          </button>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="bg-white py-8 border-t border-slate-100 text-center">
-        <p className="text-sm font-semibold text-slate-500">
-          © 2026 Préstamo Pro. Todos los derechos reservados.
-        </p>
+      <footer className="bg-slate-950 pt-20 pb-10 border-t border-slate-900 text-center md:text-left">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+          <div className="col-span-1 md:col-span-1">
+             <div className="flex items-center gap-2 justify-center md:justify-start mb-6">
+                <div className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold">
+                  <span className="material-symbols-outlined text-sm">account_balance</span>
+                </div>
+                <span className="text-xl font-black text-white tracking-tighter">Préstamo Pro</span>
+             </div>
+             <p className="text-sm font-semibold text-slate-500 leading-relaxed">
+               La plataforma más avanzada para la gestión de préstamos, cobros y administración financiera de Latinoamérica.
+             </p>
+          </div>
+          <div>
+            <h4 className="text-white font-bold mb-6">Producto</h4>
+            <ul className="space-y-3 text-sm font-semibold text-slate-400">
+              <li><a href="#" className="hover:text-blue-400 transition-colors">Características</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition-colors">Precios</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition-colors">Aplicación Móvil</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition-colors">Actualizaciones</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-white font-bold mb-6">Recursos</h4>
+            <ul className="space-y-3 text-sm font-semibold text-slate-400">
+              <li><a href="#" className="hover:text-blue-400 transition-colors">Centro de Ayuda</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition-colors">Videotutoriales</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition-colors">API Docs</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition-colors">Blog</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-white font-bold mb-6">Legal</h4>
+            <ul className="space-y-3 text-sm font-semibold text-slate-400">
+              <li><a href="#" className="hover:text-blue-400 transition-colors">Términos de Servicio</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition-colors">Política de Privacidad</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition-colors">Acuerdo de Seguridad</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-slate-800 text-center">
+          <p className="text-sm font-semibold text-slate-600">
+            © {new Date().getFullYear()} Préstamo Pro Software. Creado con tecnología de vanguardia.
+          </p>
+        </div>
       </footer>
     </div>
   );
