@@ -8,7 +8,7 @@ export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
   @Post()
-  create(@Request() req: any, @Body() data: { name: string; email?: string; identification: string; phone?: string }) {
+  create(@Request() req: any, @Body() data: { name: string; email?: string; identification: string; phone?: string; address?: string; guarantorName?: string; guarantorPhone?: string }) {
     return this.clientsService.create(req.user, data);
   }
 

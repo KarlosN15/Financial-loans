@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getClients, createClient, deleteClient } from '../api/api';
+import { getClients, deleteClient } from '../api/api';
 import { useState } from 'react';
 import { formatDOP } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
@@ -7,9 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const Clients = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [newClient, setNewClient] = useState({ name: '', email: '', identification: '', phone: '' });
 
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ['clients'],
@@ -20,18 +18,6 @@ const Clients = () => {
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     c.identification.includes(searchTerm)
   );
-
-  const mutation = useMutation({
-    mutationFn: createClient,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clients'] });
-      setIsModalOpen(false);
-      setNewClient({ name: '', email: '', identification: '', phone: '' });
-    },
-    onError: (error: any) => {
-       alert(error.response?.data?.message || 'Error al crear el cliente. Verifique que la cédula o correo no estén duplicados.');
-    }
-  });
 
   const deleteMutation = useMutation({
     mutationFn: deleteClient,
@@ -60,14 +46,7 @@ const Clients = () => {
 
   const totalPortfolioDebt = clients.reduce((acc: number, c: any) => acc + calculateDebt(c.loans || []), 0);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const payload: any = { ...newClient };
-    if (!payload.email || payload.email.trim() === '') {
-       delete payload.email;
-    }
-    mutation.mutate(payload);
-  };
+
 
   const getInitials = (name: string) => {
     if (!name) return '??';
@@ -96,7 +75,7 @@ const Clients = () => {
               <h4 className="text-xl font-black text-primary">RD$ {formatDOP(totalPortfolioDebt)}</h4>
            </div>
            <button 
-             onClick={() => setIsModalOpen(true)}
+             onClick={() => navigate('/clients/new')}
              className="bg-primary text-white px-8 py-4 rounded-xl md:rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-2xl shadow-primary/20 hover:brightness-110 transition-all active:scale-95 w-full md:w-auto"
            >
              <span className="material-symbols-outlined text-lg md:text-xl font-black">person_add</span>
@@ -238,137 +217,7 @@ const Clients = () => {
         </div>
       </div>
 
-      {/* Modal para Nuevo Cliente */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-md" onClick={() => setIsModalOpen(false)}></div>
-          <div className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl relative z-10 overflow-hidden animate-in zoom-in-95 fade-in duration-300">
 
-            {/* Header */}
-            <div className="relative bg-slate-900 px-8 pt-8 pb-10 overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full blur-3xl -translate-y-1/4 translate-x-1/4 pointer-events-none"></div>
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
-              <div className="relative flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30 flex-shrink-0">
-                  <span className="material-symbols-outlined text-white text-2xl">person_add</span>
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black text-white font-headline tracking-tighter">Nuevo Cliente</h3>
-                  <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em] mt-0.5">Apertura de Expediente · Préstamo Pro</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="absolute top-4 right-4 w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all flex items-center justify-center"
-              >
-                <span className="material-symbols-outlined text-lg">close</span>
-              </button>
-            </div>
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="p-8 space-y-5 bg-white">
-
-              {/* Nombre */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <span className="material-symbols-outlined text-xs text-primary">badge</span>
-                  Nombre Completo
-                </label>
-                <div className="relative">
-                  <input
-                    required
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                    placeholder="Ej: Juan Pérez"
-                    value={newClient.name}
-                    onChange={e => setNewClient({ ...newClient, name: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              {/* Cédula + Teléfono */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                    <span className="material-symbols-outlined text-xs text-primary">id_card</span>
-                    Cédula
-                  </label>
-                  <input
-                    required
-                    maxLength={13}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-mono tracking-wider"
-                    placeholder="000-0000000-0"
-                    value={newClient.identification}
-                    onChange={e => {
-                      const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
-                      let formatted = digits;
-                      if (digits.length > 3) formatted = digits.slice(0, 3) + '-' + digits.slice(3);
-                      if (digits.length > 10) formatted = formatted.slice(0, 11) + '-' + digits.slice(10);
-                      setNewClient({ ...newClient, identification: formatted });
-                    }}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                    <span className="material-symbols-outlined text-xs text-primary">phone_iphone</span>
-                    WhatsApp / Tel
-                  </label>
-                  <input
-                    maxLength={12}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-mono tracking-wider"
-                    placeholder="809-000-0000"
-                    value={newClient.phone}
-                    onChange={e => {
-                      const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                      let formatted = digits;
-                      if (digits.length > 3) formatted = digits.slice(0, 3) + '-' + digits.slice(3);
-                      if (digits.length > 6) formatted = formatted.slice(0, 7) + '-' + digits.slice(6);
-                      setNewClient({ ...newClient, phone: formatted });
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Email */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <span className="material-symbols-outlined text-xs text-primary">mail</span>
-                  Correo Electrónico <span className="text-slate-300 normal-case font-medium">(opcional)</span>
-                </label>
-                <input
-                  type="email"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                  placeholder="email@dominio.com"
-                  value={newClient.email}
-                  onChange={e => setNewClient({ ...newClient, email: e.target.value })}
-                />
-              </div>
-
-              {/* Buttons */}
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-3.5 bg-slate-50 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-slate-100 active:scale-95 transition-all border border-slate-200"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={mutation.isPending}
-                  className="flex-[2] py-3.5 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:brightness-110 shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {mutation.isPending ? (
-                    <><span className="material-symbols-outlined text-sm animate-spin">progress_activity</span> Guardando...</>
-                  ) : (
-                    <><span className="material-symbols-outlined text-sm">check_circle</span> Crear Expediente</>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
     </div>
   );

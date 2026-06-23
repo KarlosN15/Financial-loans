@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ClientsService {
   constructor(private prisma: PrismaService) { }
 
-  async create(user: any, data: { name: string; email?: string; identification: string; phone?: string }) {
+  async create(user: any, data: { name: string; email?: string; identification: string; phone?: string; address?: string; guarantorName?: string; guarantorPhone?: string }) {
     const adminId = user.role === 'AGENT' ? user.adminId : user.userId;
     return this.prisma.client.create({ 
       data: { ...data, userId: adminId } 

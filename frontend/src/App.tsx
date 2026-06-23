@@ -3,6 +3,7 @@ import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Clients from './pages/Clients';
+import NewClient from './pages/NewClient';
 import NewLoan from './pages/NewLoan';
 import Loans from './pages/Loans';
 import Reports from './pages/Reports';
@@ -51,6 +52,9 @@ function App() {
             } />
             <Route path="clients" element={
               <AdminRoute><Clients /></AdminRoute>
+            } />
+            <Route path="clients/new" element={
+              <AdminRoute><NewClient /></AdminRoute>
             } />
             <Route path="loans" element={
               <AdminRoute><Loans /></AdminRoute>

@@ -55,6 +55,10 @@ model Client {
   phone          String?
   loans          Loan[]
   
+  address        String?
+  guarantorName  String?
+  guarantorPhone String?
+  
   routeId        Int?
   route          Route?   @relation(fields: [routeId], references: [id])
   
