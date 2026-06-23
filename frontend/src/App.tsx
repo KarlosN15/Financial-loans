@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
+import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Clients from './pages/Clients';
 import NewLoan from './pages/NewLoan';
@@ -35,48 +36,48 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
 
-          <Route path="/" element={
+          <Route element={
             <ProtectedRoute>
               <Layout />
             </ProtectedRoute>
           }>
-            {/* Root: admins go to Dashboard, agents go to Billing */}
-            <Route index element={
+            <Route path="/dashboard" element={
               <AdminRoute>
                 <Dashboard />
               </AdminRoute>
             } />
-            <Route path="clients" element={
+            <Route path="/clients" element={
               <AdminRoute><Clients /></AdminRoute>
             } />
-            <Route path="loans" element={
+            <Route path="/loans" element={
               <AdminRoute><Loans /></AdminRoute>
             } />
-            <Route path="loans/new" element={
+            <Route path="/loans/new" element={
               <AdminRoute><NewLoan /></AdminRoute>
             } />
-            <Route path="billing" element={<Billing />} />
-            <Route path="reports" element={
+            <Route path="/billing" element={<Billing />} />
+            <Route path="/reports" element={
               <AdminRoute><Reports /></AdminRoute>
             } />
-            <Route path="agents" element={
+            <Route path="/agents" element={
               <AdminRoute><Agents /></AdminRoute>
             } />
-            <Route path="caja" element={
+            <Route path="/caja" element={
               <AdminRoute><Caja /></AdminRoute>
             } />
-            <Route path="gastos" element={
+            <Route path="/gastos" element={
               <AdminRoute><Gastos /></AdminRoute>
             } />
-            <Route path="inversiones" element={
+            <Route path="/inversiones" element={
               <AdminRoute><Inversiones /></AdminRoute>
             } />
-            <Route path="bancos" element={
+            <Route path="/bancos" element={
               <AdminRoute><Bancos /></AdminRoute>
             } />
-            <Route path="configuracion" element={
+            <Route path="/configuracion" element={
               <AdminRoute><Configuracion /></AdminRoute>
             } />
           </Route>

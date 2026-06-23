@@ -12,7 +12,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const { logout, user } = useAuth();
 
   const allMenuItems = [
-    { name: 'Dashboard', icon: 'dashboard', path: '/', roles: ['ADMIN'] },
+    { name: 'Dashboard', icon: 'dashboard', path: '/dashboard', roles: ['ADMIN'] },
     { name: 'Préstamos', icon: 'payments', path: '/loans', roles: ['ADMIN'] },
     { name: 'Clientes', icon: 'group', path: '/clients', roles: ['ADMIN'] },
     { name: 'Facturación', icon: 'receipt_long', path: '/billing', roles: ['ADMIN', 'AGENT'] },
@@ -48,8 +48,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       
       <nav className="flex-1 space-y-1">
         {menuItems.map((item) => {
-          const isActive = item.path === '/' 
-            ? location.pathname === '/' 
+          const isActive = item.path === '/dashboard' 
+            ? location.pathname === '/dashboard' 
             : location.pathname.startsWith(item.path);
           return (
             <Link
