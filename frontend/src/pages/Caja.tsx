@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { formatDOP } from '../utils/format';
-import { useAuth } from '../context/AuthContext';
 
 const Caja = () => {
-  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [balance, setBalance] = useState(0);
+  const balance = 0;
 
   // Mocks para diseño
   const transactions = [

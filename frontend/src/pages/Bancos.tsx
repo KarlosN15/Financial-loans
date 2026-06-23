@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { formatDOP } from '../utils/format';
 
 const Bancos = () => {

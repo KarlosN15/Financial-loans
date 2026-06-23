@@ -1,10 +1,6 @@
-import { useState } from 'react';
 import { formatDOP } from '../utils/format';
-import { useAuth } from '../context/AuthContext';
 
 const Gastos = () => {
-  const { user } = useAuth();
-  
   // Mocks para diseño
   const pendingExpenses = [
     { id: 1, amount: 2500, description: 'Pago de Internet', dueDate: '2026-06-25' },
