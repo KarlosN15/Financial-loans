@@ -133,6 +133,10 @@ const NewLoan = () => {
                 options={clientOptions}
                 value={formData.clientId}
                 onChange={val => setFormData({ ...formData, clientId: val })}
+                emptyAction={{
+                  label: 'Registrar Cliente Nuevo',
+                  onClick: (term) => navigate('/clients/new', { state: { initialName: term } })
+                }}
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

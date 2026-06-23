@@ -13,9 +13,13 @@ interface SearchableSelectProps {
   onChange: (value: string) => void;
   placeholder: string;
   label: string;
+  emptyAction?: {
+    label: string;
+    onClick: (searchTerm: string) => void;
+  };
 }
 
-const SearchableSelect: React.FC<SearchableSelectProps> = ({ options, value, onChange, placeholder, label }) => {
+const SearchableSelect: React.FC<SearchableSelectProps> = ({ options, value, onChange, placeholder, label, emptyAction }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -75,7 +79,23 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({ options, value, onC
           </div>
           <div className="max-h-64 overflow-y-auto">
             {filteredOptions.length === 0 ? (
-              <div className="p-8 text-center text-slate-400 italic text-xs">No se encontraron resultados</div>
+              <div className="p-8 text-center text-slate-400 flex flex-col items-center gap-3">
+                <span className="italic text-xs">No se encontraron resultados</span>
+                {emptyAction && search && (
+                  <button 
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsOpen(false);
+                      emptyAction.onClick(search);
+                    }}
+                    className="px-4 py-2 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-lg flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-md shadow-primary/20"
+                  >
+                    <span className="material-symbols-outlined text-sm">person_add</span>
+                    {emptyAction.label}
+                  </button>
+                )}
+              </div>
             ) : (
               filteredOptions.map(option => (
                 <div 
