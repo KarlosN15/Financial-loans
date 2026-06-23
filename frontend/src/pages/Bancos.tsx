@@ -103,7 +103,7 @@ const Bancos = () => {
             <div className="relative z-10 flex flex-col h-full justify-between min-h-[140px]">
               <div>
                 <p className="font-black tracking-widest text-blue-200 text-xs uppercase mb-1">{acc.bankName}</p>
-                <p className="text-xl font-mono tracking-widest opacity-80">{acc.accountNumber}</p>
+                <p className="text-xl font-mono tracking-widest opacity-80">**** {acc.accountNumber.slice(-4)}</p>
               </div>
               <div className="mt-6">
                 <p className="text-[10px] uppercase tracking-widest opacity-60 font-black">Balance Disponible</p>
