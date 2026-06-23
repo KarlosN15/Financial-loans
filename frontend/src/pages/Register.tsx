@@ -167,7 +167,7 @@ export default function Register() {
       {/* Header simple */}
       <header className="px-8 py-6 flex items-center gap-2">
         <span className="material-symbols-outlined text-blue-600 text-3xl">account_balance</span>
-        <span className="text-2xl font-black text-slate-900 tracking-tight">SisPres</span>
+        <span className="text-2xl font-black text-slate-900 tracking-tight">Préstamo Pro</span>
       </header>
 
       <main className="flex-1 flex justify-center items-start pt-10 px-4 pb-20">

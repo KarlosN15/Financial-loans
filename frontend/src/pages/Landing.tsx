@@ -101,7 +101,7 @@ const Landing = () => {
           </motion.p>
           
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-            <a href="https://wa.me/8492705770?text=Hola,%20quiero%20comenzar%20una%20prueba%20gratuita." target="_blank" className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white text-base font-bold rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-600/30 transition-all hover:-translate-y-1 flex items-center justify-center gap-2">
+            <a href="/register?plan=inicio" className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white text-base font-bold rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-600/30 transition-all hover:-translate-y-1 flex items-center justify-center gap-2">
               Comenzar Prueba Gratuita
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </a>
@@ -328,7 +328,7 @@ const Landing = () => {
           <h2 className="text-4xl md:text-5xl font-black text-white mb-8 tracking-tight">
             Digitaliza tu financiera hoy mismo.
           </h2>
-          <a href="https://wa.me/8492705770?text=Hola,%20quiero%20crear%20mi%20cuenta" target="_blank" className="inline-block px-10 py-5 bg-white text-blue-700 text-lg font-black rounded-2xl hover:scale-105 shadow-2xl shadow-blue-900/50 transition-transform">
+          <a href="/register?plan=inicio" className="inline-block px-10 py-5 bg-white text-blue-700 text-lg font-black rounded-2xl hover:scale-105 shadow-2xl shadow-blue-900/50 transition-transform">
             Crear mi cuenta gratis
           </a>
         </motion.div>
