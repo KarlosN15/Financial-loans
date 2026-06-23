@@ -10,7 +10,7 @@ import { CashModule } from './cash/cash.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { BanksModule } from './banks/banks.module';
 import { InvestmentsModule } from './investments/investments.module';
-import { ConfigModule } from './config/config.module';
+import { ConfigModule as AppConfigModule } from './config/config.module';
 import { AuthModule } from './auth/auth.module';
 import { AgentsModule } from './agents/agents.module';
 
@@ -28,7 +28,7 @@ import { AgentsModule } from './agents/agents.module';
     ExpensesModule,
     BanksModule,
     InvestmentsModule,
-    ConfigModule,
+    AppConfigModule,
   ],
   controllers: [AppController],
   providers: [AppService],
