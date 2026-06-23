@@ -25,13 +25,10 @@ const Landing = () => {
           <a href="#plataforma" className="hover:text-blue-600 transition-colors">Plataforma</a>
           <a href="#planes" className="hover:text-blue-600 transition-colors">Precios</a>
           <a href="#modulos" className="hover:text-blue-600 transition-colors">Módulos</a>
-          <a href="https://wa.me/18097368555" target="_blank" className="hover:text-blue-600 transition-colors">Contacto</a>
+          <a href="https://wa.me/8492705770" target="_blank" className="hover:text-blue-600 transition-colors">Contacto</a>
         </div>
 
         <div className="flex items-center gap-4">
-          <Link to="/login" className="hidden md:block text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors">
-            Acceso Clientes
-          </Link>
           <Link to="/login" className="px-6 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-blue-600 shadow-lg shadow-slate-900/20 hover:shadow-blue-600/30 transition-all hover:-translate-y-0.5">
             Iniciar Sesión
           </Link>
@@ -57,7 +54,7 @@ const Landing = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-            <a href="https://wa.me/18097368555?text=Hola,%20quiero%20comenzar%20una%20prueba%20gratuita." target="_blank" className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white text-base font-bold rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-600/30 transition-all hover:-translate-y-1 flex items-center justify-center gap-2">
+            <a href="https://wa.me/8492705770?text=Hola,%20quiero%20comenzar%20una%20prueba%20gratuita." target="_blank" className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white text-base font-bold rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-600/30 transition-all hover:-translate-y-1 flex items-center justify-center gap-2">
               Comenzar Prueba Gratuita
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </a>
@@ -85,13 +82,13 @@ const Landing = () => {
             </div>
 
             <div className="space-y-4">
-               <a href="https://wa.me/18097368555" target="_blank" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-green-50 hover:text-green-700 border border-slate-100 transition-all group/item">
+               <a href="https://wa.me/8492705770" target="_blank" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-green-50 hover:text-green-700 border border-slate-100 transition-all group/item">
                  <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-green-500 group-hover/item:scale-110 transition-transform">
                    <span className="material-symbols-outlined">chat</span>
                  </div>
                  <div>
                     <p className="text-xs font-black text-slate-400 uppercase tracking-widest">WhatsApp Directo</p>
-                    <p className="text-base font-bold text-slate-700 group-hover/item:text-green-700">+1 (809) 736 - 8555</p>
+                    <p className="text-base font-bold text-slate-700 group-hover/item:text-green-700">+1 (849) 270 - 5770</p>
                  </div>
                </a>
                
@@ -252,7 +249,7 @@ const Landing = () => {
                  <span className="text-slate-500 font-bold text-sm">/ 15 días</span>
               </div>
               <p className="text-sm text-slate-500 mb-8 font-medium">Ideal para conocer el sistema operativo sin compromisos.</p>
-              <a href="https://wa.me/18097368555?text=Me%20interesa%20probar%20gratis" target="_blank" className="block text-center w-full py-3.5 bg-slate-100 text-slate-700 font-bold rounded-xl mb-8 hover:bg-slate-200 transition-colors">Probar Gratis</a>
+              <a href="https://wa.me/8492705770?text=Me%20interesa%20probar%20gratis" target="_blank" className="block text-center w-full py-3.5 bg-slate-100 text-slate-700 font-bold rounded-xl mb-8 hover:bg-slate-200 transition-colors">Probar Gratis</a>
               <ul className="space-y-4 text-sm font-bold text-slate-600">
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Hasta 50 Préstamos</li>
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 1 Usuario Administrativo</li>
@@ -272,7 +269,7 @@ const Landing = () => {
                  <span className="text-slate-500 font-bold text-sm">/ mes</span>
               </div>
               <p className="text-sm text-slate-500 mb-8 font-medium">Para negocios en crecimiento que necesitan orden.</p>
-              <a href="https://wa.me/18097368555?text=Quiero%20contratar%20el%20plan%20Est%C3%A1ndar" target="_blank" className="block text-center w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl mb-8 hover:bg-blue-600 transition-colors">Elegir Estándar</a>
+              <a href="https://wa.me/8492705770?text=Quiero%20contratar%20el%20plan%20Est%C3%A1ndar" target="_blank" className="block text-center w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl mb-8 hover:bg-blue-600 transition-colors">Elegir Estándar</a>
               <ul className="space-y-4 text-sm font-bold text-slate-600">
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Hasta 100 Préstamos</li>
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 2 Usuarios en total</li>
@@ -295,7 +292,7 @@ const Landing = () => {
                  <span className="text-blue-200 font-bold text-sm">/ mes</span>
               </div>
               <p className="text-sm text-blue-100/80 mb-8 font-medium">Equipos profesionales con múltiples cobradores.</p>
-              <a href="https://wa.me/18097368555?text=Quiero%20contratar%20el%20plan%20Avanzado" target="_blank" className="block text-center w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl mb-8 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5">Elegir Avanzado</a>
+              <a href="https://wa.me/8492705770?text=Quiero%20contratar%20el%20plan%20Avanzado" target="_blank" className="block text-center w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl mb-8 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5">Elegir Avanzado</a>
               <ul className="space-y-4 text-sm font-bold text-blue-50">
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-blue-400 text-lg">check_circle</span> Créditos Ilimitados</li>
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-blue-400 text-lg">check_circle</span> 4 Usuarios en total</li>
@@ -316,7 +313,7 @@ const Landing = () => {
                  <span className="text-slate-500 font-bold text-sm">/ mes</span>
               </div>
               <p className="text-sm text-slate-500 mb-8 font-medium">Financieras con alto volumen operativo.</p>
-              <a href="https://wa.me/18097368555?text=Deseo%20informaci%C3%B3n%20sobre%20el%20plan%20Corporativo" target="_blank" className="block text-center w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl mb-8 hover:bg-indigo-600 transition-colors">Contactar Ventas</a>
+              <a href="https://wa.me/8492705770?text=Deseo%20informaci%C3%B3n%20sobre%20el%20plan%20Corporativo" target="_blank" className="block text-center w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl mb-8 hover:bg-indigo-600 transition-colors">Contactar Ventas</a>
               <ul className="space-y-4 text-sm font-bold text-slate-600">
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Infraestructura Dedicada</li>
                 <li className="flex items-start gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Sucursales Ilimitadas</li>
@@ -335,7 +332,7 @@ const Landing = () => {
           <h2 className="text-4xl md:text-5xl font-black text-white mb-8 tracking-tight">
             Digitaliza tu financiera hoy mismo.
           </h2>
-          <a href="https://wa.me/18097368555?text=Hola,%20quiero%20crear%20mi%20cuenta" target="_blank" className="inline-block px-10 py-5 bg-white text-blue-700 text-lg font-black rounded-2xl hover:scale-105 shadow-2xl shadow-blue-900/50 transition-transform">
+          <a href="https://wa.me/8492705770?text=Hola,%20quiero%20crear%20mi%20cuenta" target="_blank" className="inline-block px-10 py-5 bg-white text-blue-700 text-lg font-black rounded-2xl hover:scale-105 shadow-2xl shadow-blue-900/50 transition-transform">
             Crear mi cuenta gratis
           </a>
         </div>
@@ -367,10 +364,10 @@ const Landing = () => {
           <div>
             <h4 className="text-white font-bold mb-6">Recursos</h4>
             <ul className="space-y-3 text-sm font-semibold text-slate-400">
-              <li><a href="https://wa.me/18097368555" target="_blank" className="hover:text-blue-400 transition-colors">Centro de Ayuda</a></li>
-              <li><a href="https://wa.me/18097368555" target="_blank" className="hover:text-blue-400 transition-colors">Videotutoriales</a></li>
-              <li><a href="https://wa.me/18097368555" target="_blank" className="hover:text-blue-400 transition-colors">API Docs</a></li>
-              <li><a href="https://wa.me/18097368555" target="_blank" className="hover:text-blue-400 transition-colors">Blog</a></li>
+              <li><a href="https://wa.me/8492705770" target="_blank" className="hover:text-blue-400 transition-colors">Centro de Ayuda</a></li>
+              <li><a href="https://wa.me/8492705770" target="_blank" className="hover:text-blue-400 transition-colors">Videotutoriales</a></li>
+              <li><a href="https://wa.me/8492705770" target="_blank" className="hover:text-blue-400 transition-colors">API Docs</a></li>
+              <li><a href="https://wa.me/8492705770" target="_blank" className="hover:text-blue-400 transition-colors">Blog</a></li>
             </ul>
           </div>
           <div>
