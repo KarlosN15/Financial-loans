@@ -8,6 +8,11 @@ import Reports from './pages/Reports';
 import Billing from './pages/Billing';
 import Agents from './pages/Agents';
 import Login from './pages/Login';
+import Caja from './pages/Caja';
+import Gastos from './pages/Gastos';
+import Inversiones from './pages/Inversiones';
+import Bancos from './pages/Bancos';
+import Configuracion from './pages/Configuracion';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Protected Route Component
@@ -58,6 +63,21 @@ function App() {
             } />
             <Route path="agents" element={
               <AdminRoute><Agents /></AdminRoute>
+            } />
+            <Route path="caja" element={
+              <AdminRoute><Caja /></AdminRoute>
+            } />
+            <Route path="gastos" element={
+              <AdminRoute><Gastos /></AdminRoute>
+            } />
+            <Route path="inversiones" element={
+              <AdminRoute><Inversiones /></AdminRoute>
+            } />
+            <Route path="bancos" element={
+              <AdminRoute><Bancos /></AdminRoute>
+            } />
+            <Route path="configuracion" element={
+              <AdminRoute><Configuracion /></AdminRoute>
             } />
           </Route>
 

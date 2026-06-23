@@ -28,6 +28,19 @@ model User {
   clients   Client[]
   loans     Loan[]
   payments  Payment[]
+  
+  // Nuevas relaciones estilo Sispres
+  branchId  Int?
+  branch    Branch?  @relation("UserBranch", fields: [branchId], references: [id])
+  
+  cashRegisters CashRegister[]
+  expenses      Expense[]
+  investments   Investment[]
+  bankAccounts  BankAccount[]
+  branches      Branch[]       @relation("AdminBranches")
+  routes        Route[]
+  portfolios    Portfolio[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -41,6 +54,10 @@ model Client {
   identification String   // Cédula (Quitamos @unique de aquí)
   phone          String?
   loans          Loan[]
+  
+  routeId        Int?
+  route          Route?   @relation(fields: [routeId], references: [id])
+  
   createdAt      DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -71,6 +88,10 @@ model Loan {
   status        LoanStatus       @default(ACTIVE)
   installments  Installment[]
   payments      Payment[]
+  
+  portfolioId   Int?
+  portfolio     Portfolio? @relation(fields: [portfolioId], references: [id])
+  
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
 }
@@ -111,4 +132,131 @@ model Payment {
   method        PaymentMethod @default(CASH)
   date          DateTime      @default(now())
   createdAt     DateTime      @default(now())
+}
+
+// --- NUEVOS MÓDULOS SISPRES ---
+
+enum CashRegisterStatus {
+  OPEN
+  CLOSED
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model CashRegister {
+  id             Int                 @id @default(autoincrement())
+  userId         Int                 // Admin
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status         CashRegisterStatus  @default(OPEN)
+  openingDate    DateTime            @default(now())
+  closingDate    DateTime?
+  openingBalance Decimal             @db.Decimal(15, 2)
+  closingBalance Decimal?            @db.Decimal(15, 2)
+  transactions   CashTransaction[]
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+}
+
+model CashTransaction {
+  id             Int             @id @default(autoincrement())
+  cashRegisterId Int
+  cashRegister   CashRegister    @relation(fields: [cashRegisterId], references: [id], onDelete: Cascade)
+  type           TransactionType
+  amount         Decimal         @db.Decimal(15, 2)
+  description    String
+  date           DateTime        @default(now())
+  createdAt      DateTime        @default(now())
+}
+
+enum ExpenseStatus {
+  PAID
+  PENDING
+}
+
+model Expense {
+  id          Int           @id @default(autoincrement())
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      Decimal       @db.Decimal(15, 2)
+  description String
+  date        DateTime      @default(now())
+  status      ExpenseStatus @default(PAID) 
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum InvestmentStatus {
+  ACTIVE
+  COMPLETED
+}
+
+model Investment {
+  id           Int              @id @default(autoincrement())
+  userId       Int
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  investorName String
+  amount       Decimal          @db.Decimal(15, 2)
+  interestRate Decimal          @db.Decimal(5, 2)
+  startDate    DateTime         @default(now())
+  endDate      DateTime?
+  status       InvestmentStatus @default(ACTIVE)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model BankAccount {
+  id            Int               @id @default(autoincrement())
+  userId        Int
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bankName      String
+  accountNumber String
+  balance       Decimal           @db.Decimal(15, 2)
+  transactions  BankTransaction[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model BankTransaction {
+  id            Int             @id @default(autoincrement())
+  bankAccountId Int
+  bankAccount   BankAccount     @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  type          TransactionType
+  amount        Decimal         @db.Decimal(15, 2)
+  description   String
+  date          DateTime        @default(now())
+  createdAt     DateTime        @default(now())
+}
+
+model Branch {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation("AdminBranches", fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  address   String?
+  users     User[]   @relation("UserBranch")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Route {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  clients   Client[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Portfolio {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  loans     Loan[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

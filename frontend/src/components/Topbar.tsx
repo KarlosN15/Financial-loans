@@ -30,7 +30,12 @@ const Topbar = () => {
     { path: '/loans', label: 'Préstamos', icon: 'payments', roles: ['ADMIN'] },
     { path: '/billing', label: 'Pagos', icon: 'receipt_long', roles: ['ADMIN', 'AGENT'] },
     { path: '/reports', label: 'Reportes', icon: 'bar_chart', roles: ['ADMIN'] },
+    { path: '/caja', label: 'Caja', icon: 'point_of_sale', roles: ['ADMIN'] },
+    { path: '/gastos', label: 'Gastos', icon: 'receipt', roles: ['ADMIN'] },
+    { path: '/bancos', label: 'Bancos', icon: 'account_balance', roles: ['ADMIN'] },
+    { path: '/inversiones', label: 'Inversiones', icon: 'trending_up', roles: ['ADMIN'] },
     { path: '/agents', label: 'Equipo', icon: 'badge', roles: ['ADMIN'] },
+    { path: '/configuracion', label: 'Ajustes', icon: 'settings', roles: ['ADMIN'] },
   ].filter(item => item.roles.includes(user?.role || ''));
 
   return (
