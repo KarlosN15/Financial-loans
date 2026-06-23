@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentFrequency, Prisma } from '@prisma/client';
 
@@ -11,6 +11,22 @@ export class LoansService {
   async createLoan(user: any, data: CreateLoanDto) {
     const { clientId, amount, interestRate, term, frequency } = data;
     const adminId = user.role === 'AGENT' ? user.adminId : user.userId;
+    
+    // Verificar límites del plan
+    const adminUser = await this.prisma.user.findUnique({ where: { id: adminId } });
+    if (!adminUser) throw new UnauthorizedException('Admin no encontrado');
+
+    if (adminUser.plan === 'inicio') {
+      const currentLoans = await this.prisma.loan.count({ where: { userId: adminId } });
+      if (currentLoans >= 3) {
+        throw new ConflictException('Límite alcanzado: El plan Inicio permite un máximo de 3 préstamos.');
+      }
+    } else if (adminUser.plan === 'estandar') {
+      const currentLoans = await this.prisma.loan.count({ where: { userId: adminId } });
+      if (currentLoans >= 50) {
+        throw new ConflictException('Límite alcanzado: El plan Estándar permite un máximo de 50 préstamos.');
+      }
+    }
     
     // Verificar que el cliente pertenece al admin corporativo
     const client = await this.prisma.client.findFirst({

@@ -33,7 +33,7 @@ const Agents = () => {
       setNewAgent({ name: '', email: '', password: '' });
     },
     onError: (error: any) => {
-      alert(error.response?.data?.message || 'Error al crear el agente');
+      alert('⚠️ ' + (error.response?.data?.message || 'Error al crear el agente'));
     }
   });
 

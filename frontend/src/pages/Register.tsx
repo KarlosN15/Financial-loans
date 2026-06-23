@@ -69,7 +69,8 @@ export default function Register() {
         name: fullName,
         email: formData.correo,
         password: newPassword,
-        role: 'ADMIN'
+        role: 'ADMIN',
+        plan: formData.licencia
       });
 
       setGeneratedPassword(newPassword);

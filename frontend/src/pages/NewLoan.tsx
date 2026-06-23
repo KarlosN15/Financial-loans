@@ -36,6 +36,9 @@ const NewLoan = () => {
       queryClient.invalidateQueries({ queryKey: ['summary'] });
       navigate('/loans');
     },
+    onError: (error: any) => {
+      alert('⚠️ ' + (error.response?.data?.message || 'Ocurrió un error al crear el préstamo.'));
+    }
   });
 
   // Utility to handle amounts with commas

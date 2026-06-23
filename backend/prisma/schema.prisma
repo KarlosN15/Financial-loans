@@ -22,6 +22,7 @@ model User {
   password  String
   name      String?
   role      Role     @default(ADMIN)
+  plan      String   @default("inicio")
   adminId   Int?     // Si es AGENT, aquí guardamos el ID de su ADMIN
   admin     User?    @relation("AdminAgents", fields: [adminId], references: [id])
   agents    User[]   @relation("AdminAgents")
