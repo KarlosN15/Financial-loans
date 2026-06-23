@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getClients, createLoan } from '../api/api';
+import { getClients, createLoan, getLoans } from '../api/api';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { formatDOP } from '../utils/format';
 import SearchableSelect from '../components/SearchableSelect';
 
@@ -19,6 +20,12 @@ const NewLoan = () => {
   const { data: clients = [], isLoading: loadingClients } = useQuery({
     queryKey: ['clients'],
     queryFn: getClients
+  });
+
+  const { user } = useAuth();
+  const { data: loans = [], isLoading: loadingLoans } = useQuery({
+    queryKey: ['loans'],
+    queryFn: getLoans
   });
 
   const clientOptions = useMemo(() => 
@@ -117,6 +124,29 @@ const NewLoan = () => {
       frequency: formData.frequency
     });
   };
+
+  if (loadingLoans) {
+     return <div className="py-24 text-center text-slate-400 font-bold animate-pulse">Verificando límites de cuenta...</div>;
+  }
+
+  const isLimitReached = (user?.plan === 'inicio' && loans.length >= 3) || (user?.plan === 'estandar' && loans.length >= 50);
+
+  if (isLimitReached) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center animate-in fade-in zoom-in duration-500">
+         <div className="w-24 h-24 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mb-6">
+            <span className="material-symbols-outlined text-5xl">lock</span>
+         </div>
+         <h2 className="text-3xl font-black text-slate-800 mb-2 font-headline">Límite Alcanzado</h2>
+         <p className="text-slate-500 font-medium max-w-md mx-auto mb-8">
+            Tu plan actual ({user?.plan?.toUpperCase()}) permite un máximo de {user?.plan === 'inicio' ? '3' : '50'} préstamos y ya has alcanzado este límite.
+         </p>
+         <button onClick={() => window.location.href = 'https://wa.me/8492705770?text=Hola,%20quiero%20mejorar%20mi%20plan'} target="_blank" className="bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all shadow-xl shadow-primary/30">
+            Mejorar mi Plan
+         </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 text-left animate-in slide-in-from-bottom-5 duration-700">

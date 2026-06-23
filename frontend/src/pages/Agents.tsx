@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAgents, createAgent, deleteAgent, getPayments } from '../api/api';
 import { useState } from 'react';
 import { formatDOP } from '../utils/format';
+import { useAuth } from '../context/AuthContext';
 
 const Agents = () => {
   const queryClient = useQueryClient();
@@ -19,6 +20,9 @@ const Agents = () => {
     queryKey: ['agents'],
     queryFn: getAgents
   });
+
+  const { user } = useAuth();
+  const isLimitReached = (user?.plan === 'inicio') || (user?.plan === 'estandar' && agents.length >= 1);
 
   const filteredAgents = agents.filter((a: any) => 
     a.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -77,13 +81,20 @@ const Agents = () => {
           <p className="text-slate-400 max-w-lg text-[10px] md:text-sm font-medium italic hidden md:block">Gestión de cobradores y accesos al sistema.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-stretch sm:items-center">
-           <button 
-             onClick={() => setIsModalOpen(true)}
-             className="bg-primary text-white px-8 py-4 rounded-xl md:rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-2xl shadow-primary/20 hover:brightness-110 transition-all active:scale-95 w-full md:w-auto"
-           >
-             <span className="material-symbols-outlined text-lg md:text-xl font-black">person_add</span>
-             Alta de Agente
-           </button>
+           {isLimitReached ? (
+              <div className="bg-rose-50 border border-rose-100 text-rose-500 px-6 py-3 rounded-xl md:rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 w-full md:w-auto">
+                 <span className="material-symbols-outlined text-sm">lock</span>
+                 Límite de Agentes Alcanzado
+              </div>
+           ) : (
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="bg-primary text-white px-8 py-4 rounded-xl md:rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-2xl shadow-primary/20 hover:brightness-110 transition-all active:scale-95 w-full md:w-auto"
+              >
+                <span className="material-symbols-outlined text-lg md:text-xl font-black">person_add</span>
+                Alta de Agente
+              </button>
+           )}
         </div>
       </div>
 
