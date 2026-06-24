@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../api/api';
 import Swal from 'sweetalert2';
+import { motion } from 'framer-motion';
 
 const steps = [
   { id: 1, title: 'Información Personal' },
@@ -169,16 +170,38 @@ export default function Register() {
     }
   };
 
+  const scaleUp = {
+    hidden: { opacity: 0, scale: 0.9, y: 20 },
+    visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.6 } }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-900 flex flex-col font-sans relative overflow-hidden">
+      {/* Dynamic Background */}
+      <motion.div 
+        animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.2, 0.1] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/30 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none"
+      />
+      <motion.div 
+        animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.1, 0.05] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-500/20 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 pointer-events-none"
+      />
+
       {/* Header simple */}
-      <header className="px-8 py-6 flex items-center gap-2">
-        <span className="material-symbols-outlined text-blue-600 text-3xl">account_balance</span>
-        <span className="text-2xl font-black text-slate-900 tracking-tight">Préstamo Pro</span>
+      <header className="px-8 py-6 flex items-center gap-2 relative z-10">
+        <span className="material-symbols-outlined text-primary text-3xl">account_balance</span>
+        <span className="text-2xl font-black text-white tracking-tight uppercase">Préstamo Pro</span>
       </header>
 
-      <main className="flex-1 flex justify-center items-start pt-10 px-4 pb-20">
-        <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-10 border border-slate-100">
+      <main className="flex-1 flex justify-center items-start pt-4 px-4 pb-20 relative z-10">
+        <motion.div 
+          initial="hidden"
+          animate="visible"
+          variants={scaleUp}
+          className="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl shadow-primary/20 p-10 border border-slate-100"
+        >
           {renderStepper()}
 
           {currentStep === 1 && (
