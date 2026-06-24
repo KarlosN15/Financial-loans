@@ -190,4 +190,9 @@ export const updateUserPlan = async (id: number, plan: string) => {
   return response.data;
 };
 
+export const deleteSaasUser = async (id: number) => {
+  const response = await api.delete(`/saas/users/${id}`);
+  return response.data;
+};
+
 export default api;

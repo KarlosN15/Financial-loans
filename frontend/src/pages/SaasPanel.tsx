@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getSaasUsers, updateUserPlan } from '../api/api';
+import { getSaasUsers, updateUserPlan, deleteSaasUser } from '../api/api';
 import Swal from 'sweetalert2';
 
 const SaasPanel = () => {
@@ -30,6 +30,34 @@ const SaasPanel = () => {
       Swal.fire('Error', error.response?.data?.message || 'Error al actualizar el plan', 'error');
     }
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteSaasUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saas_users'] });
+      Swal.fire('Eliminado', 'La empresa y todos sus datos han sido borrados permanentemente.', 'success');
+    },
+    onError: (error: any) => {
+      Swal.fire('Error', error.response?.data?.message || 'Error al eliminar el usuario', 'error');
+    }
+  });
+
+  const handleDelete = (id: number, name: string) => {
+    Swal.fire({
+      title: `¿Eliminar a ${name}?`,
+      text: "¡Esta acción no se puede deshacer! Se borrarán todos sus clientes, préstamos y pagos.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Sí, eliminar permanentemente',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteMutation.mutate(id);
+      }
+    });
+  };
 
   if (isLoading) {
     return <div className="p-10 text-center animate-pulse font-bold text-slate-400">Cargando Panel SaaS...</div>;
@@ -91,7 +119,7 @@ const SaasPanel = () => {
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-right flex justify-end gap-3">
                     {editingPlanId === user.id ? (
                       <button
                         onClick={() => setEditingPlanId(null)}
@@ -100,13 +128,22 @@ const SaasPanel = () => {
                         Cancelar
                       </button>
                     ) : (
-                      <button
-                        onClick={() => setEditingPlanId(user.id)}
-                        className="text-xs font-bold text-primary hover:text-blue-800 flex items-center gap-1 ml-auto"
-                      >
-                        <span className="material-symbols-outlined text-sm">edit</span>
-                        Modificar Plan
-                      </button>
+                      <>
+                        <button
+                          onClick={() => setEditingPlanId(user.id)}
+                          className="text-xs font-bold text-primary hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <span className="material-symbols-outlined text-sm">edit</span>
+                          Modificar Plan
+                        </button>
+                        <button
+                          onClick={() => handleDelete(user.id, user.name || 'Sin Nombre')}
+                          className="text-xs font-bold text-rose-500 hover:text-rose-700 flex items-center gap-1"
+                          disabled={deleteMutation.isPending}
+                        >
+                          <span className="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                      </>
                     )}
                   </td>
                 </tr>

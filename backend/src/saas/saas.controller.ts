@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Body, UseGuards, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Patch, Delete, Param, Body, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { SaasService } from './saas.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SuperAdminGuard } from './superadmin.guard';
@@ -19,5 +19,10 @@ export class SaasController {
     @Body('plan') plan: string
   ) {
     return this.saasService.updateUserPlan(id, plan);
+  }
+
+  @Delete('users/:id')
+  async deleteUser(@Param('id', ParseIntPipe) id: number) {
+    return this.saasService.deleteUser(id);
   }
 }

@@ -38,4 +38,15 @@ export class SaasService {
       data: { plan: newPlan }
     });
   }
+
+  async deleteUser(userId: number) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+
+    // Al borrar el usuario (ADMIN), gracias al onDelete: Cascade en Prisma,
+    // se borrarán sus préstamos, clientes, transacciones, etc. automáticamente.
+    return this.prisma.user.delete({
+      where: { id: userId }
+    });
+  }
 }
