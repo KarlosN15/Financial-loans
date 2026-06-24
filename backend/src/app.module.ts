@@ -13,7 +13,11 @@ import { InvestmentsModule } from './investments/investments.module';
 import { ConfigModule as AppConfigModule } from './config/config.module';
 import { AuthModule } from './auth/auth.module';
 import { AgentsModule } from './agents/agents.module';
-
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
+import { AuditModule } from './audit/audit.module';
+import { CronModule } from './cron/cron.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -29,6 +33,14 @@ import { AgentsModule } from './agents/agents.module';
     BanksModule,
     InvestmentsModule,
     AppConfigModule,
+    ScheduleModule.forRoot(),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 100,
+    }]),
+    AuditModule,
+    CronModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

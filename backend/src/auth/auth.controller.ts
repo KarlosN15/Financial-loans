@@ -12,7 +12,7 @@ export class AuthController {
     if (!user) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
-    return this.authService.login(user);
+    return this.authService.login(user, body.twoFactorCode);
   }
 
   @Post('register')
@@ -24,5 +24,23 @@ export class AuthController {
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('2fa/generate')
+  async registerCode(@Request() req) {
+    const { otpauthUrl } = await this.authService.generateTwoFactorAuthenticationSecret(req.user);
+    const qrCodeDataURL = await this.authService.generateQrCodeDataURL(otpauthUrl);
+    return { qrCodeDataURL };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('2fa/turn-on')
+  async turnOnTwoFactorAuthentication(
+    @Request() req,
+    @Body('twoFactorCode') twoFactorCode: string,
+  ) {
+    await this.authService.turnOnTwoFactorAuthentication(req.user.userId || req.user.id || req.user.sub, twoFactorCode);
+    return { message: '2FA enabled successfully' };
   }
 }

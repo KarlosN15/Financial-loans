@@ -14,6 +14,8 @@ enum Role {
   USER
   ADMIN
   AGENT
+  CASHIER
+  SUPERVISOR
 }
 
 model User {
@@ -41,6 +43,12 @@ model User {
   branches      Branch[]       @relation("AdminBranches")
   routes        Route[]
   portfolios    Portfolio[]
+
+  // 2FA Fields
+  twoFactorSecret    String?
+  isTwoFactorEnabled Boolean  @default(false)
+  
+  auditLogs     AuditLog[]     @relation("UserAuditLogs")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -264,4 +272,15 @@ model Portfolio {
   loans     Loan[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation("UserAuditLogs", fields: [userId], references: [id], onDelete: Cascade)
+  action    String   // e.g., "CREATE_LOAN", "REGISTER_PAYMENT"
+  entity    String   // e.g., "Loan", "Payment"
+  entityId  Int
+  details   String   // JSON string with extra details
+  createdAt DateTime @default(now())
 }

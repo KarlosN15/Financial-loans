@@ -1,6 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { formatDOP } from '../utils/format';
 import { getLoansSummary, getLoans } from '../api/api';
+import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 const Reports = () => {
   const { data: summary, isLoading: loadingSummary } = useQuery({
@@ -34,38 +38,62 @@ const Reports = () => {
     ? Math.min(100, ((summary?.totalCollected || 0) / ((summary?.totalCollected || 0) + (summary?.expectedCollections || 0))) * 100)
     : 0;
 
-  const handleExport = () => {
+  const handleExportExcel = () => {
+    if (loans.length === 0) return;
+    
+    const rows = loans.map((l: any) => ({
+      'ID Préstamo': `PR-${l.id.toString().padStart(4, '0')}`,
+      'Cliente': l.client?.name,
+      'Cédula': l.client?.identification,
+      'Monto Principal': l.amount,
+      'Tasa Interés': `${l.interestRate}%`,
+      'Cuotas': l.term,
+      'Frecuencia': l.frequency === 'MONTHLY' ? 'Mensual' : 'Semanal',
+      'Estado': l.status,
+      'Fecha Registro': new Date(l.createdAt).toLocaleDateString()
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Cartera");
+    XLSX.writeFile(workbook, `Cartera_Pro_${new Date().toLocaleDateString('es-DO').replace(/\//g, '-')}.xlsx`);
+  };
+
+  const handleExportPDF = () => {
     if (loans.length === 0) return;
 
-    // Cabezeras del reporte
-    const headers = ["ID Préstamo", "Cliente", "Cédula", "Monto Principal", "Tasa Interés", "Cuotas", "Frecuencia", "Estado", "Fecha Registro"];
+    const doc = new jsPDF();
+    doc.text("Reporte de Cartera", 14, 15);
     
-    // Contenido de las filas
-    const rows = loans.map((l: any) => [
-      `PR-${l.id.toString().padStart(4, '0')}`,
-      `"${l.client?.name}"`,
-      l.client?.identification,
-      l.amount,
-      `${l.interestRate}%`,
-      l.term,
-      l.frequency === 'MONTHLY' ? 'Mensual' : 'Semanal',
-      l.status,
-      new Date(l.createdAt).toLocaleDateString()
-    ].join(","));
+    const tableColumn = ["ID Préstamo", "Cliente", "Cédula", "Monto", "Interés", "Estado"];
+    const tableRows: any[] = [];
 
-    // Generar el blob con codificación para acentos en Excel
-    const csvContent = "\uFEFF" + [headers.join(",")].concat(rows).join("\n");
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
+    loans.forEach((l: any) => {
+      const rowData = [
+        `PR-${l.id.toString().padStart(4, '0')}`,
+        l.client?.name,
+        l.client?.identification,
+        `RD$ ${l.amount}`,
+        `${l.interestRate}%`,
+        l.status
+      ];
+      tableRows.push(rowData);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    });
     
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `Cartera_Pro_${new Date().toLocaleDateString('es-DO').replace(/\//g, '-')}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    doc.save(`Cartera_Pro_${new Date().toLocaleDateString('es-DO').replace(/\//g, '-')}.pdf`);
   };
+
+  const pieData = [
+    { name: 'Activos', value: summary?.activeLoans || 0, color: '#10b981' },
+    { name: 'En Mora', value: summary?.arrearsLoans || 0, color: '#f43f5e' },
+    { name: 'Completados', value: completedLoans, color: '#94a3b8' },
+  ].filter(d => d.value > 0);
 
   return (
     <div className="space-y-10">
@@ -74,13 +102,22 @@ const Reports = () => {
           <h2 className="text-3xl font-black text-primary font-headline tracking-tighter">Reportes de Cartera</h2>
           <p className="text-slate-500 mt-1 text-sm font-medium">Análisis en tiempo real de rentabilidad y salud financiera.</p>
         </div>
-        <button 
-          onClick={handleExport}
-          className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-lg text-sm"
-        >
-          <span className="material-symbols-outlined text-base">download</span>
-          Exportar
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={handleExportExcel}
+            className="bg-emerald-600 text-white px-4 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 active:scale-95 transition-all shadow-sm text-sm"
+          >
+            <span className="material-symbols-outlined text-base">table_chart</span>
+            Excel
+          </button>
+          <button 
+            onClick={handleExportPDF}
+            className="bg-rose-600 text-white px-4 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-rose-700 active:scale-95 transition-all shadow-sm text-sm"
+          >
+            <span className="material-symbols-outlined text-base">picture_as_pdf</span>
+            PDF
+          </button>
+        </div>
       </div>
 
       {/* KPIs */}
@@ -152,31 +189,26 @@ const Reports = () => {
           </div>
         ) : (
           <>
-            <div className="h-14 flex w-full rounded-2xl overflow-hidden shadow-inner gap-[2px]">
-              {(summary?.activeLoans || 0) > 0 && (
-                <div
-                  className="h-full bg-emerald-500 flex items-center justify-center text-[10px] font-black text-white transition-all hover:brightness-110 cursor-pointer"
-                  style={{ flex: summary?.activeLoans }}
-                >
-                  ACTIVOS ({summary?.activeLoans})
-                </div>
-              )}
-              {(summary?.arrearsLoans || 0) > 0 && (
-                <div
-                  className="h-full bg-rose-500 flex items-center justify-center text-[10px] font-black text-white transition-all hover:brightness-110 cursor-pointer"
-                  style={{ flex: summary?.arrearsLoans }}
-                >
-                  MORA ({summary?.arrearsLoans})
-                </div>
-              )}
-              {completedLoans > 0 && (
-                <div
-                  className="h-full bg-slate-400 flex items-center justify-center text-[10px] font-black text-white transition-all hover:brightness-110 cursor-pointer"
-                  style={{ flex: completedLoans }}
-                >
-                  COMPLETADOS ({completedLoans})
-                </div>
-              )}
+            <div className="h-64 w-full mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <RechartsTooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
 
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">

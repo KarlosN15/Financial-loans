@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { formatDOP } from '../utils/format';
 import { useAuth } from '../context/AuthContext';
 import { DashboardSkeleton } from '../components/Skeleton';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -23,6 +24,18 @@ const Dashboard = () => {
   });
 
   if (isLoading) return <DashboardSkeleton />;
+
+  // Group payments by date for the chart
+  const paymentsByDate = payments.reduce((acc: any, p: any) => {
+    const date = new Date(p.date).toLocaleDateString('es-DO', { day: '2-digit', month: 'short' });
+    acc[date] = (acc[date] || 0) + Number(p.amount);
+    return acc;
+  }, {});
+  
+  const chartData = Object.keys(paymentsByDate).slice(-7).map(date => ({
+    name: date,
+    total: paymentsByDate[date],
+  }));
 
   return (
     <div className="space-y-10">
@@ -128,6 +141,24 @@ const Dashboard = () => {
               </div>
             )}
           </div>
+
+          {chartData.length > 0 && (
+            <div className="mt-8 h-48 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} dx={-10} tickFormatter={(val) => `RD$${val}`} />
+                  <Tooltip 
+                    cursor={{ fill: '#f1f5f9' }}
+                    contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    formatter={(value: any) => [`RD$ ${formatDOP(value)}`, 'Cobrado']}
+                  />
+                  <Bar dataKey="total" fill="#10b981" radius={[4, 4, 0, 0]} barSize={30} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
 
         <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col">

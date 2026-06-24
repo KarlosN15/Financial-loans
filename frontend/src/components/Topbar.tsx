@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 interface TopbarProps {
   onMenuClick: () => void;
@@ -8,22 +9,9 @@ interface TopbarProps {
 const Topbar = ({ onMenuClick }: TopbarProps) => {
   const { user, logout } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    return localStorage.getItem('theme') === 'dark' || 
-           (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  });
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode]);
-
-  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+  const { theme, toggleTheme } = useTheme();
+  
+  const isDarkMode = theme === 'dark';
 
   return (
     <header className="sticky top-0 z-[40] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm no-print">
@@ -45,7 +33,7 @@ const Topbar = ({ onMenuClick }: TopbarProps) => {
         {/* User Actions */}
         <div className="flex items-center gap-2 md:gap-4 ml-auto">
           <button
-            onClick={toggleDarkMode}
+            onClick={toggleTheme}
             className="w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-white hover:text-primary transition-all shadow-sm active:scale-90"
             title={isDarkMode ? 'Activar Modo Claro' : 'Activar Modo Oscuro'}
           >
