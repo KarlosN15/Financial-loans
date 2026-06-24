@@ -1,22 +1,24 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
-import Landing from './pages/Landing';
-import Dashboard from './pages/Dashboard';
-import Clients from './pages/Clients';
-import NewClient from './pages/NewClient';
-import NewLoan from './pages/NewLoan';
-import Loans from './pages/Loans';
-import Reports from './pages/Reports';
-import Billing from './pages/Billing';
-import Agents from './pages/Agents';
-import Login from './pages/Login';
-import Caja from './pages/Caja';
-import Gastos from './pages/Gastos';
-import Inversiones from './pages/Inversiones';
-import Bancos from './pages/Bancos';
-import Configuracion from './pages/Configuracion';
-import Register from './pages/Register';
-import SaasPanel from './pages/SaasPanel';
+import { lazy, Suspense } from 'react';
+
+const Landing = lazy(() => import('./pages/Landing'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Clients = lazy(() => import('./pages/Clients'));
+const NewClient = lazy(() => import('./pages/NewClient'));
+const NewLoan = lazy(() => import('./pages/NewLoan'));
+const Loans = lazy(() => import('./pages/Loans'));
+const Reports = lazy(() => import('./pages/Reports'));
+const Billing = lazy(() => import('./pages/Billing'));
+const Agents = lazy(() => import('./pages/Agents'));
+const Login = lazy(() => import('./pages/Login'));
+const Caja = lazy(() => import('./pages/Caja'));
+const Gastos = lazy(() => import('./pages/Gastos'));
+const Inversiones = lazy(() => import('./pages/Inversiones'));
+const Bancos = lazy(() => import('./pages/Bancos'));
+const Configuracion = lazy(() => import('./pages/Configuracion'));
+const Register = lazy(() => import('./pages/Register'));
+const SaasPanel = lazy(() => import('./pages/SaasPanel'));
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Protected Route Component
@@ -50,62 +52,69 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
+        <Suspense fallback={
+          <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900">
+             <div className="w-16 h-16 border-4 border-white/10 border-t-primary rounded-full animate-spin mb-4"></div>
+             <p className="text-white font-bold tracking-widest text-xs uppercase animate-pulse">Cargando...</p>
+          </div>
+        }>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
 
-          <Route element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }>
-            <Route path="dashboard" element={
-              <AdminRoute>
-                <Dashboard />
-              </AdminRoute>
-            } />
-            <Route path="clients" element={
-              <AdminRoute><Clients /></AdminRoute>
-            } />
-            <Route path="clients/new" element={
-              <AdminRoute><NewClient /></AdminRoute>
-            } />
-            <Route path="loans" element={
-              <AdminRoute><Loans /></AdminRoute>
-            } />
-            <Route path="loans/new" element={
-              <AdminRoute><NewLoan /></AdminRoute>
-            } />
-            <Route path="billing" element={<Billing />} />
-            <Route path="reports" element={
-              <AdminRoute><Reports /></AdminRoute>
-            } />
-            <Route path="agents" element={
-              <AdminRoute><Agents /></AdminRoute>
-            } />
-            <Route path="caja" element={
-              <AdminRoute><Caja /></AdminRoute>
-            } />
-            <Route path="gastos" element={
-              <AdminRoute><Gastos /></AdminRoute>
-            } />
-            <Route path="inversiones" element={
-              <AdminRoute><Inversiones /></AdminRoute>
-            } />
-            <Route path="bancos" element={
-              <AdminRoute><Bancos /></AdminRoute>
-            } />
-            <Route path="configuracion" element={
-              <AdminRoute><Configuracion /></AdminRoute>
-            } />
-            <Route path="saas" element={
-              <SaasRoute><SaasPanel /></SaasRoute>
-            } />
-          </Route>
+            <Route element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }>
+              <Route path="dashboard" element={
+                <AdminRoute>
+                  <Dashboard />
+                </AdminRoute>
+              } />
+              <Route path="clients" element={
+                <AdminRoute><Clients /></AdminRoute>
+              } />
+              <Route path="clients/new" element={
+                <AdminRoute><NewClient /></AdminRoute>
+              } />
+              <Route path="loans" element={
+                <AdminRoute><Loans /></AdminRoute>
+              } />
+              <Route path="loans/new" element={
+                <AdminRoute><NewLoan /></AdminRoute>
+              } />
+              <Route path="billing" element={<Billing />} />
+              <Route path="reports" element={
+                <AdminRoute><Reports /></AdminRoute>
+              } />
+              <Route path="agents" element={
+                <AdminRoute><Agents /></AdminRoute>
+              } />
+              <Route path="caja" element={
+                <AdminRoute><Caja /></AdminRoute>
+              } />
+              <Route path="gastos" element={
+                <AdminRoute><Gastos /></AdminRoute>
+              } />
+              <Route path="inversiones" element={
+                <AdminRoute><Inversiones /></AdminRoute>
+              } />
+              <Route path="bancos" element={
+                <AdminRoute><Bancos /></AdminRoute>
+              } />
+              <Route path="configuracion" element={
+                <AdminRoute><Configuracion /></AdminRoute>
+              } />
+              <Route path="saas" element={
+                <SaasRoute><SaasPanel /></SaasRoute>
+              } />
+            </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </Router>
     </AuthProvider>
   );
