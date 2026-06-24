@@ -11,7 +11,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const location = useLocation();
   const { logout, user } = useAuth();
   const superAdminEmail = import.meta.env.VITE_SUPERADMIN_EMAIL || 'admin@presprosystems.com';
-  const isSuperAdmin = user?.email?.toLowerCase() === superAdminEmail.toLowerCase();
+  const legacyAdminEmail = 'admin@prestamopro.com';
+  const isSuperAdmin = user?.email?.toLowerCase() === superAdminEmail.toLowerCase() || user?.email?.toLowerCase() === legacyAdminEmail;
 
   const allMenuItems = [
     { name: 'Dashboard', icon: 'dashboard', path: '/dashboard', roles: ['ADMIN'] },

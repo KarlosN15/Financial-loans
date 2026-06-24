@@ -38,8 +38,9 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 const SaasRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const superAdminEmail = import.meta.env.VITE_SUPERADMIN_EMAIL || 'admin@presprosystems.com';
+  const legacyAdminEmail = 'admin@prestamopro.com';
   
-  if (user?.email?.toLowerCase() !== superAdminEmail.toLowerCase()) {
+  if (user?.email?.toLowerCase() !== superAdminEmail.toLowerCase() && user?.email?.toLowerCase() !== legacyAdminEmail) {
     return <Navigate to="/dashboard" replace />;
   }
   return <>{children}</>;
