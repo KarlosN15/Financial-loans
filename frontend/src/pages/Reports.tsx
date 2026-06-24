@@ -31,7 +31,7 @@ const Reports = () => {
   const completedLoans = loans.filter((l: any) => l.status === 'COMPLETED').length;
   const totalLoans = (summary?.activeLoans || 0) + (summary?.arrearsLoans || 0) + completedLoans;
   const avgRate = loans.length > 0
-    ? (loans.reduce((acc: number, l: any) => acc + l.interestRate, 0) / loans.length).toFixed(2)
+    ? (loans.reduce((acc: number, l: any) => acc + Number(l.interestRate || 0), 0) / loans.length).toFixed(2)
     : '0.00';
 
   const recoveryPct = (summary?.totalCollected || 0) + (summary?.expectedCollections || 0) > 0
