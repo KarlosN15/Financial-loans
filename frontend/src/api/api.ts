@@ -179,4 +179,15 @@ export const deletePortfolio = async (id: number) => {
   return response.data;
 };
 
+// --- SaaS / SuperAdmin ---
+export const getSaasUsers = async () => {
+  const response = await api.get('/saas/users');
+  return response.data;
+};
+
+export const updateUserPlan = async (id: number, plan: string) => {
+  const response = await api.patch(`/saas/users/${id}/plan`, { plan });
+  return response.data;
+};
+
 export default api;

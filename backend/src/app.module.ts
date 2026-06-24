@@ -18,6 +18,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AuditModule } from './audit/audit.module';
 import { CronModule } from './cron/cron.module';
 import { EventsModule } from './events/events.module';
+import { SaasModule } from './saas/saas.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { EventsModule } from './events/events.module';
     BanksModule,
     InvestmentsModule,
     AppConfigModule,
+    SaasModule,
     ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([{
       ttl: 60000,

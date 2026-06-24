@@ -16,6 +16,7 @@ import Inversiones from './pages/Inversiones';
 import Bancos from './pages/Bancos';
 import Configuracion from './pages/Configuracion';
 import Register from './pages/Register';
+import SaasPanel from './pages/SaasPanel';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Protected Route Component
@@ -30,6 +31,17 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   if (user?.role === 'AGENT') return <Navigate to="/billing" replace />;
+  return <>{children}</>;
+};
+
+// Saas Route: Only the SuperAdmin email can access it
+const SaasRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+  const superAdminEmail = import.meta.env.VITE_SUPERADMIN_EMAIL || 'admin@prestamopro.com';
+  
+  if (user?.email?.toLowerCase() !== superAdminEmail.toLowerCase()) {
+    return <Navigate to="/dashboard" replace />;
+  }
   return <>{children}</>;
 };
 
@@ -85,6 +97,9 @@ function App() {
             } />
             <Route path="configuracion" element={
               <AdminRoute><Configuracion /></AdminRoute>
+            } />
+            <Route path="saas" element={
+              <SaasRoute><SaasPanel /></SaasRoute>
             } />
           </Route>
 

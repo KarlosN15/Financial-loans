@@ -10,6 +10,8 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const location = useLocation();
   const { logout, user } = useAuth();
+  const superAdminEmail = import.meta.env.VITE_SUPERADMIN_EMAIL || 'admin@prestamopro.com';
+  const isSuperAdmin = user?.email?.toLowerCase() === superAdminEmail.toLowerCase();
 
   const allMenuItems = [
     { name: 'Dashboard', icon: 'dashboard', path: '/dashboard', roles: ['ADMIN'] },
@@ -64,6 +66,20 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
             </Link>
           );
         })}
+
+        {isSuperAdmin && (
+          <Link
+            to="/saas"
+            className={`mx-2 my-1 px-4 py-2 flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer ${
+              location.pathname.startsWith('/saas')
+                ? 'bg-amber-500 text-white shadow-md'
+                : 'text-amber-600 dark:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20'
+            }`}
+          >
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.startsWith('/saas') ? "'FILL' 1" : "'FILL' 0" }}>admin_panel_settings</span>
+            <span className="font-bold">Panel SaaS</span>
+          </Link>
+        )}
       </nav>
 
       <div className="px-4 mt-auto space-y-4">
