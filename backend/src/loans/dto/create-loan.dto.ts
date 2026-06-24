@@ -24,4 +24,8 @@ export class CreateLoanDto {
   @IsNumber()
   @IsOptional()
   portfolioId?: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  bankAccountId: number;
 }

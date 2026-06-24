@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentFrequency, Prisma } from '@prisma/client';
 
@@ -9,7 +9,7 @@ export class LoansService {
   constructor(private prisma: PrismaService) {}
 
   async createLoan(user: any, data: CreateLoanDto) {
-    const { clientId, amount, interestRate, term, frequency, portfolioId } = data;
+    const { clientId, amount, interestRate, term, frequency, portfolioId, bankAccountId } = data;
     const adminId = user.role === 'AGENT' ? user.adminId : user.userId;
     
     // Verificar límites del plan
@@ -33,6 +33,15 @@ export class LoansService {
       where: { id: clientId, userId: adminId }
     });
     if (!client) throw new NotFoundException('Cliente no encontrado o no pertenece a esta cuenta');
+
+    // Verificar liquidez en la cuenta bancaria de origen
+    const bankAccount = await this.prisma.bankAccount.findFirst({
+      where: { id: bankAccountId, userId: adminId }
+    });
+    if (!bankAccount) throw new NotFoundException('Cuenta de fondeo no encontrada');
+    if (Number(bankAccount.balance) < amount) {
+      throw new BadRequestException(`Fondos insuficientes. La cuenta tiene RD$ ${Number(bankAccount.balance)} pero el desembolso es de RD$ ${amount}.`);
+    }
 
     return this.prisma.$transaction(async (tx) => {
       // Ajustar tasa y períodos según la frecuencia
@@ -84,6 +93,21 @@ export class LoansService {
       }
 
       await tx.installment.createMany({ data: installments });
+
+      // Descontar fondos y crear transacción
+      await tx.bankAccount.update({
+        where: { id: bankAccountId },
+        data: { balance: { decrement: amount } }
+      });
+
+      await tx.bankTransaction.create({
+        data: {
+          bankAccountId: bankAccountId,
+          type: 'EXPENSE',
+          amount: amount,
+          description: `Desembolso de Préstamo PR-${loan.id.toString().padStart(4, '0')} para ${client.name}`
+        }
+      });
 
       return tx.loan.findFirst({
         where: { id: loan.id, userId: adminId },

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getClients, createLoan, getLoans, getPortfolios } from '../api/api';
+import { getClients, createLoan, getLoans, getPortfolios, getBanks } from '../api/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { formatDOP } from '../utils/format';
@@ -16,10 +16,12 @@ const NewLoan = () => {
     interestRate: '',
     term: '',
     frequency: 'MONTHLY' as 'MONTHLY' | 'WEEKLY',
-    portfolioId: '' as string | number
+    portfolioId: '' as string | number,
+    bankAccountId: '' as string | number
   });
 
   const { data: portfolios = [] } = useQuery({ queryKey: ['portfolios'], queryFn: getPortfolios });
+  const { data: banks = [], isLoading: loadingBanks } = useQuery({ queryKey: ['banks'], queryFn: getBanks });
 
   const { data: clients = [], isLoading: loadingClients } = useQuery({
     queryKey: ['clients'],
@@ -123,7 +125,10 @@ const NewLoan = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const amountVal = parseFloat(parseAmountInput(formData.amount));
-    if (!formData.clientId || isNaN(amountVal) || !formData.interestRate || !formData.term) return;
+    if (!formData.clientId || isNaN(amountVal) || !formData.interestRate || !formData.term || !formData.bankAccountId) {
+      Swal.fire('Error', 'Por favor complete todos los campos, incluyendo la cuenta de fondeo.', 'warning');
+      return;
+    }
     
     mutation.mutate({
       clientId: parseInt(formData.clientId),
@@ -131,6 +136,7 @@ const NewLoan = () => {
       interestRate: parseFloat(formData.interestRate),
       term: parseInt(formData.term),
       frequency: formData.frequency,
+      bankAccountId: parseInt(String(formData.bankAccountId)),
       ...(formData.portfolioId && { portfolioId: parseInt(String(formData.portfolioId)) })
     });
   };
@@ -192,6 +198,23 @@ const NewLoan = () => {
                   <option value="">Seleccione una Cartera</option>
                   {portfolios.map((p: any) => (
                     <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Cuenta de Origen (Fondeo)</label>
+                <select
+                  required
+                  className="w-full bg-slate-50 border-0 border-b-2 border-slate-100 focus:border-primary focus:ring-0 rounded-none py-4 text-sm font-black transition-all appearance-none"
+                  value={formData.bankAccountId}
+                  onChange={e => setFormData({ ...formData, bankAccountId: e.target.value })}
+                >
+                  <option value="">Seleccione cuenta de desembolso</option>
+                  {banks.map((b: any) => (
+                    <option key={b.id} value={b.id}>
+                      {b.bankName} - Cuenta {b.accountNumber} (Disponible: RD$ {formatDOP(b.balance)})
+                    </option>
                   ))}
                 </select>
               </div>
