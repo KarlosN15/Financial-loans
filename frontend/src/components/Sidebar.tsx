@@ -26,9 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
     { name: 'Ajustes', icon: 'settings', path: '/configuracion', roles: ['ADMIN'] },
   ];
 
-  if (isSuperAdmin) {
-    allMenuItems.push({ name: 'SaaS Admin', icon: 'admin_panel_settings', path: '/saas', roles: ['ADMIN'] });
-  }
+  // Saas panel button moved to a dedicated section at the bottom
 
   const menuItems = allMenuItems.filter(item => 
     item.roles.includes(user?.role || 'ADMIN')
@@ -73,14 +71,20 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         })}
       </nav>
 
-      <div className="px-4 mt-auto space-y-4">
+      <div className="px-4 mt-auto space-y-3">
+        {isSuperAdmin && (
+          <Link to="/saas" className="w-full bg-slate-800 text-slate-300 font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg border border-slate-700 hover:bg-slate-900 hover:text-white transition-all">
+            <span className="material-symbols-outlined text-xl">shield_person</span>
+            <span>Panel SaaS Maestro</span>
+          </Link>
+        )}
+
         {user?.role === 'ADMIN' && (
           <Link to="/loans/new" className="w-full bg-secondary text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-secondary/20 hover:brightness-110 active:scale-95 transition-all">
             <span className="material-symbols-outlined">add_circle</span>
             <span>Nuevo Préstamo</span>
           </Link>
         )}
-        
         <div className="pt-4 border-t border-slate-200/50">
           <button 
             onClick={logout}
