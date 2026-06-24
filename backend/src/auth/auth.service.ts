@@ -26,6 +26,9 @@ export class AuthService {
       if (!twoFactorCode) {
         throw new UnauthorizedException('2FA code required');
       }
+      if (!user.twoFactorSecret) {
+        throw new UnauthorizedException('2FA not properly configured');
+      }
       const isCodeValid = authenticator.verify({
         token: twoFactorCode,
         secret: user.twoFactorSecret,
@@ -85,6 +88,9 @@ export class AuthService {
 
   async turnOnTwoFactorAuthentication(userId: number, code: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.twoFactorSecret) {
+      throw new UnauthorizedException('User not found or 2FA not initialized');
+    }
     const isCodeValid = authenticator.verify({
       token: code,
       secret: user.twoFactorSecret,
