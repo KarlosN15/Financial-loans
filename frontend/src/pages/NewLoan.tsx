@@ -172,7 +172,7 @@ const NewLoan = () => {
           <div className="bg-white rounded-3xl p-10 shadow-2xl shadow-slate-100 border border-slate-50">
             <div className="mb-10">
               <h2 className="text-3xl font-black text-primary mb-2 font-headline tracking-tighter">Suscripción de Crédito</h2>
-              <p className="text-slate-400 text-xs font-black uppercase tracking-widest">Préstamo Pro SaaS - Módulo de Originación</p>
+              <p className="text-slate-400 text-xs font-black uppercase tracking-widest">PresPro Systems SaaS - Módulo de Originación</p>
             </div>
             
             <form onSubmit={handleSubmit} className="space-y-8">

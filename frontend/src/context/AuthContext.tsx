@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         </div>
         <div className="text-center space-y-2">
           <h2 className="text-xl font-black text-white uppercase tracking-[0.3em] animate-pulse">Cargando Sistema</h2>
-          <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest italic">Verificando credenciales de Préstamo Pro...</p>
+          <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest italic">Verificando credenciales de PresPro Systems...</p>
         </div>
       </div>
     );

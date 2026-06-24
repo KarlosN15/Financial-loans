@@ -192,7 +192,7 @@ export default function Register() {
       {/* Header simple */}
       <header className="px-8 py-6 flex items-center gap-2 relative z-10">
         <span className="material-symbols-outlined text-primary text-3xl">account_balance</span>
-        <span className="text-2xl font-black text-white tracking-tight uppercase">Préstamo Pro</span>
+        <span className="text-2xl font-black text-white tracking-tight uppercase">PresPro Systems</span>
       </header>
 
       <main className="flex-1 flex justify-center items-start pt-4 px-4 pb-20 relative z-10">
@@ -334,7 +334,7 @@ export default function Register() {
             </div>
           )}
 
-        </div>
+        </motion.div>
       </main>
     </div>
   );

@@ -56,7 +56,7 @@ const Landing = () => {
             <span className="material-symbols-outlined font-bold text-xl">account_balance</span>
           </div>
           <div>
-            <span className="block text-xl font-black text-slate-900 tracking-tight leading-none">Préstamo Pro</span>
+            <span className="block text-xl font-black text-slate-900 tracking-tight leading-none">PresPro Systems</span>
             <span className="block text-[9px] font-bold text-blue-600 uppercase tracking-widest mt-0.5">Gestión Inteligente</span>
           </div>
         </motion.div>
@@ -148,13 +148,13 @@ const Landing = () => {
                  </div>
                </a>
                
-               <a href="mailto:ventas@prestamopro.com" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 hover:text-blue-700 border border-slate-100 transition-all group/item">
+               <a href="mailto:ventas@presprosystems.com" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 hover:text-blue-700 border border-slate-100 transition-all group/item">
                  <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-blue-500 group-hover/item:scale-110 transition-transform">
                    <span className="material-symbols-outlined">mail</span>
                  </div>
                  <div>
                     <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Correo Corporativo</p>
-                    <p className="text-base font-bold text-slate-700 group-hover/item:text-blue-700">ventas@prestamopro.com</p>
+                    <p className="text-base font-bold text-slate-700 group-hover/item:text-blue-700">ventas@presprosystems.com</p>
                  </div>
                </a>
             </div>
@@ -342,7 +342,7 @@ const Landing = () => {
                 <div className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold">
                   <span className="material-symbols-outlined text-sm">account_balance</span>
                 </div>
-                <span className="text-xl font-black text-white tracking-tighter">Préstamo Pro</span>
+                <span className="text-xl font-black text-white tracking-tighter">PresPro Systems</span>
              </div>
              <p className="text-sm font-semibold text-slate-500 leading-relaxed">
                La plataforma más avanzada para la gestión de préstamos, cobros y administración financiera de Latinoamérica.
@@ -377,7 +377,7 @@ const Landing = () => {
         </div>
         <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-slate-800 text-center">
           <p className="text-sm font-semibold text-slate-600">
-            © {new Date().getFullYear()} Préstamo Pro Software. Creado con tecnología de vanguardia.
+            © {new Date().getFullYear()} PresPro Systems. Creado con tecnología de vanguardia.
           </p>
         </div>
       </footer>

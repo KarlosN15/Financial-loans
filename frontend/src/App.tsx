@@ -37,7 +37,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 // Saas Route: Only the SuperAdmin email can access it
 const SaasRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
-  const superAdminEmail = import.meta.env.VITE_SUPERADMIN_EMAIL || 'admin@prestamopro.com';
+  const superAdminEmail = import.meta.env.VITE_SUPERADMIN_EMAIL || 'admin@presprosystems.com';
   
   if (user?.email?.toLowerCase() !== superAdminEmail.toLowerCase()) {
     return <Navigate to="/dashboard" replace />;

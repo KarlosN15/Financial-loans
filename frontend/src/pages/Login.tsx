@@ -63,7 +63,7 @@ const Login = () => {
             >
                <span className="material-symbols-outlined text-4xl text-white">account_balance</span>
             </motion.div>
-            <h1 className="text-3xl font-black text-white font-headline tracking-tighter uppercase mb-2">Préstamo Pro</h1>
+            <h1 className="text-3xl font-black text-white font-headline tracking-tighter uppercase mb-2">PresPro Systems</h1>
             <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">Financial Management SaaS</p>
           </div>
 
@@ -76,7 +76,7 @@ const Login = () => {
                   required
                   type="email" 
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all outline-none"
-                  placeholder="admin@prestamopro.com"
+                  placeholder="tu@correo.com"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                 />
@@ -134,7 +134,7 @@ const Login = () => {
         </div>
         
         <div className="mt-8 text-center">
-           <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] italic">Préstamo Pro Software © {new Date().getFullYear()}</p>
+           <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] italic">PresPro Systems © {new Date().getFullYear()}</p>
         </div>
       </motion.div>
     </div>

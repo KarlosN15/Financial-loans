@@ -267,7 +267,7 @@ const Loans = () => {
                      </div>
                      <div>
                         <h3 className="text-2xl font-black text-white font-headline tracking-tighter uppercase whitespace-normal break-words">Estado de Cuenta</h3>
-                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em] mt-0.5 break-words">Generación de documento formal · Préstamo Pro</p>
+                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em] mt-0.5 break-words">Generación de documento formal · PresPro Systems</p>
                      </div>
                   </div>
                   <button
@@ -283,7 +283,7 @@ const Loans = () => {
               <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                  <div className="flex justify-between border-b pb-6">
                     <div className="space-y-1">
-                       <h4 className="text-lg font-black text-primary uppercase font-headline">PRÉSTAMO PRO</h4>
+                       <h4 className="text-lg font-black text-primary uppercase font-headline">PRESPRO SYSTEMS</h4>
                        <p className="text-[10px] font-bold text-slate-400">RNC: 123-45678-9</p>
                     </div>
                     <div className="text-right">
@@ -353,7 +353,7 @@ const Loans = () => {
             <>
               <div className="text-center mb-6 space-y-1">
                  <h4 className="text-xl font-black text-black font-headline uppercase">ESTADO DE CUENTA</h4>
-                 <p className="text-[10px] font-bold text-black uppercase tracking-widest border-b border-black pb-2">PRESTAMO PRO - SISTEMAFAC</p>
+                 <p className="text-[10px] font-bold text-black uppercase tracking-widest border-b border-black pb-2">PRESPRO SYSTEMS - SISTEMAFAC</p>
               </div>
               
               <div className="mb-6 space-y-1 text-xs text-black font-bold uppercase">
@@ -395,7 +395,7 @@ const Loans = () => {
             <div className="space-y-6 text-black">
                <div className="text-center mb-6 space-y-1">
                   <h4 className="text-xl font-black font-headline uppercase">VALE DE DESEMBOLSO</h4>
-                  <p className="text-[10px] font-bold uppercase tracking-widest border-b border-black pb-2">PRESTAMO PRO - SISTEMAFAC</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest border-b border-black pb-2">PRESPRO SYSTEMS - SISTEMAFAC</p>
                </div>
 
                <div className="space-y-4 text-xs font-bold uppercase">

@@ -10,7 +10,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const location = useLocation();
   const { logout, user } = useAuth();
-  const superAdminEmail = import.meta.env.VITE_SUPERADMIN_EMAIL || 'admin@prestamopro.com';
+  const superAdminEmail = import.meta.env.VITE_SUPERADMIN_EMAIL || 'admin@presprosystems.com';
   const isSuperAdmin = user?.email?.toLowerCase() === superAdminEmail.toLowerCase();
 
   const allMenuItems = [
@@ -41,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance</span>
           </div>
           <div>
-            <h1 className="text-xl font-extrabold text-blue-900 dark:text-white font-['Manrope'] leading-tight tracking-tighter">Préstamo Pro</h1>
+            <h1 className="text-xl font-extrabold text-blue-900 dark:text-white font-['Manrope'] leading-tight tracking-tighter">PresPro Systems</h1>
             <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold italic">Financial Solutions</p>
           </div>
         </div>
