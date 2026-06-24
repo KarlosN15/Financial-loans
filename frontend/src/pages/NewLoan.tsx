@@ -21,7 +21,7 @@ const NewLoan = () => {
   });
 
   const { data: portfolios = [] } = useQuery({ queryKey: ['portfolios'], queryFn: getPortfolios });
-  const { data: banks = [], isLoading: loadingBanks } = useQuery({ queryKey: ['banks'], queryFn: getBanks });
+  const { data: banks = [] } = useQuery({ queryKey: ['banks'], queryFn: getBanks });
 
   const { data: clients = [], isLoading: loadingClients } = useQuery({
     queryKey: ['clients'],
