@@ -9,7 +9,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const location = useLocation();
-  const { logout, user } = useAuth();
+  const { user } = useAuth();
   const superAdminEmail = import.meta.env.VITE_SUPERADMIN_EMAIL || 'admin@presprosystems.com';
   const legacyAdminEmail = 'admin@prestamopro.com';
   const isSuperAdmin = user?.email?.toLowerCase() === superAdminEmail.toLowerCase() || user?.email?.toLowerCase() === legacyAdminEmail;
@@ -84,6 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
             <span className="material-symbols-outlined">add_circle</span>
             <span>Nuevo Préstamo</span>
           </Link>
+        )}
       </div>
     </div>
   );
