@@ -105,7 +105,7 @@ const SaasPanel = () => {
                         onChange={(e) => updateMutation.mutate({ id: user.id, plan: e.target.value })}
                         disabled={updateMutation.isPending}
                       >
-                        <option value="inicio">Inicio (Máx 3)</option>
+                        <option value="inicio">Prueba (Máx 3)</option>
                         <option value="estandar">Estándar (Máx 50)</option>
                         <option value="premium">Premium (Ilimitado)</option>
                       </select>
@@ -115,7 +115,7 @@ const SaasPanel = () => {
                         user.plan === 'estandar' ? 'bg-emerald-100 text-emerald-600' :
                         'bg-slate-100 text-slate-500'
                       }`}>
-                        {user.plan}
+                        {user.plan === 'inicio' ? 'prueba' : user.plan}
                       </span>
                     )}
                   </td>

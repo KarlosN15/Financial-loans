@@ -254,7 +254,7 @@ export default function Register() {
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">Tipo de Licencia</label>
                   <select name="licencia" value={formData.licencia} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none bg-white">
-                    <option value="inicio">Plan Inicio (Prueba Gratis)</option>
+                    <option value="inicio">Plan Prueba (Prueba Gratis)</option>
                     <option value="estandar">Plan Estándar ($30/mes)</option>
                     <option value="avanzado">Plan Avanzado ($45/mes)</option>
                   </select>

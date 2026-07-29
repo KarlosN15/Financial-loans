@@ -1,13 +1,18 @@
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api, { getPayments } from '../api/api';
 import { Link } from 'react-router-dom';
 import { formatDOP } from '../utils/format';
 import { useAuth } from '../context/AuthContext';
 import { DashboardSkeleton } from '../components/Skeleton';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import Swal from 'sweetalert2';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [timeRange, setTimeRange] = useState<'7D' | '15D' | '1M' | '3M' | '1Y'>('7D');
+
   const { data: summary, isLoading } = useQuery({
     queryKey: ['summary'],
     queryFn: async () => {
@@ -23,6 +28,20 @@ const Dashboard = () => {
     queryFn: getPayments,
   });
 
+  const getDateRangeText = (range: string) => {
+    const end = new Date();
+    const start = new Date();
+    if (range === '7D') start.setDate(end.getDate() - 7);
+    else if (range === '15D') start.setDate(end.getDate() - 15);
+    else if (range === '1M') start.setMonth(end.getMonth() - 1);
+    else if (range === '3M') start.setMonth(end.getMonth() - 3);
+    else if (range === '1Y') start.setFullYear(end.getFullYear() - 1);
+
+    const startStr = start.toLocaleDateString('es-DO', { month: 'short', day: 'numeric' });
+    const endStr = end.toLocaleDateString('es-DO', { month: 'short', day: 'numeric', year: 'numeric' });
+    return `${startStr} - ${endStr}`;
+  };
+
   if (isLoading) return <DashboardSkeleton />;
 
   // Group payments by date for the chart
@@ -32,17 +51,88 @@ const Dashboard = () => {
     return acc;
   }, {});
   
-  const chartData = Object.keys(paymentsByDate).slice(-7).map(date => ({
+  const daysLimit = timeRange === '7D' ? 7 : timeRange === '15D' ? 15 : timeRange === '1M' ? 30 : timeRange === '3M' ? 90 : 365;
+  const chartData = Object.keys(paymentsByDate).slice(-daysLimit).map(date => ({
     name: date,
     total: paymentsByDate[date],
   }));
 
   return (
-    <div className="space-y-10">
-      <div className="flex items-center justify-between mb-2 md:mb-6">
-        <div className="hidden md:block">
-          <h2 className="text-3xl font-extrabold text-primary font-headline tracking-tight">Dashboard Principal</h2>
-          <p className="text-slate-500 mt-1">Resumen operacional de hoy {new Date().toLocaleDateString('es-DO', { day: '2-digit', month: 'short', year: 'numeric' })}.</p>
+    <div className="space-y-8">
+      {/* Modern Dashboard Header Card */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 md:p-6 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-all">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-blue-950 dark:bg-slate-800 text-white flex items-center justify-center shadow-md">
+            <span className="material-symbols-outlined text-2xl">grid_view</span>
+          </div>
+          <div>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight font-headline">Panel</h2>
+              <span className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-full text-[11px] font-black tracking-wider flex items-center gap-2 border border-emerald-200/50 dark:border-emerald-500/20">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                EN VIVO
+              </span>
+            </div>
+            <p className="text-slate-400 text-xs md:text-sm font-medium mt-0.5">
+              Visión en tiempo real del rendimiento de tu negocio.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-start md:justify-end">
+          {/* Date Picker Display */}
+          <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/80 px-4 py-2.5 rounded-2xl border border-slate-200/70 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold shadow-inner">
+            <span className="material-symbols-outlined text-base text-slate-400">schedule</span>
+            <span className="material-symbols-outlined text-base text-slate-500">calendar_today</span>
+            <span className="font-semibold text-slate-700 dark:text-slate-200">{getDateRangeText(timeRange)}</span>
+            <button 
+              onClick={() => setTimeRange('7D')} 
+              className="ml-1 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+              title="Restablecer periodo"
+            >
+              <span className="material-symbols-outlined text-sm">close</span>
+            </button>
+          </div>
+
+          {/* Filter Pills */}
+          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200/60 dark:border-slate-700">
+            {(['7D', '15D', '1M', '3M', '1Y'] as const).map((period) => (
+              <button
+                key={period}
+                onClick={() => setTimeRange(period)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  timeRange === period
+                    ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-md scale-105'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
+              >
+                {period}
+              </button>
+            ))}
+          </div>
+
+          {/* Refresh Button */}
+          <button
+            onClick={() => queryClient.invalidateQueries()}
+            className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm active:scale-95"
+            title="Actualizar datos"
+          >
+            <span className="material-symbols-outlined text-lg">refresh</span>
+          </button>
+
+          {/* Help Button */}
+          <button
+            onClick={() => Swal.fire({
+              title: 'Panel en Tiempo Real',
+              text: 'Visualiza la evolución de los cobros y préstamos de tu negocio filtrados por rangos de fecha.',
+              icon: 'info',
+              confirmButtonColor: '#0284c7'
+            })}
+            className="w-10 h-10 rounded-2xl bg-sky-500 text-white flex items-center justify-center shadow-lg shadow-sky-500/30 hover:scale-105 active:scale-95 transition-all"
+            title="Ayuda del panel"
+          >
+            <span className="material-symbols-outlined text-lg">help</span>
+          </button>
         </div>
       </div>
 

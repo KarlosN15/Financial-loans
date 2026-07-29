@@ -155,7 +155,7 @@ const NewLoan = () => {
          </div>
          <h2 className="text-3xl font-black text-slate-800 mb-2 font-headline">Límite Alcanzado</h2>
          <p className="text-slate-500 font-medium max-w-md mx-auto mb-8">
-            Tu plan actual ({user?.plan?.toUpperCase()}) permite un máximo de {user?.plan === 'inicio' ? '3' : '50'} préstamos y ya has alcanzado este límite.
+            Tu plan actual ({user?.plan === 'inicio' ? 'PRUEBA' : user?.plan?.toUpperCase()}) permite un máximo de {user?.plan === 'inicio' ? '3' : '50'} préstamos y ya has alcanzado este límite.
          </p>
          <a href="https://wa.me/8492705770?text=Hola,%20quiero%20mejorar%20mi%20plan" target="_blank" rel="noopener noreferrer" className="bg-primary text-white px-8 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all shadow-xl shadow-primary/30 inline-block mt-6">
             Mejorar mi Plan

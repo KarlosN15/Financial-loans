@@ -19,7 +19,7 @@ export class LoansService {
     if (adminUser.plan === 'inicio') {
       const currentLoans = await this.prisma.loan.count({ where: { userId: adminId } });
       if (currentLoans >= 3) {
-        throw new ConflictException('Límite alcanzado: El plan Inicio permite un máximo de 3 préstamos.');
+        throw new ConflictException('Límite alcanzado: El plan Prueba permite un máximo de 3 préstamos.');
       }
     } else if (adminUser.plan === 'estandar') {
       const currentLoans = await this.prisma.loan.count({ where: { userId: adminId } });

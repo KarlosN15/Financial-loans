@@ -18,7 +18,7 @@ export class AgentsService {
     if (!adminUser) throw new UnauthorizedException('Admin no encontrado');
     
     if (adminUser.plan === 'inicio') {
-      throw new ConflictException('El plan Inicio no permite crear cobradores. Máximo 1 usuario permitido.');
+      throw new ConflictException('El plan Prueba no permite crear cobradores. Máximo 1 usuario permitido.');
     }
     
     if (adminUser.plan === 'estandar') {

@@ -84,16 +84,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
             <span className="material-symbols-outlined">add_circle</span>
             <span>Nuevo Préstamo</span>
           </Link>
-        )}
-        <div className="pt-4 border-t border-slate-200/50">
-          <button 
-            onClick={logout}
-            className="w-full text-red-500 mx-0 my-1 px-4 py-2 flex items-center gap-3 hover:bg-red-50 rounded-lg transition-all cursor-pointer font-bold"
-          >
-            <span className="material-symbols-outlined">logout</span>
-            <span>Cerrar Sesión</span>
-          </button>
-        </div>
       </div>
     </div>
   );
