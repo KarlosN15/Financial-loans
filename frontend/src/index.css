@@ -126,21 +126,6 @@
   color: var(--on-surface);
 }
 
-.dark .bg-white {
-  background-color: var(--surface-container-low) !important;
-}
-
-.dark .text-primary {
-  color: var(--primary) !important;
-}
-
-.dark .border-slate-100 {
-  border-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-.dark .bg-slate-50 {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-}
 
 .dark .glass-panel {
   background: rgba(16, 18, 24, 0.7);

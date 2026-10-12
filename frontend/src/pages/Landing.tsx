@@ -1,7 +1,13 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const Landing = () => {
+  useEffect(() => {
+    // Ensure Landing always uses a crisp white background
+    document.documentElement.classList.remove('dark');
+  }, []);
+
   // Animation variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 50 },
@@ -29,7 +35,7 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 overflow-x-hidden selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-white font-sans text-slate-800 overflow-x-hidden selection:bg-blue-600 selection:text-white">
       {/* Decorative Background Blobs */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
         <motion.div 
