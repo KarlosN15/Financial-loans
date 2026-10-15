@@ -98,6 +98,10 @@
   h1, h2, h3, .headline-font {
     font-family: 'Manrope', sans-serif;
   }
+
+  input, select, textarea {
+    color: #0f172a;
+  }
 }
 
 .dark {
