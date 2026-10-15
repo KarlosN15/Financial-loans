@@ -143,6 +143,8 @@ model Payment {
   clientName    String?       
   amount        Decimal       @db.Decimal(15, 2)
   method        PaymentMethod @default(CASH)
+  isInterestOnly Boolean      @default(false)
+  notes         String?
   date          DateTime      @default(now())
   createdAt     DateTime      @default(now())
 }
