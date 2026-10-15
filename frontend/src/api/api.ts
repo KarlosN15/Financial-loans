@@ -65,7 +65,13 @@ export const getPayments = async () => {
   return response.data;
 };
 
-export const createPayment = async (data: { loanId: number; amount: number; method: 'CASH' | 'TRANSFER' }) => {
+export const createPayment = async (data: { 
+  loanId: number; 
+  amount: number; 
+  method: 'CASH' | 'TRANSFER';
+  isInterestOnly?: boolean;
+  notes?: string;
+}) => {
   const response = await api.post('/payments', data);
   return response.data;
 };
