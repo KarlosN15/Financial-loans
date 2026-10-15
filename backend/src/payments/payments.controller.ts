@@ -9,7 +9,16 @@ export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   @Post()
-  create(@Request() req: any, @Body() data: { loanId: number; amount: number; method: PaymentMethod }) {
+  create(
+    @Request() req: any, 
+    @Body() data: { 
+      loanId: number; 
+      amount: number; 
+      method: PaymentMethod; 
+      isInterestOnly?: boolean; 
+      notes?: string;
+    }
+  ) {
     return this.paymentsService.create(req.user, data);
   }
 
