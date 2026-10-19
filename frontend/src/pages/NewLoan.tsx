@@ -276,7 +276,7 @@ const NewLoan = () => {
                     }`}
                   >
                     <span className="material-symbols-outlined text-[16px]">percent</span>
-                    Solo Rédito (Interés Fijo)
+                    Rédito con Abonos a Capital
                   </button>
                 </div>
               </div>
@@ -461,11 +461,11 @@ const NewLoan = () => {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-amber-700 uppercase tracking-widest pl-1">Modalidad de Tiempo</label>
+                    <label className="text-[10px] font-black text-amber-700 uppercase tracking-widest pl-1">Modalidad de Tiempo y Capital</label>
                     <div className="bg-amber-50/80 p-4 rounded-2xl border border-amber-200 flex items-start gap-2.5">
                       <span className="material-symbols-outlined text-amber-600 text-lg mt-0.5">info</span>
                       <p className="text-[11px] font-bold text-amber-900 leading-tight">
-                        <strong>Tiempo Abierto:</strong> El cliente paga solo el rédito ({formData.frequency === 'MONTHLY' ? 'mensual' : formData.frequency === 'BIWEEKLY' ? 'quincenal' : 'semanal'}) sin límite de fechas. El capital se salda cuando lo devuelva.
+                        <strong>Tiempo Abierto y Flexible:</strong> El cliente paga el rédito periódico ({formData.frequency === 'MONTHLY' ? 'mensual' : formData.frequency === 'BIWEEKLY' ? 'quincenal' : 'semanal'}) y puede realizar abonos directos al capital en cualquier momento (ej: si son RD$ 500 de rédito y paga RD$ 1,000, los RD$ 500 excedentes se abonan automáticamente al capital).
                       </p>
                     </div>
                   </div>
@@ -515,7 +515,7 @@ const NewLoan = () => {
                         <span className={`px-2.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
                           loanType === 'REDITO' ? 'bg-amber-400 text-slate-900' : 'bg-emerald-400 text-slate-900'
                         }`}>
-                          {loanType === 'REDITO' ? 'Modo Solo Rédito' : 'Modo Con Plazo'}
+                          {loanType === 'REDITO' ? 'Modo Rédito y Capital Flexible' : 'Modo Con Plazo'}
                         </span>
                         <span className="text-white/60 text-[10px] font-bold uppercase tracking-widest">
                           {loanType === 'REDITO' ? 'Pago Recurrente' : `${calculations.schedule.length} Cuotas para saldar`}
@@ -534,7 +534,7 @@ const NewLoan = () => {
                         </h3>
                         <span className="text-sm font-black uppercase text-white/90 tracking-wide">
                           {formData.frequency === 'MONTHLY' ? 'Mensual' : formData.frequency === 'BIWEEKLY' ? 'Quincenal' : 'Semanal'}
-                          {loanType === 'REDITO' ? ' (Solo Interés)' : ''}
+                          {loanType === 'REDITO' ? ' (Rédito Base)' : ''}
                         </span>
                       </div>
 
@@ -553,7 +553,7 @@ const NewLoan = () => {
                       )}
                       {loanType === 'REDITO' && (
                         <p className="text-[11px] text-amber-200/90 font-bold mt-1.5">
-                          Pago periódico de rédito. El capital de RD$ {formatDOP(parseAmountInput(formData.amount) || '0')} se mantiene intacto.
+                          Pago periódico de rédito. Permite realizar abonos directos al capital de RD$ {formatDOP(parseAmountInput(formData.amount) || '0')} en cualquier momento para reducir la deuda o saldarla.
                         </p>
                       )}
                    </div>
@@ -626,7 +626,7 @@ const NewLoan = () => {
                        <div className="bg-white/5 border border-white/10 p-6 rounded-3xl space-y-4">
                           <div className="flex justify-between items-center border-b border-white/10 pb-3">
                              <span className="text-[10px] font-black uppercase text-amber-400 tracking-widest">Modalidad</span>
-                             <span className="text-xs font-black text-white uppercase">Solo Rédito (Interés Puro)</span>
+                             <span className="text-xs font-black text-white uppercase">Rédito con Abonos a Capital</span>
                           </div>
                           <div className="flex justify-between items-center border-b border-white/10 pb-3">
                              <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Capital Prestado</span>
@@ -649,7 +649,7 @@ const NewLoan = () => {
                        <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex items-start gap-3">
                           <span className="material-symbols-outlined text-amber-400 text-lg mt-0.5">verified_user</span>
                           <p className="text-[11px] text-slate-300 font-medium leading-relaxed">
-                             Cada vez que cobres el rédito en <strong>Facturación</strong>, la fecha de vencimiento se renovará automáticamente al siguiente ciclo sin alterar el capital.
+                             Cada vez que cobres el rédito en <strong>Facturación</strong>, se renueva al siguiente ciclo. Si el cliente entrega un monto mayor al rédito (ej: 500 de rédito y paga 1,000), el excedente (500) se abona automáticamente a reducir el capital adeudado.
                           </p>
                        </div>
                     </div>
