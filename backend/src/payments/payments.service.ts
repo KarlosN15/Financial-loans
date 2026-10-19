@@ -17,27 +17,15 @@ export class PaymentsService {
       });
       if (!loan) throw new Error('Préstamo no encontrado o no autorizado');
 
-      const payment = await tx.payment.create({
-        data: {
-          loanId: data.loanId,
-          amount: data.amount,
-          method: data.method,
-          clientName: loan.client.name,
-          userId: user.userId,
-          isInterestOnly: isRedito,
-          notes: data.notes || (isRedito ? 'Pago de Rédito (Solo Interés)' : null)
-        }
-      });
-
       const pendingInstallments = await tx.installment.findMany({
         where: { loanId: data.loanId, status: 'PENDING' },
         orderBy: { number: 'asc' },
       });
 
+      let finalNotes = data.notes;
+
       if (isRedito) {
-        // En pago de Rédito (Solo Interés):
-        // 1. El capital adeudado se mantiene intacto.
-        // 2. Se renuevan las fechas de vencimiento de las cuotas pendientes para el siguiente ciclo.
+        // En pago de Rédito y Capital (Interés Periódico + Abonos al Capital):
         let ratePerPeriod = 0;
         if (loan.frequency === 'MONTHLY') {
           ratePerPeriod = Number(loan.interestRate) / 100;
@@ -46,36 +34,96 @@ export class PaymentsService {
         } else {
           ratePerPeriod = (Number(loan.interestRate) / 4) / 100;
         }
-        const singlePeriodInterest = pendingInstallments[0] 
-          ? Number(pendingInstallments[0].interest) 
-          : (Number(loan.amount) * ratePerPeriod);
 
-        const periodsPaid = singlePeriodInterest > 0 
-          ? Math.max(1, Math.round(data.amount / singlePeriodInterest)) 
-          : 1;
+        const targetInst = pendingInstallments[0];
+        const currentCapital = targetInst ? Number(targetInst.capital) : Number(loan.amount);
+        const singlePeriodInterest = targetInst && Number(targetInst.interest) > 0
+          ? Number(targetInst.interest)
+          : (currentCapital * ratePerPeriod);
 
-        for (const inst of pendingInstallments) {
-          const newDueDate = new Date(inst.dueDate);
-          if (loan.frequency === 'MONTHLY') {
-            newDueDate.setMonth(newDueDate.getMonth() + periodsPaid);
-          } else if (loan.frequency === 'BIWEEKLY') {
-            newDueDate.setDate(newDueDate.getDate() + (15 * periodsPaid));
-          } else {
-            newDueDate.setDate(newDueDate.getDate() + (7 * periodsPaid));
-          }
+        let interestPaid = 0;
+        let capitalAbono = 0;
 
-          await tx.installment.update({
-            where: { id: inst.id },
-            data: { dueDate: newDueDate }
-          });
+        if (singlePeriodInterest <= 0) {
+          capitalAbono = data.amount;
+        } else if (data.amount <= singlePeriodInterest) {
+          // El pago cubre hasta el rédito de 1 período
+          interestPaid = data.amount;
+          capitalAbono = 0;
+        } else {
+          // El cliente cubre el rédito del período + excedente como abono a capital
+          // (ej: si son 500 de rédito y el cliente paga 1000, 500 van a rédito y 500 van a capital)
+          interestPaid = singlePeriodInterest;
+          capitalAbono = data.amount - singlePeriodInterest;
         }
 
-        // Si el préstamo estaba en mora, al pagar el rédito pasa a estar al día (ACTIVE)
-        if (loan.status === 'ARREARS') {
-          await tx.loan.update({
-            where: { id: data.loanId },
-            data: { status: 'ACTIVE' }
-          });
+        const coversFullInterestCycle = singlePeriodInterest > 0 && data.amount >= singlePeriodInterest;
+        const newCapital = Math.max(0, currentCapital - capitalAbono);
+        const nextPeriodInterest = Number((newCapital * ratePerPeriod).toFixed(2));
+
+        if (targetInst) {
+          const newDueDate = new Date(targetInst.dueDate);
+          if (coversFullInterestCycle) {
+            if (loan.frequency === 'MONTHLY') {
+              newDueDate.setMonth(newDueDate.getMonth() + 1);
+            } else if (loan.frequency === 'BIWEEKLY') {
+              newDueDate.setDate(newDueDate.getDate() + 15);
+            } else {
+              newDueDate.setDate(newDueDate.getDate() + 7);
+            }
+          }
+
+          if (newCapital <= 0) {
+            // Préstamo completamente saldado
+            await tx.installment.update({
+              where: { id: targetInst.id },
+              data: {
+                dueDate: newDueDate,
+                capital: 0,
+                interest: 0,
+                amount: 0,
+                balance: 0,
+                paidAmount: Number(targetInst.amount),
+                status: 'PAID'
+              }
+            });
+
+            await tx.loan.update({
+              where: { id: data.loanId },
+              data: {
+                amount: 0,
+                status: 'COMPLETED'
+              }
+            });
+          } else {
+            // Queda capital pendiente: actualizamos capital, cuota y renovamos ciclo
+            await tx.installment.update({
+              where: { id: targetInst.id },
+              data: {
+                dueDate: coversFullInterestCycle ? newDueDate : targetInst.dueDate,
+                capital: newCapital,
+                interest: nextPeriodInterest,
+                amount: newCapital + nextPeriodInterest,
+                balance: newCapital,
+              }
+            });
+
+            await tx.loan.update({
+              where: { id: data.loanId },
+              data: {
+                amount: newCapital,
+                status: 'ACTIVE'
+              }
+            });
+          }
+        }
+
+        if (!finalNotes) {
+          if (capitalAbono > 0) {
+            finalNotes = `Pago de Rédito (RD$ ${interestPaid.toFixed(2)}) + Abono a Capital (RD$ ${capitalAbono.toFixed(2)}). Nuevo Capital: RD$ ${newCapital.toFixed(2)}`;
+          } else {
+            finalNotes = `Pago de Rédito (${coversFullInterestCycle ? '1 ciclo' : 'parcial'}): RD$ ${data.amount.toFixed(2)}`;
+          }
         }
       } else {
         // Amortización regular de cuotas
@@ -120,6 +168,18 @@ export class PaymentsService {
           });
         }
       }
+
+      const payment = await tx.payment.create({
+        data: {
+          loanId: data.loanId,
+          amount: data.amount,
+          method: data.method,
+          clientName: loan.client.name,
+          userId: user.userId,
+          isInterestOnly: isRedito,
+          notes: finalNotes || (isRedito ? 'Pago de Rédito y Capital' : 'Cobro de Cuota Regular')
+        }
+      });
 
       return tx.payment.findUnique({
         where: { id: payment.id },
