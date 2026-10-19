@@ -152,11 +152,11 @@ const Loans = () => {
                     <span className="text-sm font-black text-primary">RD$ {formatDOP(loan.amount)}</span>
                   </td>
                   <td className="px-8 py-6 text-sm font-bold text-slate-600">
-                    {loan.interestRate}% <span className="text-[10px] text-slate-400 uppercase ml-1 block font-black">{loan.frequency === 'MONTHLY' ? 'Mensual' : 'Semanal'}</span>
+                    {loan.interestRate}% <span className="text-[10px] text-slate-400 uppercase ml-1 block font-black">{loan.frequency === 'MONTHLY' ? 'Mensual' : loan.frequency === 'BIWEEKLY' ? 'Quincenal' : 'Semanal'}</span>
                   </td>
                   <td className="px-8 py-6 text-sm font-bold text-slate-600">
                     {loan.term} <span className="text-[10px] text-slate-400 uppercase ml-1 font-black">Cuotas</span>
-                    <p className="text-[10px] text-slate-400 uppercase italic font-bold">{loan.frequency === 'MONTHLY' ? 'Mensual' : 'Semanal'}</p>
+                    <p className="text-[10px] text-slate-400 uppercase italic font-bold">{loan.frequency === 'MONTHLY' ? 'Mensual' : loan.frequency === 'BIWEEKLY' ? 'Quincenal' : 'Semanal'}</p>
                   </td>
                   <td className="px-8 py-6">
                     <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter ${
@@ -363,7 +363,7 @@ const Loans = () => {
                  <div className="border-t border-black mt-2 pt-2">
                      <p><span className="font-black">CAPITAL:</span> RD$ {formatDOP(selectedLoan?.amount || 0)}</p>
                      <p><span className="font-black">TASA:</span> {selectedLoan?.interestRate}%</p>
-                     <p><span className="font-black">PLAZO:</span> {selectedLoan?.term} {selectedLoan?.frequency === 'MONTHLY' ? 'Meses' : 'Semanas'}</p>
+                     <p><span className="font-black">PLAZO:</span> {selectedLoan?.term} {selectedLoan?.frequency === 'MONTHLY' ? 'Meses' : selectedLoan?.frequency === 'BIWEEKLY' ? 'Quincenas' : 'Semanas'}</p>
                  </div>
               </div>
 
@@ -412,7 +412,7 @@ const Loans = () => {
                   <div className="border-t border-black pt-2 flex flex-col gap-1">
                      <p><span className="font-black">REMITENTE:</span> ADMINISTRACION PRO</p>
                      <p><span className="font-black">CONCEPTO:</span> DESEMBOLSO DE CAPITAL</p>
-                     <p><span className="font-black">PLAZO:</span> {selectedLoan?.term} {selectedLoan?.frequency === 'MONTHLY' ? 'MESES' : 'SEMANAS'}</p>
+                     <p><span className="font-black">PLAZO:</span> {selectedLoan?.term} {selectedLoan?.frequency === 'MONTHLY' ? 'MESES' : selectedLoan?.frequency === 'BIWEEKLY' ? 'QUINCENAS' : 'SEMANAS'}</p>
                      <p><span className="font-black">TASA:</span> {selectedLoan?.interestRate}%</p>
                   </div>
 
