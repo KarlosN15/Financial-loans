@@ -75,12 +75,15 @@ const NewLoan = () => {
   };
 
   // Dynamic Amortization Calculation
+  const defaultTerm = formData.frequency === 'WEEKLY' ? 4 : formData.frequency === 'BIWEEKLY' ? 2 : 1;
+  const effectiveTerm = formData.term ? parseInt(formData.term) : defaultTerm;
+
   const amortization = useMemo(() => {
     const amount = parseFloat(parseAmountInput(formData.amount));
     const monthlyRate = parseFloat(formData.interestRate);
-    const term = parseInt(formData.term);
+    const term = effectiveTerm;
 
-    if (!amount || isNaN(monthlyRate) || !term) return [];
+    if (!amount || isNaN(monthlyRate) || !term || term <= 0) return [];
 
     // Adjust rate and installments based on frequency
     let ratePerPeriod = 0;
@@ -115,7 +118,7 @@ const NewLoan = () => {
     }
 
     return schedule;
-  }, [formData]);
+  }, [formData, effectiveTerm]);
 
   const totals = useMemo(() => {
     const amountVal = parseFloat(parseAmountInput(formData.amount));
@@ -132,8 +135,8 @@ const NewLoan = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const amountVal = parseFloat(parseAmountInput(formData.amount));
-    if (!formData.clientId || isNaN(amountVal) || !formData.interestRate || !formData.term || !formData.bankAccountId) {
-      Swal.fire('Error', 'Por favor complete todos los campos, incluyendo la cuenta de fondeo.', 'warning');
+    if (!formData.clientId || isNaN(amountVal) || !formData.interestRate || !formData.bankAccountId) {
+      Swal.fire('Error', 'Por favor complete los campos requeridos (Cliente, Monto, Tasa y Cuenta de fondeo).', 'warning');
       return;
     }
     
@@ -141,7 +144,7 @@ const NewLoan = () => {
       clientId: parseInt(formData.clientId),
       amount: amountVal,
       interestRate: parseFloat(formData.interestRate),
-      term: parseInt(formData.term),
+      term: effectiveTerm,
       frequency: formData.frequency,
       bankAccountId: parseInt(String(formData.bankAccountId)),
       ...(formData.portfolioId && { portfolioId: parseInt(String(formData.portfolioId)) })
@@ -258,18 +261,6 @@ const NewLoan = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Número de Cuotas ({formData.frequency === 'MONTHLY' ? 'Meses' : formData.frequency === 'BIWEEKLY' ? 'Quincenas' : 'Semanas'})</label>
-                  <input 
-                    required
-                    className="w-full bg-slate-50 border-0 border-b-2 border-slate-100 focus:border-primary focus:ring-0 rounded-none py-4 px-0 text-sm font-black transition-all"
-                    placeholder="Ej: 12"
-                    type="number"
-                    value={formData.term}
-                    onChange={e => setFormData({ ...formData, term: e.target.value })}
-                  />
-                </div>
-
-                <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Frecuencia de Cobro</label>
                   <div className="grid grid-cols-3 gap-2">
                     <button 
@@ -295,13 +286,95 @@ const NewLoan = () => {
                     </button>
                   </div>
                 </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">
+                      Número de Cuotas <span className="text-emerald-600 font-bold lowercase">(opcional)</span>
+                    </label>
+                    <span className="text-[9px] font-black uppercase text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[12px]">auto_awesome</span>
+                      {formData.term 
+                        ? `${formData.term} ${parseInt(formData.term) === 1 ? 'cuota' : 'cuotas'}` 
+                        : `Auto: ${formData.frequency === 'WEEKLY' ? '4 semanas' : formData.frequency === 'BIWEEKLY' ? '2 quincenas' : '1 mes'}`}
+                    </span>
+                  </div>
+                  <input 
+                    className="w-full bg-slate-50 border-0 border-b-2 border-slate-100 focus:border-primary focus:ring-0 rounded-none py-4 px-0 text-sm font-black transition-all"
+                    placeholder={`Vacío = ${formData.frequency === 'WEEKLY' ? '4 cuotas semanales' : formData.frequency === 'BIWEEKLY' ? '2 cuotas quincenales' : '1 cuota mensual'}`}
+                    type="number"
+                    min="1"
+                    value={formData.term}
+                    onChange={e => setFormData({ ...formData, term: e.target.value })}
+                  />
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, term: '' })}
+                      className={`px-2.5 py-1 text-[9px] font-black uppercase rounded-lg border transition-all ${
+                        !formData.term 
+                          ? 'bg-emerald-500 text-white border-emerald-500 shadow-sm' 
+                          : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      Auto (1 Mes)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const count = formData.frequency === 'WEEKLY' ? 8 : formData.frequency === 'BIWEEKLY' ? 4 : 2;
+                        setFormData({ ...formData, term: String(count) });
+                      }}
+                      className={`px-2.5 py-1 text-[9px] font-black uppercase rounded-lg border transition-all ${
+                        formData.term === String(formData.frequency === 'WEEKLY' ? 8 : formData.frequency === 'BIWEEKLY' ? 4 : 2)
+                          ? 'bg-primary text-white border-primary shadow-sm'
+                          : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      2 Meses
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const count = formData.frequency === 'WEEKLY' ? 12 : formData.frequency === 'BIWEEKLY' ? 6 : 3;
+                        setFormData({ ...formData, term: String(count) });
+                      }}
+                      className={`px-2.5 py-1 text-[9px] font-black uppercase rounded-lg border transition-all ${
+                        formData.term === String(formData.frequency === 'WEEKLY' ? 12 : formData.frequency === 'BIWEEKLY' ? 6 : 3)
+                          ? 'bg-primary text-white border-primary shadow-sm'
+                          : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      3 Meses
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const count = formData.frequency === 'WEEKLY' ? 24 : formData.frequency === 'BIWEEKLY' ? 12 : 6;
+                        setFormData({ ...formData, term: String(count) });
+                      }}
+                      className={`px-2.5 py-1 text-[9px] font-black uppercase rounded-lg border transition-all ${
+                        formData.term === String(formData.frequency === 'WEEKLY' ? 24 : formData.frequency === 'BIWEEKLY' ? 12 : 6)
+                          ? 'bg-primary text-white border-primary shadow-sm'
+                          : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      6 Meses
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <div className="pt-4 bg-primary text-white p-8 rounded-3xl relative overflow-hidden group shadow-2xl shadow-primary/20 border border-white/5">
                 <div className="relative z-10 flex flex-col h-full justify-between gap-8">
                    <div className="flex justify-between items-start">
                       <div>
-                         <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">Cuota por {formData.frequency === 'MONTHLY' ? 'Mes' : formData.frequency === 'BIWEEKLY' ? 'Quincena' : 'Semana'}</p>
+                         <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">
+                            Cuota por {formData.frequency === 'MONTHLY' ? 'Mes' : formData.frequency === 'BIWEEKLY' ? 'Quincena' : 'Semana'}
+                            <span className="text-white/80 font-bold ml-1.5">
+                               ({amortization.length} {amortization.length === 1 ? 'cuota' : 'cuotas'})
+                            </span>
+                         </p>
                          <h3 className="text-4xl font-black font-headline tracking-tighter">${formatDOP(totals.installment)}</h3>
                       </div>
                       <div className="text-right">
