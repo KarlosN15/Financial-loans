@@ -17,7 +17,7 @@ const Clients = () => {
 
   const filteredClients = clients.filter((c: any) => 
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    c.identification.includes(searchTerm)
+    (c.identification && c.identification.includes(searchTerm))
   );
 
   const deleteMutation = useMutation({
@@ -203,8 +203,8 @@ const Clients = () => {
                       </div>
                     </td>
                     <td className="px-8 py-6">
-                       <p className="text-xs font-black text-slate-500 font-mono tracking-tighter uppercase">{client.identification}</p>
-                       <p className="text-[10px] text-slate-400 font-bold mt-1">ID VALIDADO</p>
+                       <p className="text-xs font-black text-slate-500 font-mono tracking-tighter uppercase">{client.identification || '— Sin Cédula —'}</p>
+                       <p className="text-[10px] text-slate-400 font-bold mt-1">{client.identification ? 'ID VALIDADO' : 'NO REGISTRADA'}</p>
                     </td>
                     <td className="px-8 py-6 text-center">
                       <span className="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg text-[9px] font-black uppercase tracking-widest">
