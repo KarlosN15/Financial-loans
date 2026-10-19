@@ -44,7 +44,7 @@ const Reports = () => {
     const rows = loans.map((l: any) => ({
       'ID Préstamo': `PR-${l.id.toString().padStart(4, '0')}`,
       'Cliente': l.client?.name,
-      'Cédula': l.client?.identification,
+      'Cédula': l.client?.identification || 'N/A',
       'Monto Principal': l.amount,
       'Tasa Interés': `${l.interestRate}%`,
       'Cuotas': l.term,
@@ -72,7 +72,7 @@ const Reports = () => {
       const rowData = [
         `PR-${l.id.toString().padStart(4, '0')}`,
         l.client?.name,
-        l.client?.identification,
+        l.client?.identification || 'N/A',
         `RD$ ${l.amount}`,
         `${l.interestRate}%`,
         l.status
