@@ -41,6 +41,7 @@ const NewClient = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const payload: any = { ...formData };
+    if (!payload.identification?.trim()) delete payload.identification;
     if (!payload.email?.trim()) delete payload.email;
     if (!payload.address?.trim()) delete payload.address;
     if (!payload.routeId) delete payload.routeId;
@@ -128,12 +129,11 @@ const NewClient = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cédula</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cédula (Opcional)</label>
                       <input
-                        required
                         maxLength={13}
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold font-mono focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                        placeholder="000-0000000-0"
+                        placeholder="000-0000000-0 (Opcional)"
                         value={formData.identification}
                         onChange={e => {
                           const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
