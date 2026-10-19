@@ -54,10 +54,15 @@ export class LoansService {
         ratePerPeriod = (interestRate / 4) / 100;
       }
       
+      // Si el término no se especificó o es <= 0, calcular automáticamente según frecuencia estándar (1 mes: Semanal=4, Quincenal=2, Mensual=1)
+      const effectiveTerm = term && Number(term) > 0 
+        ? Number(term) 
+        : (frequency === 'WEEKLY' ? 4 : frequency === 'BIWEEKLY' ? 2 : 1);
+      
       // Calcular cuota fija (Amortización francesa)
       const installmentAmount = ratePerPeriod === 0 
-        ? amount / term 
-        : amount * (ratePerPeriod * Math.pow(1 + ratePerPeriod, term)) / (Math.pow(1 + ratePerPeriod, term) - 1);
+        ? amount / effectiveTerm 
+        : amount * (ratePerPeriod * Math.pow(1 + ratePerPeriod, effectiveTerm)) / (Math.pow(1 + ratePerPeriod, effectiveTerm) - 1);
       
       // Crear el préstamo siempre vinculado al administrador de la cartera
       const loan = await tx.loan.create({
@@ -66,7 +71,7 @@ export class LoansService {
           clientId,
           amount,
           interestRate,
-          term,
+          term: effectiveTerm,
           frequency,
           portfolioId,
         },
@@ -75,7 +80,7 @@ export class LoansService {
       // Generar cuotas dinámicas
       let currentBalance = amount;
       const installments: Prisma.InstallmentCreateManyInput[] = [];
-      for (let i = 1; i <= term; i++) {
+      for (let i = 1; i <= effectiveTerm; i++) {
          const interest = currentBalance * ratePerPeriod;
          const capital = installmentAmount - interest;
          currentBalance -= capital;
