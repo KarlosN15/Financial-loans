@@ -23,7 +23,7 @@ const Loans = () => {
 
   const filteredLoans = loans.filter((l: any) => 
     l.client.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    l.client.identification.includes(searchTerm) ||
+    (l.client?.identification && l.client.identification.includes(searchTerm)) ||
     (`#PR-${1000 + l.id}`).includes(searchTerm)
   );
 
@@ -144,7 +144,7 @@ const Loans = () => {
                       </div>
                       <div>
                         <p className="text-sm font-black text-primary leading-none mb-1">{loan.client.name}</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{loan.client.identification}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{loan.client.identification || 'Sin cédula'}</p>
                       </div>
                     </div>
                   </td>
@@ -296,7 +296,7 @@ const Loans = () => {
                     <div>
                        <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Titular</p>
                        <p className="font-black text-primary uppercase leading-none">{selectedLoan.client.name}</p>
-                       <p className="text-[10px] text-slate-500 font-bold mt-1">{selectedLoan.client.identification}</p>
+                       <p className="text-[10px] text-slate-500 font-bold mt-1">{selectedLoan.client.identification || 'Sin cédula'}</p>
                     </div>
                     <div className="text-right">
                        <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Inversión Original</p>
@@ -358,7 +358,7 @@ const Loans = () => {
               
               <div className="mb-6 space-y-1 text-xs text-black font-bold uppercase">
                  <p><span className="font-black">CLIENTE:</span> {selectedLoan?.client?.name}</p>
-                 <p><span className="font-black">CEDULA:</span> {selectedLoan?.client?.identification}</p>
+                 <p><span className="font-black">CEDULA:</span> {selectedLoan?.client?.identification || 'N/A'}</p>
                  <p><span className="font-black">PRESTAMO:</span> #PR-{1000 + (selectedLoan?.id || 0)}</p>
                  <div className="border-t border-black mt-2 pt-2">
                      <p><span className="font-black">CAPITAL:</span> RD$ {formatDOP(selectedLoan?.amount || 0)}</p>
@@ -406,7 +406,7 @@ const Loans = () => {
 
                   <div className="border-t border-black pt-2 flex flex-col gap-1">
                      <p><span className="font-black">DESTINATARIO:</span> {selectedLoan?.client?.name}</p>
-                     <p><span className="font-black">CEDULA:</span> {selectedLoan?.client?.identification}</p>
+                     <p><span className="font-black">CEDULA:</span> {selectedLoan?.client?.identification || 'N/A'}</p>
                   </div>
 
                   <div className="border-t border-black pt-2 flex flex-col gap-1">
