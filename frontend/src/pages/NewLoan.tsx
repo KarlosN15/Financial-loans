@@ -117,6 +117,8 @@ const NewLoan = () => {
           }
         ],
         installment: periodicRedito,
+        capitalPerInst: 0,
+        interestPerInst: periodicRedito,
         total: amount,
         interest: periodicRedito,
         periodicRedito,
@@ -151,6 +153,8 @@ const NewLoan = () => {
       return {
         schedule,
         installment,
+        capitalPerInst: installment - (totalInterest / effectiveTerm),
+        interestPerInst: totalInterest / effectiveTerm,
         total: installment * effectiveTerm,
         interest: totalInterest,
         periodicRedito: amount * ratePerPeriod,
@@ -181,6 +185,8 @@ const NewLoan = () => {
       return {
         schedule,
         installment,
+        capitalPerInst,
+        interestPerInst,
         total: totalCredit,
         interest: totalInterest,
         periodicRedito: amount * ratePerPeriod,
@@ -257,8 +263,8 @@ const NewLoan = () => {
                         : 'text-slate-500 hover:text-slate-800'
                     }`}
                   >
-                    <span className="material-symbols-outlined text-[16px]">calendar_month</span>
-                    Con Plazo (Varios Tiempos)
+                    <span className="material-symbols-outlined text-[16px]">payments</span>
+                    Rédito y Capital (Cuotas)
                   </button>
                   <button
                     type="button"
@@ -270,7 +276,7 @@ const NewLoan = () => {
                     }`}
                   >
                     <span className="material-symbols-outlined text-[16px]">percent</span>
-                    Solo Rédito (Tiempo Abierto)
+                    Solo Rédito (Interés Fijo)
                   </button>
                 </div>
               </div>
@@ -533,9 +539,17 @@ const NewLoan = () => {
                       </div>
 
                       {loanType === 'INSTALLMENT' && (
-                        <p className="text-[11px] text-white/60 font-bold mt-1.5">
-                          Durante {calculations.schedule.length} cuotas ({formData.frequency === 'MONTHLY' ? `${calculations.schedule.length} meses` : formData.frequency === 'BIWEEKLY' ? `${calculations.schedule.length / 2} meses` : `${calculations.schedule.length / 4} meses`}) para saldar capital e intereses.
-                        </p>
+                        <>
+                          <div className="mt-3 bg-white/10 p-3 rounded-xl border border-white/10 flex flex-wrap items-center justify-between text-xs font-bold text-white gap-2">
+                            <span className="text-white/80">Desglose de cada pago:</span>
+                            <span className="font-mono">
+                              Capital: <strong>RD$ {formatDOP(calculations.capitalPerInst)}</strong> + Rédito: <strong className="text-emerald-300">RD$ {formatDOP(calculations.interestPerInst)}</strong>
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-white/60 font-bold mt-2">
+                            Durante {calculations.schedule.length} cuotas ({formData.frequency === 'MONTHLY' ? `${calculations.schedule.length} meses` : formData.frequency === 'BIWEEKLY' ? `${calculations.schedule.length / 2} meses` : `${calculations.schedule.length / 4} meses`}) para saldar capital e intereses.
+                          </p>
+                        </>
                       )}
                       {loanType === 'REDITO' && (
                         <p className="text-[11px] text-amber-200/90 font-bold mt-1.5">
