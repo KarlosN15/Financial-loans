@@ -9,7 +9,7 @@ export class LoansService {
   constructor(private prisma: PrismaService) {}
 
   async createLoan(user: any, data: CreateLoanDto) {
-    const { clientId, amount, interestRate, term, frequency, portfolioId, bankAccountId } = data;
+    const { clientId, amount, interestRate, term, frequency, portfolioId, bankAccountId, loanType, interestType } = data;
     const adminId = user.role === 'AGENT' ? user.adminId : user.userId;
     
     // Verificar límites del plan
@@ -54,15 +54,13 @@ export class LoansService {
         ratePerPeriod = (interestRate / 4) / 100;
       }
       
-      // Si el término no se especificó o es <= 0, calcular automáticamente según frecuencia estándar (1 mes: Semanal=4, Quincenal=2, Mensual=1)
-      const effectiveTerm = term && Number(term) > 0 
-        ? Number(term) 
-        : (frequency === 'WEEKLY' ? 4 : frequency === 'BIWEEKLY' ? 2 : 1);
-      
-      // Calcular cuota fija (Amortización francesa)
-      const installmentAmount = ratePerPeriod === 0 
-        ? amount / effectiveTerm 
-        : amount * (ratePerPeriod * Math.pow(1 + ratePerPeriod, effectiveTerm)) / (Math.pow(1 + ratePerPeriod, effectiveTerm) - 1);
+      // Modo Solo Rédito (Tiempo abierto / Solo pago de intereses periódicos)
+      const isRedito = loanType === 'REDITO';
+      const effectiveTerm = isRedito 
+        ? 1 
+        : (term && Number(term) > 0 
+            ? Number(term) 
+            : (frequency === 'WEEKLY' ? 4 : frequency === 'BIWEEKLY' ? 2 : 1));
       
       // Crear el préstamo siempre vinculado al administrador de la cartera
       const loan = await tx.loan.create({
@@ -77,33 +75,96 @@ export class LoansService {
         },
       });
 
-      // Generar cuotas dinámicas
-      let currentBalance = amount;
+      // Generar cuotas dinámicas según modalidad
       const installments: Prisma.InstallmentCreateManyInput[] = [];
-      for (let i = 1; i <= effectiveTerm; i++) {
-         const interest = currentBalance * ratePerPeriod;
-         const capital = installmentAmount - interest;
-         currentBalance -= capital;
-         
-         const dueDate = new Date();
-         if (frequency === 'MONTHLY') {
-           dueDate.setMonth(dueDate.getMonth() + i);
-         } else if (frequency === 'BIWEEKLY') {
-           dueDate.setDate(dueDate.getDate() + (i * 15));
-         } else {
-           dueDate.setDate(dueDate.getDate() + (i * 7));
-         }
 
-         installments.push({
-           loanId: loan.id,
-           number: i,
-           dueDate,
-           amount: installmentAmount,
-           capital,
-           interest,
-           balance: Math.max(0, currentBalance),
-           status: 'PENDING',
-         });
+      if (isRedito) {
+        // En Solo Rédito: 1 cuota representativa del ciclo con su interés y capital intacto
+        const perInterest = amount * ratePerPeriod;
+        const dueDate = new Date();
+        if (frequency === 'MONTHLY') {
+          dueDate.setMonth(dueDate.getMonth() + 1);
+        } else if (frequency === 'BIWEEKLY') {
+          dueDate.setDate(dueDate.getDate() + 15);
+        } else {
+          dueDate.setDate(dueDate.getDate() + 7);
+        }
+
+        installments.push({
+          loanId: loan.id,
+          number: 1,
+          dueDate,
+          amount: amount + perInterest,
+          capital: amount,
+          interest: perInterest,
+          balance: amount,
+          status: 'PENDING',
+        });
+      } else if (interestType === 'FRENCH') {
+        // Amortización francesa decreciente
+        const installmentAmount = ratePerPeriod === 0 
+          ? amount / effectiveTerm 
+          : amount * (ratePerPeriod * Math.pow(1 + ratePerPeriod, effectiveTerm)) / (Math.pow(1 + ratePerPeriod, effectiveTerm) - 1);
+
+        let currentBalance = amount;
+        for (let i = 1; i <= effectiveTerm; i++) {
+          const interest = currentBalance * ratePerPeriod;
+          const capital = installmentAmount - interest;
+          currentBalance -= capital;
+          
+          const dueDate = new Date();
+          if (frequency === 'MONTHLY') {
+            dueDate.setMonth(dueDate.getMonth() + i);
+          } else if (frequency === 'BIWEEKLY') {
+            dueDate.setDate(dueDate.getDate() + (i * 15));
+          } else {
+            dueDate.setDate(dueDate.getDate() + (i * 7));
+          }
+
+          installments.push({
+            loanId: loan.id,
+            number: i,
+            dueDate,
+            amount: installmentAmount,
+            capital,
+            interest,
+            balance: Math.max(0, currentBalance),
+            status: 'PENDING',
+          });
+        }
+      } else {
+        // Interés Simple / Directo (Práctica estándar informal y callejera)
+        const durationInMonths = frequency === 'WEEKLY' ? effectiveTerm / 4 : frequency === 'BIWEEKLY' ? effectiveTerm / 2 : effectiveTerm;
+        const totalInterest = amount * (interestRate / 100) * durationInMonths;
+        const totalCredit = amount + totalInterest;
+        const installmentAmount = totalCredit / effectiveTerm;
+        const capitalPerInstallment = amount / effectiveTerm;
+        const interestPerInstallment = totalInterest / effectiveTerm;
+
+        let currentBalance = amount;
+        for (let i = 1; i <= effectiveTerm; i++) {
+          currentBalance -= capitalPerInstallment;
+          
+          const dueDate = new Date();
+          if (frequency === 'MONTHLY') {
+            dueDate.setMonth(dueDate.getMonth() + i);
+          } else if (frequency === 'BIWEEKLY') {
+            dueDate.setDate(dueDate.getDate() + (i * 15));
+          } else {
+            dueDate.setDate(dueDate.getDate() + (i * 7));
+          }
+
+          installments.push({
+            loanId: loan.id,
+            number: i,
+            dueDate,
+            amount: installmentAmount,
+            capital: capitalPerInstallment,
+            interest: interestPerInstallment,
+            balance: Math.max(0, currentBalance),
+            status: 'PENDING',
+          });
+        }
       }
 
       await tx.installment.createMany({ data: installments });
