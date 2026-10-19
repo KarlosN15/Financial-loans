@@ -155,7 +155,7 @@ const Loans = () => {
                     {loan.interestRate}% <span className="text-[10px] text-slate-400 uppercase ml-1 block font-black">{loan.frequency === 'MONTHLY' ? 'Mensual' : loan.frequency === 'BIWEEKLY' ? 'Quincenal' : 'Semanal'}</span>
                   </td>
                   <td className="px-8 py-6 text-sm font-bold text-slate-600">
-                    {loan.term} <span className="text-[10px] text-slate-400 uppercase ml-1 font-black">Cuotas</span>
+                    {loan.term} <span className="text-[10px] text-slate-400 uppercase ml-1 font-black">{loan.term === 1 ? 'Cuota' : 'Cuotas'}</span>
                     <p className="text-[10px] text-slate-400 uppercase italic font-bold">{loan.frequency === 'MONTHLY' ? 'Mensual' : loan.frequency === 'BIWEEKLY' ? 'Quincenal' : 'Semanal'}</p>
                   </td>
                   <td className="px-8 py-6">
