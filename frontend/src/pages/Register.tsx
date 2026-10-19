@@ -190,9 +190,19 @@ export default function Register() {
       />
 
       {/* Header simple */}
-      <header className="px-8 py-6 flex items-center gap-2 relative z-10">
-        <span className="material-symbols-outlined text-primary text-3xl">account_balance</span>
-        <span className="text-2xl font-black text-white tracking-tight uppercase">PresPro Systems</span>
+      <header className="px-8 py-6 flex items-center justify-between relative z-10">
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/login')}>
+          <span className="material-symbols-outlined text-primary text-3xl">account_balance</span>
+          <span className="text-2xl font-black text-white tracking-tight uppercase">PresPro Systems</span>
+        </div>
+        <button 
+          type="button"
+          onClick={() => navigate('/login')}
+          className="text-xs font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 active:scale-95"
+        >
+          <span className="material-symbols-outlined text-sm">login</span>
+          ¿Ya tienes cuenta? <span className="font-black text-blue-400">Iniciar Sesión</span>
+        </button>
       </header>
 
       <main className="flex-1 flex justify-center items-start pt-4 px-4 pb-20 relative z-10">
