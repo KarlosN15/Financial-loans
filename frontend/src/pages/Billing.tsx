@@ -79,7 +79,7 @@ const Billing = () => {
     loans.filter((l: any) => l.status === 'ACTIVE' || l.status === 'ARREARS').map((l: any) => ({
       id: l.id,
       label: l.client.name,
-      sublabel: `Céd: ${l.client.identification} • PR-${l.id.toString().padStart(4, '0')} • Balance: RD$ ${formatDOP(l.amount)}`,
+      sublabel: `${l.client?.identification ? `Céd: ${l.client.identification} • ` : ''}PR-${l.id.toString().padStart(4, '0')} • Balance: RD$ ${formatDOP(l.amount)}`,
       original: l
     })), [loans]);
 
@@ -604,7 +604,7 @@ const Billing = () => {
 
                            <div className="border-t border-black pt-2 flex flex-col gap-1">
                                <p className="font-bold uppercase"><span className="font-black">CLIENTE:</span> {recentPayment.clientName || recentPayment.loan?.client?.name}</p>
-                               <p className="font-bold uppercase"><span className="font-black">CEDULA:</span> {recentPayment.loan?.client?.identification}</p>
+                               <p className="font-bold uppercase"><span className="font-black">CEDULA:</span> {recentPayment.loan?.client?.identification || 'N/A'}</p>
                            </div>
 
                            <div className="border-t border-black pt-2 flex flex-col gap-1">
