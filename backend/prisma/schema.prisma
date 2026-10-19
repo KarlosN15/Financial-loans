@@ -60,7 +60,7 @@ model Client {
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name           String
   email          String?  @unique
-  identification String   // Cédula (Quitamos @unique de aquí)
+  identification String?  // Cédula (Opcional)
   phone          String?
   loans          Loan[]
   
