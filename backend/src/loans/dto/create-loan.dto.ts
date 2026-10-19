@@ -1,4 +1,4 @@
-import { IsNumber, IsPositive, IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsNumber, IsPositive, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { PaymentFrequency } from '@prisma/client';
 
 export class CreateLoanDto {
@@ -29,4 +29,12 @@ export class CreateLoanDto {
   @IsNumber()
   @IsNotEmpty()
   bankAccountId: number;
+
+  @IsString()
+  @IsOptional()
+  loanType?: 'REDITO' | 'INSTALLMENT';
+
+  @IsString()
+  @IsOptional()
+  interestType?: 'SIMPLE' | 'FRENCH';
 }
