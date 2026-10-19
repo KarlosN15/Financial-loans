@@ -582,8 +582,6 @@ const Billing = () => {
                   <div className="space-y-2">
                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">
                         {paymentMode === 'REDITO' ? 'Monto a Recibir (Rédito / Capital) RD
-
-                  <div className="flex gap-3">
                      <button type="button" onClick={() => setFormData({...formData, method: 'CASH'})} className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 transition-all ${formData.method === 'CASH' ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-50 border-transparent text-slate-400 hover:border-slate-200'}`}>EFECTIVO</button>
                      <button type="button" onClick={() => setFormData({...formData, method: 'TRANSFER'})} className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 transition-all ${formData.method === 'TRANSFER' ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-50 border-transparent text-slate-400 hover:border-slate-200'}`}>TRANSFERENCIA</button>
                   </div>
@@ -717,8 +715,7 @@ const Billing = () => {
   );
 };
 
-export default Billing;
- : 'Monto Final a Recibir (RD$)'}
+export default Billing; : 'Monto Final a Recibir (RD$)'}
                      </label>
                      <input 
                         required
@@ -788,7 +785,7 @@ export default Billing;
                      {mutation.isPending ? (
                         <><span className="material-symbols-outlined text-sm animate-spin">progress_activity</span> Sincronizando...</>
                      ) : (
-                        <><span className="material-symbols-outlined">verified</span> {paymentMode === 'REDITO' ? 'FINALIZAR COBRO DE RÉDITO' : 'FINALIZAR COBRO'}</>
+                        <><span className="material-symbols-outlined">verified</span> {paymentMode === 'REDITO' ? 'FINALIZAR COBRO (RÉDITO Y CAPITAL)' : 'FINALIZAR COBRO'}</>
                      )}
                   </button>
                </form>
@@ -822,7 +819,7 @@ export default Billing;
                    <div className="p-8 md:p-10 text-left bg-white" id="printable-receipt">
                        <div className="text-center mb-6 space-y-1">
                            <h4 className="text-xl font-black text-black font-headline tracking-tighter uppercase">
-                              {recentPayment.isInterestOnly ? 'RECIBO DE PAGO DE RÉDITO' : 'RECIBO DE PAGO'}
+                              {recentPayment.isInterestOnly ? 'RECIBO DE PAGO DE RÉDITO Y CAPITAL' : 'RECIBO DE PAGO'}
                            </h4>
                            <p className="text-[10px] font-bold text-black uppercase tracking-widest border-b border-black pb-2">PRESPRO SYSTEMS - SISTEMAFAC</p>
                        </div>
@@ -840,7 +837,7 @@ export default Billing;
 
                            <div className="border-t border-black pt-2 flex flex-col gap-1">
                                <p className="font-bold uppercase"><span className="font-black">REMITENTE:</span> ADMINISTRACION PRO</p>
-                               <p className="font-bold uppercase"><span className="font-black">SERVICIO:</span> {recentPayment.isInterestOnly ? 'PAGO DE RÉDITO (SOLO INTERÉS)' : 'COBRO DE CUOTA REGULAR'}</p>
+                               <p className="font-bold uppercase"><span className="font-black">SERVICIO:</span> {recentPayment.isInterestOnly ? 'PAGO DE RÉDITO Y CAPITAL' : 'COBRO DE CUOTA REGULAR'}</p>
                                <p className="font-bold uppercase"><span className="font-black">METODO:</span> {recentPayment.method === 'CASH' ? 'EFECTIVO' : 'TRANSFERENCIA'}</p>
                                {recentPayment.notes && (
                                    <p className="font-bold uppercase text-[11px]"><span className="font-black">CONCEPTO:</span> {recentPayment.notes}</p>
@@ -850,14 +847,14 @@ export default Billing;
                            <div className="border-t border-black pt-2 space-y-2">
                                <div className="flex justify-between items-center bg-black/5 p-2 border border-black">
                                    <span className="font-black uppercase tracking-tighter">
-                                       {recentPayment.isInterestOnly ? 'RÉDITO COBRADO:' : 'VALOR A COBRAR:'}
+                                       {recentPayment.isInterestOnly ? 'TOTAL COBRADO:' : 'VALOR A COBRAR:'}
                                    </span>
                                    <span className="text-lg font-black italic">RD$ {formatDOP(recentPayment.amount)}</span>
                                </div>
                                
                                <div className="flex justify-between items-center text-[11px] font-bold">
                                    <span className="uppercase font-black">
-                                       {recentPayment.isInterestOnly ? 'CAPITAL PENDIENTE (SIN VARIACIÓN):' : 'SALDO RESTANTE:'}
+                                       {recentPayment.isInterestOnly ? 'CAPITAL PENDIENTE ACTUAL:' : 'SALDO RESTANTE:'}
                                    </span>
                                    <span className="font-black">RD$ {formatDOP(
                                        recentPayment.isInterestOnly
