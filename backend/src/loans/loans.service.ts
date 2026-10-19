@@ -44,8 +44,15 @@ export class LoansService {
     }
 
     return this.prisma.$transaction(async (tx) => {
-      // Ajustar tasa y períodos según la frecuencia
-      const ratePerPeriod = (frequency === 'MONTHLY' ? interestRate : interestRate / 4) / 100;
+      // Ajustar tasa y períodos según la frecuencia (Mensual: 1, Quincenal: 2, Semanal: 4 cuotas/mes)
+      let ratePerPeriod = 0;
+      if (frequency === 'MONTHLY') {
+        ratePerPeriod = interestRate / 100;
+      } else if (frequency === 'BIWEEKLY') {
+        ratePerPeriod = (interestRate / 2) / 100;
+      } else {
+        ratePerPeriod = (interestRate / 4) / 100;
+      }
       
       // Calcular cuota fija (Amortización francesa)
       const installmentAmount = ratePerPeriod === 0 
@@ -76,6 +83,8 @@ export class LoansService {
          const dueDate = new Date();
          if (frequency === 'MONTHLY') {
            dueDate.setMonth(dueDate.getMonth() + i);
+         } else if (frequency === 'BIWEEKLY') {
+           dueDate.setDate(dueDate.getDate() + (i * 15));
          } else {
            dueDate.setDate(dueDate.getDate() + (i * 7));
          }
