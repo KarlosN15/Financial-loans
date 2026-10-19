@@ -5,10 +5,15 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ClientsService {
   constructor(private prisma: PrismaService) { }
 
-  async create(user: any, data: { name: string; email?: string; identification: string; phone?: string; address?: string; guarantorName?: string; guarantorPhone?: string; routeId?: number }) {
+  async create(user: any, data: { name: string; email?: string; identification?: string; phone?: string; address?: string; guarantorName?: string; guarantorPhone?: string; routeId?: number }) {
     const adminId = user.role === 'AGENT' ? user.adminId : user.userId;
+    const identification = data.identification?.trim() ? data.identification.trim() : null;
     return this.prisma.client.create({ 
-      data: { ...data, userId: adminId } 
+      data: { 
+        ...data, 
+        identification,
+        userId: adminId 
+      } 
     });
   }
 
