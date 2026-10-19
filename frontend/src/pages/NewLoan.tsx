@@ -38,7 +38,7 @@ const NewLoan = () => {
     clients.map((c: any) => ({
       id: c.id,
       label: c.name,
-      sublabel: `Cédula: ${c.identification}`,
+      sublabel: c.identification ? `Cédula: ${c.identification}` : 'Sin cédula registrada',
       original: c
     })), [clients]);
 
