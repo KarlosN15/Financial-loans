@@ -95,7 +95,14 @@ const Billing = () => {
     const totalRemaining = pending.reduce((acc: number, i: any) => acc + Number(i.amount), 0);
     const capitalRemaining = pending.reduce((acc: number, i: any) => acc + Number(i.capital), 0);
 
-    const ratePerPeriod = (loan.frequency === 'MONTHLY' ? Number(loan.interestRate) : Number(loan.interestRate) / 4) / 100;
+    let ratePerPeriod = 0;
+    if (loan.frequency === 'MONTHLY') {
+      ratePerPeriod = Number(loan.interestRate) / 100;
+    } else if (loan.frequency === 'BIWEEKLY') {
+      ratePerPeriod = (Number(loan.interestRate) / 2) / 100;
+    } else {
+      ratePerPeriod = (Number(loan.interestRate) / 4) / 100;
+    }
     const perInterest = Number(nextInst?.interest) || (Number(loan.amount) * ratePerPeriod);
 
     return {
@@ -369,7 +376,7 @@ const Billing = () => {
                            const pending = selected.installments.filter((i: any) => i.status === 'PENDING').sort((a: any, b: any) => a.number - b.number);
                            const nextInst = pending[0];
                            if (paymentMode === 'REDITO') {
-                              const rate = (selected.frequency === 'MONTHLY' ? Number(selected.interestRate) : Number(selected.interestRate) / 4) / 100;
+                              const rate = (selected.frequency === 'MONTHLY' ? Number(selected.interestRate) : selected.frequency === 'BIWEEKLY' ? Number(selected.interestRate) / 2 : Number(selected.interestRate) / 4) / 100;
                               const interest = Number(nextInst?.interest) || (Number(selected.amount) * rate);
                               defaultAmt = formatAmountInput(interest.toFixed(2));
                            } else {
@@ -438,7 +445,7 @@ const Billing = () => {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                            <div>
-                              <p className="text-[9px] font-black text-slate-400 uppercase mb-0.5">Cuota {loanInfo?.loan?.frequency === 'MONTHLY' ? 'Mensual' : 'Semanal'}</p>
+                              <p className="text-[9px] font-black text-slate-400 uppercase mb-0.5">Cuota {loanInfo?.loan?.frequency === 'MONTHLY' ? 'Mensual' : loanInfo?.loan?.frequency === 'BIWEEKLY' ? 'Quincenal' : 'Semanal'}</p>
                               <p className="text-base font-black text-primary italic underline underline-offset-4">RD$ {formatDOP(loanInfo.perInst)}</p>
                            </div>
                            <div>
@@ -461,7 +468,7 @@ const Billing = () => {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                            <div>
-                              <p className="text-[9px] font-black text-slate-400 uppercase mb-0.5">Rédito por {loanInfo?.loan?.frequency === 'MONTHLY' ? 'Mes' : 'Semana'}</p>
+                              <p className="text-[9px] font-black text-slate-400 uppercase mb-0.5">Rédito por {loanInfo?.loan?.frequency === 'MONTHLY' ? 'Mes' : loanInfo?.loan?.frequency === 'BIWEEKLY' ? 'Quincena' : 'Semana'}</p>
                               <p className="text-base font-black text-amber-600 italic underline underline-offset-4">RD$ {formatDOP(loanInfo.perInterest)}</p>
                            </div>
                            <div>
@@ -478,7 +485,7 @@ const Billing = () => {
 
                   {loanInfo && paymentMode === 'INSTALLMENT' && (
                      <div className="space-y-3">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{loanInfo?.loan?.frequency === 'MONTHLY' ? 'Meses' : 'Semanas'} a Liquidar</label>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{loanInfo?.loan?.frequency === 'MONTHLY' ? 'Meses' : loanInfo?.loan?.frequency === 'BIWEEKLY' ? 'Quincenas' : 'Semanas'} a Liquidar</label>
                         <div className="flex flex-wrap gap-2">
                            {[1, 2, 3].filter(q => q <= loanInfo.pendingCount && q !== loanInfo.pendingCount).map(q => (
                               <button 
@@ -487,7 +494,7 @@ const Billing = () => {
                                  onClick={() => updateInstallments(q)}
                                  className={`flex-1 min-w-[80px] py-3 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 transition-all ${formData.numInstallments === q ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-50 border-transparent text-slate-400 hover:border-slate-200'}`}
                               >
-                                 {q} {loanInfo?.loan?.frequency === 'MONTHLY' ? (q > 1 ? 'Meses' : 'Mes') : (q > 1 ? 'Semanas' : 'Semana')}
+                                 {q} {loanInfo?.loan?.frequency === 'MONTHLY' ? (q > 1 ? 'Meses' : 'Mes') : loanInfo?.loan?.frequency === 'BIWEEKLY' ? (q > 1 ? 'Quincenas' : 'Quincena') : (q > 1 ? 'Semanas' : 'Semana')}
                               </button>
                            ))}
                            {loanInfo.pendingCount > 0 && (
@@ -520,7 +527,7 @@ const Billing = () => {
                                  onClick={() => updateInstallments(q)}
                                  className={`flex-1 min-w-[80px] py-3 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 transition-all ${formData.numInstallments === q ? 'border-amber-500 bg-amber-500 text-white shadow-lg shadow-amber-500/25' : 'bg-slate-50 border-transparent text-slate-500 hover:border-slate-200'}`}
                               >
-                                 {q} {loanInfo?.loan?.frequency === 'MONTHLY' ? (q > 1 ? 'Meses' : 'Mes') : (q > 1 ? 'Semanas' : 'Semana')}
+                                 {q} {loanInfo?.loan?.frequency === 'MONTHLY' ? (q > 1 ? 'Meses' : 'Mes') : loanInfo?.loan?.frequency === 'BIWEEKLY' ? (q > 1 ? 'Quincenas' : 'Quincena') : (q > 1 ? 'Semanas' : 'Semana')}
                               </button>
                            ))}
                         </div>
