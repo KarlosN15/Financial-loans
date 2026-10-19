@@ -38,7 +38,14 @@ export class PaymentsService {
         // En pago de Rédito (Solo Interés):
         // 1. El capital adeudado se mantiene intacto.
         // 2. Se renuevan las fechas de vencimiento de las cuotas pendientes para el siguiente ciclo.
-        const ratePerPeriod = (loan.frequency === 'MONTHLY' ? Number(loan.interestRate) : Number(loan.interestRate) / 4) / 100;
+        let ratePerPeriod = 0;
+        if (loan.frequency === 'MONTHLY') {
+          ratePerPeriod = Number(loan.interestRate) / 100;
+        } else if (loan.frequency === 'BIWEEKLY') {
+          ratePerPeriod = (Number(loan.interestRate) / 2) / 100;
+        } else {
+          ratePerPeriod = (Number(loan.interestRate) / 4) / 100;
+        }
         const singlePeriodInterest = pendingInstallments[0] 
           ? Number(pendingInstallments[0].interest) 
           : (Number(loan.amount) * ratePerPeriod);
@@ -51,6 +58,8 @@ export class PaymentsService {
           const newDueDate = new Date(inst.dueDate);
           if (loan.frequency === 'MONTHLY') {
             newDueDate.setMonth(newDueDate.getMonth() + periodsPaid);
+          } else if (loan.frequency === 'BIWEEKLY') {
+            newDueDate.setDate(newDueDate.getDate() + (15 * periodsPaid));
           } else {
             newDueDate.setDate(newDueDate.getDate() + (7 * periodsPaid));
           }
