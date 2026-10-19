@@ -16,7 +16,8 @@ export class CreateLoanDto {
 
   @IsNumber()
   @IsPositive()
-  term: number;
+  @IsOptional()
+  term?: number;
 
   @IsEnum(PaymentFrequency)
   frequency: PaymentFrequency;
