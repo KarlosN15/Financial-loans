@@ -35,7 +35,7 @@ export const getClients = async () => {
   return response.data;
 };
 
-export const createClient = async (data: { name: string; email?: string; identification: string; phone?: string; address?: string; guarantorName?: string; guarantorPhone?: string; routeId?: number }) => {
+export const createClient = async (data: { name: string; email?: string; identification?: string; phone?: string; address?: string; guarantorName?: string; guarantorPhone?: string; routeId?: number }) => {
   const response = await api.post('/clients', data);
   return response.data;
 };
