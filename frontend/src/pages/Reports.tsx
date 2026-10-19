@@ -48,7 +48,7 @@ const Reports = () => {
       'Monto Principal': l.amount,
       'Tasa Interés': `${l.interestRate}%`,
       'Cuotas': l.term,
-      'Frecuencia': l.frequency === 'MONTHLY' ? 'Mensual' : 'Semanal',
+      'Frecuencia': l.frequency === 'MONTHLY' ? 'Mensual' : l.frequency === 'BIWEEKLY' ? 'Quincenal' : 'Semanal',
       'Estado': l.status,
       'Fecha Registro': new Date(l.createdAt).toLocaleDateString()
     }));
