@@ -6,7 +6,16 @@ import { PaymentMethod } from '@prisma/client';
 export class PaymentsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(user: any, data: { loanId: number; amount: number; method: PaymentMethod; isInterestOnly?: boolean; notes?: string }) {
+  async create(user: any, data: { 
+    loanId: number; 
+    amount: number; 
+    method: PaymentMethod; 
+    isInterestOnly?: boolean; 
+    notes?: string;
+    latitude?: number;
+    longitude?: number;
+    lateFeePaid?: number;
+  }) {
     const adminId = user.role === 'AGENT' ? user.adminId : user.userId;
     const isRedito = Boolean(data.isInterestOnly);
     
@@ -169,6 +178,16 @@ export class PaymentsService {
         }
       }
 
+      // Calcular comisión del agente si aplica
+      let agentCommission = 0;
+      if (user.role === 'AGENT') {
+        const agentUser = await tx.user.findUnique({ where: { id: user.userId } });
+        const commRate = agentUser?.commissionRate ? Number(agentUser.commissionRate) : 0;
+        if (commRate > 0) {
+          agentCommission = Number((data.amount * (commRate / 100)).toFixed(2));
+        }
+      }
+
       const payment = await tx.payment.create({
         data: {
           loanId: data.loanId,
@@ -177,8 +196,35 @@ export class PaymentsService {
           clientName: loan.client.name,
           userId: user.userId,
           isInterestOnly: isRedito,
-          notes: finalNotes || (isRedito ? 'Pago de Rédito y Capital' : 'Cobro de Cuota Regular')
+          notes: finalNotes || (isRedito ? 'Pago de Rédito y Capital' : 'Cobro de Cuota Regular'),
+          latitude: data.latitude || null,
+          longitude: data.longitude || null,
+          lateFeePaid: data.lateFeePaid || 0,
+          agentCommission: agentCommission,
         }
+      });
+
+      // Actualizar Scoring y Rating del Cliente automáticamente
+      const allClientLoans = await tx.loan.findMany({
+        where: { clientId: loan.clientId },
+        include: { installments: true }
+      });
+      let totalInst = 0;
+      let lateInst = 0;
+      const now = new Date();
+      allClientLoans.forEach(l => {
+        l.installments.forEach(inst => {
+          totalInst++;
+          if (inst.status === 'PENDING' && new Date(inst.dueDate) < now) {
+            lateInst++;
+          }
+        });
+      });
+      const score = totalInst === 0 ? 100 : Math.max(10, Math.min(100, Math.round(((totalInst - lateInst) / totalInst) * 100)));
+      const rating = score >= 90 ? 'EXCELLENT' : score >= 70 ? 'REGULAR' : 'RISKY';
+      await tx.client.update({
+        where: { id: loan.clientId },
+        data: { score, rating }
       });
 
       return tx.payment.findUnique({
