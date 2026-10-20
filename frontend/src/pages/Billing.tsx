@@ -22,6 +22,74 @@ const Billing = () => {
     method: 'CASH' as 'CASH' | 'TRANSFER',
   });
 
+  const [gpsCoords, setGpsCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [waiveLateFee, setWaiveLateFee] = useState(false);
+  const [waiveReason, setWaiveReason] = useState('');
+
+  // Geolocation capture
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setGpsCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+        (err) => console.log('Ubicación GPS no disponible:', err.message),
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  }, []);
+
+  const handleSendWhatsAppReceipt = (p: any) => {
+    if (!p) return;
+    const client = p.loan?.client;
+    const clientName = p.clientName || client?.name || 'Cliente';
+    const rawPhone = client?.phone || '';
+    const cleanPhone = rawPhone.replace(/[^0-9]/g, '');
+    const targetPhone = cleanPhone.length === 10 ? `1${cleanPhone}` : cleanPhone;
+    const amount = formatDOP(p.amount);
+    const receiptNo = `REC-${new Date().getFullYear()}-${p.id.toString().padStart(4, '0')}`;
+    const dateStr = new Date(p.date || p.createdAt || Date.now()).toLocaleDateString('es-DO', { hour: '2-digit', minute: '2-digit' });
+    const notes = p.notes || (p.isInterestOnly ? 'Pago de Rédito' : 'Cuota Regular');
+    const capitalLeft = formatDOP(
+      p.isInterestOnly
+        ? p.loan?.installments?.filter((i: any) => i.status === 'PENDING').reduce((acc: number, i: any) => acc + Number(i.capital), 0) || p.loan?.amount || 0
+        : p.loan?.installments?.filter((i: any) => i.status === 'PENDING').reduce((acc: number, i: any) => acc + Number(i.amount), 0) || 0
+    );
+
+    const msg = `🧾 *COMPROBANTE OFICIAL DE PAGO*\n` +
+      `*PresPro Systems - Plataforma Financiera*\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `👤 *Cliente:* ${clientName}\n` +
+      `📄 *No. Recibo:* ${receiptNo}\n` +
+      `💵 *Monto Pagado:* RD$ ${amount}\n` +
+      `📌 *Concepto:* ${notes}\n` +
+      `📉 *Balance Restante:* RD$ ${capitalLeft}\n` +
+      `📅 *Fecha:* ${dateStr}\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `✅ _Pago registrado exitosamente. Conserve este comprobante como garantía oficial._`;
+
+    window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  const handleSendWhatsAppReminder = (item: any) => {
+    const client = item.loan?.client || item.client;
+    const clientName = client?.name || 'Cliente';
+    const rawPhone = client?.phone || '';
+    const cleanPhone = rawPhone.replace(/[^0-9]/g, '');
+    const targetPhone = cleanPhone.length === 10 ? `1${cleanPhone}` : cleanPhone;
+    const amount = formatDOP(item.amount || item.balance);
+    const dueDate = item.dueDate ? new Date(item.dueDate).toLocaleDateString('es-DO') : 'próxima';
+
+    const msg = `🔔 *RECORDATORIO DE PAGO*\n` +
+      `*PresPro Systems*\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `Estimado/a *${clientName}*,\n\n` +
+      `Le recordamos que su cuota por valor de *RD$ ${amount}* tiene fecha límite el *${dueDate}*.\n\n` +
+      `Mantener sus pagos al día le permite conservar un Récord Crediticio Excelente 🟢.\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `_¡Agradecemos su preferencia!_`;
+
+    window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
   const { data: payments = [], isLoading: loadingPayments } = useQuery({
     queryKey: ['payments'],
     queryFn: getPayments,
@@ -105,6 +173,21 @@ const Billing = () => {
     }
     const perInterest = Number(nextInst?.interest) || (Number(loan.amount) * ratePerPeriod);
 
+    const now = new Date();
+    const isLate = nextInst?.dueDate ? new Date(nextInst.dueDate) < now : false;
+    const diffDays = isLate ? Math.max(0, Math.floor((now.getTime() - new Date(nextInst.dueDate).getTime()) / (1000 * 60 * 60 * 24))) : 0;
+    const graceDays = loan.graceDays !== undefined ? Number(loan.graceDays) : 2;
+    const effectiveLateDays = Math.max(0, diffDays - graceDays);
+    
+    let calculatedLateFee = 0;
+    if (effectiveLateDays > 0) {
+      if (loan.lateFeeType === 'FIXED') {
+        calculatedLateFee = effectiveLateDays * (Number(loan.lateFeeValue) || 50);
+      } else {
+        calculatedLateFee = (perInst * (Number(loan.lateFeeValue) || 5)) / 100;
+      }
+    }
+
     return {
       loan,
       perInst,
@@ -113,6 +196,11 @@ const Billing = () => {
       totalRemaining,
       nextDueDate: nextInst?.dueDate,
       pendingCount: pending.length,
+      isLate,
+      diffDays,
+      graceDays,
+      effectiveLateDays,
+      calculatedLateFee,
     };
   }, [formData.loanId, loans]);
 
@@ -128,6 +216,8 @@ const Billing = () => {
       setShowReceipt(true);
       setFormData({ loanId: '', numInstallments: 1, amount: '', method: 'CASH' });
       setPaymentMode('INSTALLMENT');
+      setWaiveLateFee(false);
+      setWaiveReason('');
     },
   });
 
@@ -152,12 +242,22 @@ const Billing = () => {
       }
     }
 
+    const lateFeeToPay = loanInfo && loanInfo.effectiveLateDays > 0 && !waiveLateFee ? loanInfo.calculatedLateFee : 0;
+    if (waiveLateFee && waiveReason) {
+      paymentNote += ` [Mora exonerada: ${waiveReason}]`;
+    } else if (lateFeeToPay > 0) {
+      paymentNote += ` [Mora cobrada: RD$ ${formatDOP(lateFeeToPay)}]`;
+    }
+
     mutation.mutate({
       loanId: parseInt(formData.loanId),
       amount: amountVal,
       method: formData.method,
       isInterestOnly: isRedito,
       notes: paymentNote,
+      latitude: gpsCoords?.latitude,
+      longitude: gpsCoords?.longitude,
+      lateFeePaid: lateFeeToPay,
     });
   };
 
@@ -274,7 +374,16 @@ const Billing = () => {
                            <span className="text-[10px] font-black text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">#{p.id.toString().padStart(4, '0')}</span>
                         </td>
                         <td className="py-6">
-                           <p className="text-sm font-black text-primary tracking-tight">{p.clientName || p.loan?.client?.name}</p>
+                           <div className="flex items-center gap-2">
+                              <p className="text-sm font-black text-primary tracking-tight">{p.clientName || p.loan?.client?.name}</p>
+                              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black ${
+                                 p.loan?.client?.rating === 'RISKY' ? 'bg-rose-100 text-rose-700' :
+                                 p.loan?.client?.rating === 'REGULAR' ? 'bg-amber-100 text-amber-800' :
+                                 'bg-emerald-100 text-emerald-700'
+                              }`} title={`Score crediticio: ${p.loan?.client?.score || 100}/100`}>
+                                 {p.loan?.client?.rating === 'RISKY' ? '🔴 Riesgo' : p.loan?.client?.rating === 'REGULAR' ? '🟡 Regular' : '🟢 Excelente'}
+                              </span>
+                           </div>
                         </td>
                         <td className="py-6">
                            <div className="flex items-center gap-1.5 flex-wrap">
@@ -290,6 +399,11 @@ const Billing = () => {
                                     Cuota
                                  </span>
                               )}
+                              {Number(p.lateFeePaid) > 0 && (
+                                 <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-rose-50 text-rose-700 border border-rose-200">
+                                    +Mora
+                                 </span>
+                              )}
                            </div>
                         </td>
                         <td className="py-6 text-right text-sm font-black text-emerald-600">RD$ {formatDOP(p.amount)}</td>
@@ -298,9 +412,29 @@ const Billing = () => {
                            <p className="text-[8px] font-bold text-primary mt-1 uppercase truncate max-w-[100px] inline-block">{p.user?.name || 'Administrador'}</p>
                         </td>
                         <td className="py-6 text-center">
-                           <button onClick={() => { setRecentPayment(p); setShowReceipt(true); }} className="p-2 text-slate-400 hover:text-primary transition-colors">
-                              <span className="material-symbols-outlined text-[18px]">visibility</span>
-                           </button>
+                           <div className="flex items-center justify-center gap-1">
+                              {p.latitude && p.longitude && (
+                                 <a 
+                                    href={`https://www.google.com/maps?q=${p.latitude},${p.longitude}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                    title={`Cobro geolocalizado en GPS: ${p.latitude.toFixed(4)}, ${p.longitude.toFixed(4)}`}
+                                 >
+                                    <span className="material-symbols-outlined text-[18px]">location_on</span>
+                                 </a>
+                              )}
+                              <button 
+                                 onClick={() => handleSendWhatsAppReceipt(p)}
+                                 className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                 title="Enviar Recibo por WhatsApp"
+                              >
+                                 <span className="material-symbols-outlined text-[18px]">chat</span>
+                              </button>
+                              <button onClick={() => { setRecentPayment(p); setShowReceipt(true); }} className="p-1.5 text-slate-400 hover:text-primary rounded-lg transition-colors" title="Ver Recibo Pro">
+                                 <span className="material-symbols-outlined text-[18px]">visibility</span>
+                              </button>
+                           </div>
                         </td>
                      </tr>
                   ))}
@@ -497,6 +631,18 @@ const Billing = () => {
                      </div>
                   )}
 
+                  {loanInfo && (
+                     <button
+                        type="button"
+                        onClick={() => handleSendWhatsAppReminder(loanInfo.loan)}
+                        className="w-full py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-[9px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-95"
+                        title="Enviar Recordatorio de Pago al WhatsApp del Cliente"
+                     >
+                        <span className="material-symbols-outlined text-sm">chat</span>
+                        Enviar Recordatorio WhatsApp a {loanInfo.loan.client?.name}
+                     </button>
+                  )}
+
                   {loanInfo && paymentMode === 'INSTALLMENT' && (
                      <div className="space-y-3">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{loanInfo?.loan?.frequency === 'MONTHLY' ? 'Meses' : loanInfo?.loan?.frequency === 'BIWEEKLY' ? 'Quincenas' : 'Semanas'} a Liquidar</label>
@@ -548,10 +694,48 @@ const Billing = () => {
                      </div>
                   )}
 
+                  {loanInfo && loanInfo.effectiveLateDays > 0 && (
+                     <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 space-y-2">
+                        <div className="flex items-center justify-between">
+                           <div className="flex items-center gap-2">
+                              <span className="material-symbols-outlined text-rose-600 text-lg">warning</span>
+                              <span className="font-bold text-xs uppercase tracking-wider">Atraso ({loanInfo.diffDays} días)</span>
+                           </div>
+                           <span className="font-black text-sm text-rose-700">+ RD$ {formatDOP(loanInfo.calculatedLateFee)} mora</span>
+                        </div>
+                        <div className="pt-2 border-t border-rose-200/60 flex items-center justify-between">
+                           <label className="flex items-center gap-2 text-xs font-bold text-rose-900 cursor-pointer">
+                              <input 
+                                 type="checkbox" 
+                                 checked={waiveLateFee} 
+                                 onChange={e => setWaiveLateFee(e.target.checked)}
+                                 className="rounded text-rose-600 focus:ring-rose-500"
+                              />
+                              <span>Exonerar / Condonar Mora</span>
+                           </label>
+                        </div>
+                        {waiveLateFee && (
+                           <input 
+                              type="text"
+                              placeholder="Motivo de la condonación (ej. Promesa de pago / Fidelidad)..."
+                              value={waiveReason}
+                              onChange={e => setWaiveReason(e.target.value)}
+                              className="w-full text-xs p-2.5 rounded-xl bg-white border border-rose-300 text-slate-800 focus:outline-none focus:ring-1 focus:ring-rose-500 font-medium"
+                           />
+                        )}
+                     </div>
+                  )}
+
                   <div className="space-y-2">
-                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">
-                        {paymentMode === 'REDITO' ? 'Monto a Recibir (Rédito / Capital) (RD$)' : 'Monto Final a Recibir (RD$)'}
-                     </label>
+                     <div className="flex items-center justify-between pl-1">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                           {paymentMode === 'REDITO' ? 'Monto a Recibir (Rédito / Capital) (RD$)' : 'Monto Final a Recibir (RD$)'}
+                        </label>
+                        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold">
+                           <span className={`w-2 h-2 rounded-full ${gpsCoords ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`}></span>
+                           <span>{gpsCoords ? 'GPS Activo' : 'GPS'}</span>
+                        </div>
+                     </div>
                      <input 
                         required
                         type="text"
@@ -717,6 +901,13 @@ const Billing = () => {
 
                {/* Action Footer - No Print */}
                <div className="p-8 bg-slate-50 border-t border-slate-100 space-y-3 flex-shrink-0 no-print">
+                  <button 
+                    onClick={() => handleSendWhatsAppReceipt(recentPayment)}
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all shadow-xl shadow-emerald-600/20"
+                  >
+                     <span className="material-symbols-outlined text-xl">chat</span>
+                     <span className="tracking-widest uppercase text-[12px]">Enviar Recibo por WhatsApp</span>
+                  </button>
                   <button 
                     onClick={() => window.print()}
                     className="w-full bg-slate-900 text-white font-black py-4 rounded-xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all hover:bg-black shadow-xl shadow-slate-200"
