@@ -1,11 +1,31 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { LandingModals, type ModalType } from '../components/LandingModals';
 
 const Landing = () => {
+  const [activeModal, setActiveModal] = useState<ModalType>(null);
+
   useEffect(() => {
     // Ensure Landing always uses a crisp white background
     document.documentElement.classList.remove('dark');
+
+    // Handle initial hash or hash changes for modals
+    const checkHash = () => {
+      const hash = window.location.hash.toLowerCase().replace('#', '');
+      if (['terminos', 'terms'].includes(hash)) setActiveModal('terms');
+      else if (['privacidad', 'privacy'].includes(hash)) setActiveModal('privacy');
+      else if (['seguridad', 'security'].includes(hash)) setActiveModal('security');
+      else if (['actualizaciones', 'changelog'].includes(hash)) setActiveModal('changelog');
+      else if (['ayuda', 'help', 'faq'].includes(hash)) setActiveModal('help');
+      else if (['tutoriales', 'videotutoriales', 'tutorials'].includes(hash)) setActiveModal('tutorials');
+      else if (['api', 'docs'].includes(hash)) setActiveModal('api');
+      else if (['blog', 'articulos'].includes(hash)) setActiveModal('blog');
+    };
+
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    return () => window.removeEventListener('hashchange', checkHash);
   }, []);
 
   // Animation variants
@@ -69,8 +89,10 @@ const Landing = () => {
         
         <motion.div variants={navItemVariants} className="hidden lg:flex items-center gap-8 text-sm font-bold text-slate-500">
           <a href="#plataforma" className="hover:text-blue-600 transition-colors">Plataforma</a>
-          <a href="#planes" className="hover:text-blue-600 transition-colors">Precios</a>
           <a href="#modulos" className="hover:text-blue-600 transition-colors">Módulos</a>
+          <a href="#app-movil" className="hover:text-blue-600 transition-colors">App Móvil</a>
+          <a href="#planes" className="hover:text-blue-600 transition-colors">Precios</a>
+          <button onClick={() => setActiveModal('help')} className="hover:text-blue-600 transition-colors cursor-pointer">Ayuda</button>
           <a href="https://wa.me/8492705770" target="_blank" className="hover:text-blue-600 transition-colors">Contacto</a>
         </motion.div>
 
@@ -177,16 +199,51 @@ const Landing = () => {
         id="plataforma" 
         className="bg-white py-24 border-y border-slate-100 relative overflow-hidden"
       >
-        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+        <div className="max-w-6xl mx-auto px-6 text-center relative z-10">
           <motion.div variants={scaleUp} className="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 transform -rotate-3 hover:rotate-3 transition-transform duration-500">
              <span className="material-symbols-outlined text-3xl">verified_user</span>
           </motion.div>
-          <motion.h2 variants={fadeInUp} className="text-4xl font-black text-slate-900 mb-8 tracking-tight">
+          <motion.span variants={fadeInUp} className="text-blue-600 font-black uppercase tracking-widest text-xs px-3 py-1 bg-blue-50 rounded-full inline-block mb-3">
+            Características Principales
+          </motion.span>
+          <motion.h2 variants={fadeInUp} className="text-4xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">
             Control Financiero Absoluto
           </motion.h2>
-          <motion.p variants={fadeInUp} className="text-xl text-slate-600 leading-relaxed font-medium">
-            Nuestra arquitectura permite dominar el ciclo de vida completo del crédito, desde el perfilamiento del cliente hasta el cuadre de bóveda. Automatiza pagarés, contratos, emisión de recibos y sincronización de cobradores móviles en tiempo real, garantizando máxima seguridad de la información.
+          <motion.p variants={fadeInUp} className="text-xl text-slate-600 leading-relaxed font-medium max-w-3xl mx-auto mb-16">
+            Nuestra arquitectura domina el ciclo de vida completo del crédito, desde el perfilamiento del cliente hasta el cuadre de bóveda. Automatiza pagarés, contratos, emisión de recibos y sincronización de cobradores móviles en tiempo real.
           </motion.p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+            <motion.div variants={fadeInUp} className="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-4">
+                <span className="material-symbols-outlined">calculate</span>
+              </div>
+              <h4 className="text-lg font-bold text-slate-900 mb-2">Motor Rédito & Capital</h4>
+              <p className="text-sm text-slate-500 leading-relaxed">
+                Admite cobro de interés periódico con opción a abonar directamente al capital principal, recalculando los intereses futuros en tiempo real.
+              </p>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-green-100 text-green-600 flex items-center justify-center mb-4">
+                <span className="material-symbols-outlined">point_of_sale</span>
+              </div>
+              <h4 className="text-lg font-bold text-slate-900 mb-2">Arqueo Ciego de Caja</h4>
+              <p className="text-sm text-slate-500 leading-relaxed">
+                Cierres de turno independientes por cobrador y cajero para evitar fugas de dinero y garantizar cuadres perfectos con la bóveda central.
+              </p>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4">
+                <span className="material-symbols-outlined">description</span>
+              </div>
+              <h4 className="text-lg font-bold text-slate-900 mb-2">Pagarés & Notificaciones</h4>
+              <p className="text-sm text-slate-500 leading-relaxed">
+                Genera contratos notariales en PDF conforme a las leyes dominicanas y envía recordatorios automáticos de cobro por WhatsApp.
+              </p>
+            </motion.div>
+          </div>
         </div>
       </motion.section>
 
@@ -233,6 +290,126 @@ const Landing = () => {
             ))}
           </div>
         </motion.div>
+      </section>
+
+      {/* App Móvil Section */}
+      <section id="app-movil" className="bg-gradient-to-b from-slate-950 to-slate-900 py-32 px-6 relative overflow-hidden text-white border-t border-slate-900">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <div className="flex-1 space-y-6">
+              <span className="text-blue-400 font-black uppercase tracking-widest text-xs px-3 py-1 bg-blue-950/80 border border-blue-800 rounded-full inline-block">
+                Cobranza en Ruta & Movilidad
+              </span>
+              <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
+                Tu financiera en el bolsillo. <br/>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Diseñada para la calle.</span>
+              </h2>
+              <p className="text-slate-400 text-base md:text-lg leading-relaxed">
+                Empodera a tus cobradores con una aplicación web progresiva (PWA) de alta velocidad. Funciona en cualquier teléfono Android o iPhone sin descargas pesadas desde tiendas de apps.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center flex-shrink-0">
+                    <span className="material-symbols-outlined">speed</span>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white text-sm">Cobro en 3 Segundos</h4>
+                    <p className="text-xs text-slate-400 mt-0.5">Búsqueda rápida por nombre o cédula y registro con un toque.</p>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center flex-shrink-0">
+                    <span className="material-symbols-outlined">print</span>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white text-sm">Tickets Bluetooth</h4>
+                    <p className="text-xs text-slate-400 mt-0.5">Impresión térmica portátil de 58mm y 80mm con QR de seguridad.</p>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center flex-shrink-0">
+                    <span className="material-symbols-outlined">sync</span>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white text-sm">Sincronización en Vivo</h4>
+                    <p className="text-xs text-slate-400 mt-0.5">La oficina central visualiza el dinero cobrado inmediatamente.</p>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center flex-shrink-0">
+                    <span className="material-symbols-outlined">payments</span>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white text-sm">Rédito & Abonos Libres</h4>
+                    <p className="text-xs text-slate-400 mt-0.5">Recibe pago de intereses o amortizaciones directas a capital.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 flex flex-wrap gap-4">
+                <Link to="/login" className="px-6 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm">smartphone</span>
+                  Ingresar a la Terminal Móvil
+                </Link>
+                <button onClick={() => setActiveModal('tutorials')} className="px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm rounded-xl transition-all flex items-center gap-2 cursor-pointer">
+                  <span className="material-symbols-outlined text-sm">play_circle</span>
+                  Ver Cómo Funciona en Video
+                </button>
+              </div>
+            </div>
+
+            {/* Mockup Preview Card */}
+            <div className="w-full lg:w-96 bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                </div>
+                <span className="text-[11px] font-mono text-slate-500">terminal-movil.prespro</span>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/60">
+                  <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider block mb-1">Ruta del Día • Cobrador Activo</span>
+                  <div className="flex justify-between items-baseline">
+                    <h4 className="font-bold text-white text-base">Juan Pérez Gómez</h4>
+                    <span className="text-xs font-mono text-green-400 font-bold">AL DÍA</span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">Préstamo #1045 • Modalidad Rédito</p>
+                  <div className="mt-3 pt-3 border-t border-slate-700 flex justify-between text-xs">
+                    <span className="text-slate-400">Rédito sugerido:</span>
+                    <strong className="text-white">$500.00</strong>
+                  </div>
+                  <div className="flex justify-between text-xs mt-1">
+                    <span className="text-slate-400">Capital insoluto:</span>
+                    <strong className="text-white">$5,000.00</strong>
+                  </div>
+                </div>
+
+                <div className="bg-blue-600/10 border border-blue-500/30 rounded-2xl p-3.5 text-xs text-blue-200">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="material-symbols-outlined text-blue-400 text-sm">print</span>
+                    <span className="font-bold">Impresora Bluetooth Conectada</span>
+                  </div>
+                  <p className="text-[11px] text-blue-300/80">POS-58 Portátil lista para emitir ticket con QR.</p>
+                </div>
+
+                <div className="pt-2">
+                  <div className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs rounded-xl text-center shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2">
+                    <span className="material-symbols-outlined text-sm">check_circle</span>
+                    Cobrar $1,000 (Rédito $500 + Capital $500)
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Planes Section */}
@@ -359,25 +536,25 @@ const Landing = () => {
             <ul className="space-y-3 text-sm font-semibold text-slate-400">
               <li><a href="#plataforma" className="hover:text-blue-400 transition-colors">Características</a></li>
               <li><a href="#planes" className="hover:text-blue-400 transition-colors">Precios</a></li>
-              <li><a href="#modulos" className="hover:text-blue-400 transition-colors">Aplicación Móvil</a></li>
-              <li><a href="#plataforma" className="hover:text-blue-400 transition-colors">Actualizaciones</a></li>
+              <li><a href="#app-movil" className="hover:text-blue-400 transition-colors">Aplicación Móvil</a></li>
+              <li><button onClick={() => setActiveModal('changelog')} className="hover:text-blue-400 transition-colors text-left cursor-pointer">Actualizaciones</button></li>
             </ul>
           </div>
           <div>
             <h4 className="text-white font-bold mb-6">Recursos</h4>
             <ul className="space-y-3 text-sm font-semibold text-slate-400">
-              <li><a href="https://wa.me/8492705770" target="_blank" className="hover:text-blue-400 transition-colors">Centro de Ayuda</a></li>
-              <li><a href="https://wa.me/8492705770" target="_blank" className="hover:text-blue-400 transition-colors">Videotutoriales</a></li>
-              <li><a href="https://wa.me/8492705770" target="_blank" className="hover:text-blue-400 transition-colors">API Docs</a></li>
-              <li><a href="https://wa.me/8492705770" target="_blank" className="hover:text-blue-400 transition-colors">Blog</a></li>
+              <li><button onClick={() => setActiveModal('help')} className="hover:text-blue-400 transition-colors text-left cursor-pointer">Centro de Ayuda</button></li>
+              <li><button onClick={() => setActiveModal('tutorials')} className="hover:text-blue-400 transition-colors text-left cursor-pointer">Videotutoriales</button></li>
+              <li><button onClick={() => setActiveModal('api')} className="hover:text-blue-400 transition-colors text-left cursor-pointer">API Docs</button></li>
+              <li><button onClick={() => setActiveModal('blog')} className="hover:text-blue-400 transition-colors text-left cursor-pointer">Blog</button></li>
             </ul>
           </div>
           <div>
             <h4 className="text-white font-bold mb-6">Legal</h4>
             <ul className="space-y-3 text-sm font-semibold text-slate-400">
-              <li><a href="#" className="hover:text-blue-400 transition-colors cursor-not-allowed">Términos de Servicio</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors cursor-not-allowed">Política de Privacidad</a></li>
-              <li><a href="#" className="hover:text-blue-400 transition-colors cursor-not-allowed">Acuerdo de Seguridad</a></li>
+              <li><button onClick={() => setActiveModal('terms')} className="hover:text-blue-400 transition-colors text-left cursor-pointer">Términos de Servicio</button></li>
+              <li><button onClick={() => setActiveModal('privacy')} className="hover:text-blue-400 transition-colors text-left cursor-pointer">Política de Privacidad</button></li>
+              <li><button onClick={() => setActiveModal('security')} className="hover:text-blue-400 transition-colors text-left cursor-pointer">Acuerdo de Seguridad</button></li>
             </ul>
           </div>
         </div>
@@ -387,6 +564,9 @@ const Landing = () => {
           </p>
         </div>
       </footer>
+
+      {/* Interactive Modals for Footer and Support */}
+      <LandingModals activeModal={activeModal} onClose={() => setActiveModal(null)} />
     </div>
   );
 };
