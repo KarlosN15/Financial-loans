@@ -8,7 +8,7 @@ export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
   @Post()
-  create(@Request() req: any, @Body() data: { name: string; email?: string; identification?: string; phone?: string; address?: string; guarantorName?: string; guarantorPhone?: string; routeId?: number }) {
+  create(@Request() req: any, @Body() data: { name: string; email?: string; identification?: string; phone?: string; address?: string; guarantorName?: string; guarantorPhone?: string; routeId?: number; cedulaFrontUrl?: string; cedulaBackUrl?: string; guarantorDocUrl?: string }) {
     return this.clientsService.create(req.user, data);
   }
 
@@ -20,6 +20,11 @@ export class ClientsController {
   @Get(':id')
   findOne(@Request() req: any, @Param('id') id: string) {
     return this.clientsService.findOne(req.user, +id);
+  }
+
+  @Post(':id/update')
+  updatePost(@Request() req: any, @Param('id') id: string, @Body() data: any) {
+    return this.clientsService.update(req.user, +id, data);
   }
 
   @Delete(':id')
