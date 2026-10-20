@@ -550,7 +550,7 @@ const Billing = () => {
 
                   <div className="space-y-2">
                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">
-                        {paymentMode === 'REDITO' ? 'Monto Rédito a Recibir (RD$)' : 'Monto Final a Recibir (RD$)'}
+                        {paymentMode === 'REDITO' ? 'Monto a Recibir (Rédito / Capital) RD : 'Monto Final a Recibir (RD$)'}
                      </label>
                      <input 
                         required
@@ -561,6 +561,48 @@ const Billing = () => {
                         onChange={e => setFormData({ ...formData, amount: formatAmountInput(e.target.value), numInstallments: 0 })}
                      />
                   </div>
+
+                  {loanInfo && paymentMode === 'REDITO' && parseFloat(parseAmountInput(formData.amount)) > 0 && (() => {
+                     const enteredAmt = parseFloat(parseAmountInput(formData.amount));
+                     const perInt = loanInfo.perInterest;
+                     const capRem = loanInfo.capitalRemaining || Number(loanInfo.loan.amount);
+                     const reditoPart = enteredAmt <= perInt ? enteredAmt : perInt;
+                     const capitalPart = enteredAmt > perInt ? enteredAmt - perInt : 0;
+                     const newCap = Math.max(0, capRem - capitalPart);
+
+                     return (
+                        <div className="bg-slate-900 text-white p-5 rounded-2xl space-y-3 shadow-xl border border-amber-500/30">
+                           <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-amber-400">Distribución de Este Pago</p>
+                              <span className="text-[9px] font-mono font-bold bg-white/10 px-2 py-0.5 rounded text-white">Total: RD$ {formatDOP(enteredAmt)}</span>
+                           </div>
+
+                           <div className="space-y-1.5 text-xs font-medium">
+                              <div className="flex justify-between items-center">
+                                 <span className="text-white/70">1. Cobro de Rédito (Interés):</span>
+                                 <span className="font-black text-amber-300">RD$ {formatDOP(reditoPart)} {enteredAmt >= perInt ? '✓ Ciclo cubierto' : '(Parcial)'}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                 <span className="text-white/70">2. Abono a Capital (Reducción):</span>
+                                 <span className={`font-black ${capitalPart > 0 ? 'text-emerald-400' : 'text-white/40'}`}>
+                                    {capitalPart > 0 ? `+ RD$ ${formatDOP(capitalPart)}` : 'RD$ 0.00'}
+                                 </span>
+                              </div>
+                           </div>
+
+                           <div className="pt-2 border-t border-white/10 flex justify-between items-center">
+                              <span className="text-[10px] font-black uppercase tracking-wider text-white/80">Nuevo Capital Pendiente:</span>
+                              <span className="text-base font-black text-emerald-400">RD$ {formatDOP(newCap)}</span>
+                           </div>
+
+                           {newCap <= 0 && (
+                              <div className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 p-2 rounded-xl text-center text-[10px] font-black uppercase tracking-wider">
+                                 🎉 ¡Este pago liquidará el préstamo por completo!
+                              </div>
+                           )}
+                        </div>
+                     );
+                  })()}
 
                   <div className="flex gap-3">
                      <button type="button" onClick={() => setFormData({...formData, method: 'CASH'})} className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 transition-all ${formData.method === 'CASH' ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-50 border-transparent text-slate-400 hover:border-slate-200'}`}>EFECTIVO</button>
