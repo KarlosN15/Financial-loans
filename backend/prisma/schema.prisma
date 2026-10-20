@@ -28,6 +28,7 @@ model User {
   adminId   Int?     // Si es AGENT, aquí guardamos el ID de su ADMIN
   admin     User?    @relation("AdminAgents", fields: [adminId], references: [id])
   agents    User[]   @relation("AdminAgents")
+  commissionRate Decimal? @default(0) @db.Decimal(5, 2)
   clients   Client[]
   loans     Loan[]
   payments  Payment[]
@@ -68,6 +69,13 @@ model Client {
   guarantorName  String?
   guarantorPhone String?
   
+  // Scoring & Documentos Digitales
+  score          Int      @default(100)
+  rating         String   @default("EXCELLENT") // EXCELLENT, REGULAR, RISKY
+  cedulaFrontUrl String?  @db.Text
+  cedulaBackUrl  String?  @db.Text
+  guarantorDocUrl String? @db.Text
+  
   routeId        Int?
   route          Route?   @relation(fields: [routeId], references: [id])
   
@@ -105,6 +113,13 @@ model Loan {
   
   portfolioId   Int?
   portfolio     Portfolio? @relation(fields: [portfolioId], references: [id])
+  
+  // Reglas de Mora & Refinanciamiento
+  lateFeeType      String     @default("PERCENT") // PERCENT, FIXED, NONE
+  lateFeeValue     Decimal    @default(0) @db.Decimal(10, 2)
+  graceDays        Int        @default(2)
+  isRefinanced     Boolean    @default(false)
+  refinancedFromId Int?
   
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
@@ -146,6 +161,13 @@ model Payment {
   method        PaymentMethod @default(CASH)
   isInterestOnly Boolean      @default(false)
   notes         String?
+  
+  // GPS & Comisiones & Mora
+  latitude        Float?
+  longitude       Float?
+  lateFeePaid     Decimal      @default(0) @db.Decimal(15, 2)
+  agentCommission Decimal      @default(0) @db.Decimal(15, 2)
+  
   date          DateTime      @default(now())
   createdAt     DateTime      @default(now())
 }
