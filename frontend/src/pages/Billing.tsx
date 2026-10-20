@@ -550,7 +550,7 @@ const Billing = () => {
 
                   <div className="space-y-2">
                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">
-                        {paymentMode === 'REDITO' ? 'Monto a Recibir (Rédito / Capital) RD : 'Monto Final a Recibir (RD$)'}
+                        {paymentMode === 'REDITO' ? 'Monto a Recibir (Rédito / Capital) (RD$)' : 'Monto Final a Recibir (RD$)'}
                      </label>
                      <input 
                         required
