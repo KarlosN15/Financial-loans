@@ -92,6 +92,8 @@ const NewLoan = () => {
         total: 0,
         interest: 0,
         periodicRedito: 0,
+        capitalPerInst: 0,
+        interestPerInst: 0,
       };
     }
 
@@ -543,7 +545,7 @@ const NewLoan = () => {
                           <div className="mt-3 bg-white/10 p-3 rounded-xl border border-white/10 flex flex-wrap items-center justify-between text-xs font-bold text-white gap-2">
                             <span className="text-white/80">Desglose de cada pago:</span>
                             <span className="font-mono">
-                              Capital: <strong>RD$ {formatDOP(calculations.capitalPerInst)}</strong> + Rédito: <strong className="text-emerald-300">RD$ {formatDOP(calculations.interestPerInst)}</strong>
+                              Capital: <strong>RD$ {formatDOP(calculations.capitalPerInst || 0)}</strong> + Rédito: <strong className="text-emerald-300">RD$ {formatDOP(calculations.interestPerInst || 0)}</strong>
                             </span>
                           </div>
                           <p className="text-[11px] text-white/60 font-bold mt-2">
