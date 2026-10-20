@@ -17,6 +17,9 @@ export class PaymentsController {
       method: PaymentMethod; 
       isInterestOnly?: boolean; 
       notes?: string;
+      latitude?: number;
+      longitude?: number;
+      lateFeePaid?: number;
     }
   ) {
     return this.paymentsService.create(req.user, data);
