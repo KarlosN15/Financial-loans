@@ -20,7 +20,10 @@ const NewLoan = () => {
     term: '',
     frequency: 'MONTHLY' as 'MONTHLY' | 'BIWEEKLY' | 'WEEKLY',
     portfolioId: '' as string | number,
-    bankAccountId: '' as string | number
+    bankAccountId: '' as string | number,
+    lateFeeType: 'PERCENT' as 'PERCENT' | 'FIXED',
+    lateFeeValue: '5',
+    graceDays: '2',
   });
 
   const { data: portfolios = [] } = useQuery({ queryKey: ['portfolios'], queryFn: getPortfolios });
@@ -213,6 +216,9 @@ const NewLoan = () => {
       bankAccountId: parseInt(String(formData.bankAccountId)),
       loanType,
       interestType,
+      lateFeeType: formData.lateFeeType,
+      lateFeeValue: parseFloat(formData.lateFeeValue || '0'),
+      graceDays: parseInt(formData.graceDays || '0'),
       ...(formData.portfolioId && { portfolioId: parseInt(String(formData.portfolioId)) })
     });
   };
@@ -504,6 +510,61 @@ const NewLoan = () => {
                   </div>
                 </div>
               )}
+
+              {/* POLÍTICA DE MORA / RECARGOS */}
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-rose-500 text-base">timer</span>
+                    <span className="text-[10px] font-black uppercase text-slate-700 tracking-wider">Recargo por Atraso (Mora Automática)</span>
+                  </div>
+                  <span className="text-[9px] font-bold text-slate-400">Configuración</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[9px] font-black uppercase text-slate-400 block mb-1">Tipo de Recargo</label>
+                    <select
+                      className="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-xs font-bold text-slate-700 focus:outline-none focus:ring-1 focus:ring-primary"
+                      value={formData.lateFeeType}
+                      onChange={e => setFormData({ ...formData, lateFeeType: e.target.value as 'PERCENT' | 'FIXED' })}
+                    >
+                      <option value="PERCENT">% Porcentaje</option>
+                      <option value="FIXED">RD$ Monto Fijo</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[9px] font-black uppercase text-slate-400 block mb-1">
+                      {formData.lateFeeType === 'PERCENT' ? 'Porcentaje (%)' : 'Monto Fijo (RD$)'}
+                    </label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      className="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-xs font-bold text-slate-700 focus:outline-none focus:ring-1 focus:ring-primary"
+                      value={formData.lateFeeValue}
+                      onChange={e => setFormData({ ...formData, lateFeeValue: e.target.value })}
+                      placeholder={formData.lateFeeType === 'PERCENT' ? '5' : '100'}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[9px] font-black uppercase text-slate-400 block mb-1">Días de Gracia</label>
+                    <input
+                      type="number"
+                      min="0"
+                      className="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-xs font-bold text-slate-700 focus:outline-none focus:ring-1 focus:ring-primary"
+                      value={formData.graceDays}
+                      onChange={e => setFormData({ ...formData, graceDays: e.target.value })}
+                      placeholder="2"
+                    />
+                  </div>
+                </div>
+                <p className="text-[9px] text-slate-400 font-medium italic">
+                  Se aplicará {formData.lateFeeType === 'PERCENT' ? `${formData.lateFeeValue || 0}% de la cuota` : `RD$ ${formData.lateFeeValue || 0}`} tras vencerse la fecha límite + {formData.graceDays || 0} días de tolerancia.
+                </p>
+              </div>
 
               {/* TARJETA DINÁMICA: "TIENE QUE PAGAR" */}
               <div className={`p-8 rounded-3xl relative overflow-hidden group shadow-2xl border transition-all ${
