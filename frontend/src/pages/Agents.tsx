@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAgents, createAgent, deleteAgent, getPayments, getBranches } from '../api/api';
+import { getAgents, createAgent, deleteAgent, getPayments, getBranches, getAgentCommissions, updateAgentCommission } from '../api/api';
 import { useState } from 'react';
 import { formatDOP } from '../utils/format';
 import { useAuth } from '../context/AuthContext';
@@ -23,6 +23,54 @@ const Agents = () => {
     queryKey: ['agents'],
     queryFn: getAgents
   });
+
+  const { data: commissionsSummary = [] } = useQuery({
+    queryKey: ['agent-commissions'],
+    queryFn: getAgentCommissions
+  });
+
+  const updateCommissionMutation = useMutation({
+    mutationFn: ({ id, commissionRate }: { id: number; commissionRate: number }) => updateAgentCommission(id, commissionRate),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['agents'] });
+      queryClient.invalidateQueries({ queryKey: ['agent-commissions'] });
+      Swal.fire({
+        icon: 'success',
+        title: 'Comisión Actualizada',
+        text: 'Porcentaje de comisión guardado exitosamente.',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
+    onError: () => {
+      Swal.fire('Error', 'No se pudo actualizar la comisión.', 'error');
+    }
+  });
+
+  const handleEditCommission = (agent: any) => {
+    Swal.fire({
+      title: `Comisión de ${agent.name}`,
+      text: 'Indique el porcentaje de comisión (%) que ganará por cada cobro realizado:',
+      input: 'number',
+      inputAttributes: {
+        min: '0',
+        max: '100',
+        step: '0.5'
+      },
+      inputValue: agent.commissionRate ?? 0,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar Comisión',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#0f172a',
+    }).then((result) => {
+      if (result.isConfirmed && result.value !== undefined) {
+        updateCommissionMutation.mutate({
+          id: agent.id,
+          commissionRate: parseFloat(result.value) || 0
+        });
+      }
+    });
+  };
 
   const { user } = useAuth();
   const isLimitReached = (user?.plan === 'inicio') || (user?.plan === 'estandar' && agents.length >= 1);
@@ -121,6 +169,43 @@ const Agents = () => {
         </div>
       </div>
 
+      {/* Quick Team & Commissions KPI */}
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+        <div className="bg-white p-6 rounded-[2rem] border border-slate-100 flex items-center gap-5 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center">
+            <span className="material-symbols-outlined">badge</span>
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Equipo de Cobro</p>
+            <p className="text-xl font-black text-slate-900">{agents.length} Cobrador(es)</p>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-[2rem] border border-slate-100 flex items-center gap-5 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <span className="material-symbols-outlined">payments</span>
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Cobrado (Equipo)</p>
+            <p className="text-xl font-black text-emerald-600">
+              RD$ {formatDOP(commissionsSummary.reduce((sum: number, a: any) => sum + (a.totalCollected || 0), 0))}
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-slate-900 p-6 rounded-[2rem] text-white flex items-center gap-5 shadow-xl shadow-slate-900/10">
+          <div className="w-12 h-12 rounded-2xl bg-white/10 text-amber-400 flex items-center justify-center">
+            <span className="material-symbols-outlined">monetization_on</span>
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-white/50 uppercase tracking-widest">Comisiones a Liquidar</p>
+            <p className="text-xl font-black text-amber-400">
+              RD$ {formatDOP(commissionsSummary.reduce((sum: number, a: any) => sum + (a.totalCommission || 0), 0))}
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Main Directory Table */}
       <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-sm border border-slate-100">
         <div className="p-6 md:p-8 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-5 bg-slate-50/20">
@@ -146,6 +231,7 @@ const Agents = () => {
               <tr className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-50">
                 <th className="px-8 py-6">Agente</th>
                 <th className="px-8 py-6 text-center">Rol de Sistema</th>
+                <th className="px-8 py-6 text-center">Comisión (%)</th>
                 <th className="px-8 py-6 text-center">Fecha de Alta</th>
                 <th className="px-8 py-6 text-center">Acciones</th>
               </tr>
@@ -153,12 +239,13 @@ const Agents = () => {
             <tbody className="divide-y divide-slate-50">
               {filteredAgents.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-8 py-32 text-center opacity-30">
+                  <td colSpan={5} className="px-8 py-32 text-center opacity-30">
                     <span className="material-symbols-outlined text-7xl mb-4 block">group_off</span>
                     <p className="text-sm font-black uppercase tracking-widest font-headline">No se encontraron agentes</p>
                   </td>
                 </tr>
               ) : filteredAgents.map((agent: any) => {
+                const commSummary = commissionsSummary.find((c: any) => c.id === agent.id);
                 return (
                   <tr key={agent.id} className="hover:bg-slate-50/50 transition-all cursor-pointer group">
                     <td className="px-8 py-6 min-w-[250px]">
@@ -189,6 +276,15 @@ const Agents = () => {
                       </span>
                     </td>
                     <td className="px-8 py-6 text-center">
+                      <div className="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded-xl text-xs font-black transition-all" onClick={(e) => { e.stopPropagation(); handleEditCommission(agent); }} title="Click para cambiar comisión">
+                        <span>{agent.commissionRate ?? 0}%</span>
+                        <span className="material-symbols-outlined text-xs text-slate-400">edit</span>
+                      </div>
+                      {commSummary && commSummary.totalCommission > 0 && (
+                        <p className="text-[8px] font-black text-emerald-600 mt-1 uppercase">RD$ {formatDOP(commSummary.totalCommission)} ganados</p>
+                      )}
+                    </td>
+                    <td className="px-8 py-6 text-center">
                        <p className="text-xs font-black text-slate-500 font-mono tracking-tighter">{new Date(agent.createdAt).toLocaleDateString()}</p>
                     </td>
                     <td className="px-8 py-6">
@@ -199,9 +295,19 @@ const Agents = () => {
                                 setSelectedAgent(agent);
                              }}
                              className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 hover:bg-slate-900 hover:text-white transition-all flex items-center justify-center active:scale-90 shadow-sm"
-                             title="Ver Cobros"
+                             title="Ver Cobros y Liquidación"
                            >
                               <span className="material-symbols-outlined text-xl">receipt_long</span>
+                           </button>
+                           <button 
+                             onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditCommission(agent);
+                             }}
+                             className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 hover:bg-amber-600 hover:text-white transition-all flex items-center justify-center active:scale-90 shadow-sm"
+                             title="Configurar Comisión"
+                           >
+                              <span className="material-symbols-outlined text-xl">percent</span>
                            </button>
                            <button 
                              onClick={(e) => {
@@ -383,6 +489,10 @@ const Agents = () => {
                   {(() => {
                      const agentPayments = allPayments.filter((p: any) => p.userId === selectedAgent.id);
                      const totalAgent = agentPayments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+                     const rate = Number(selectedAgent.commissionRate || 0);
+                     const totalCommission = agentPayments.reduce((sum: number, p: any) => {
+                       return sum + (p.agentCommission !== undefined && p.agentCommission !== null ? Number(p.agentCommission) : (Number(p.amount) * rate / 100));
+                     }, 0);
 
                      if (agentPayments.length === 0) {
                         return (
@@ -395,9 +505,19 @@ const Agents = () => {
 
                      return (
                         <div className="space-y-6">
-                           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 text-center">
-                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Recaudado</p>
-                              <p className="text-3xl font-black text-emerald-600">RD$ {formatDOP(totalAgent)}</p>
+                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                             <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 text-center">
+                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Cobrado</p>
+                               <p className="text-2xl font-black text-slate-900">RD$ {formatDOP(totalAgent)}</p>
+                             </div>
+                             <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 text-center">
+                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">% Comisión</p>
+                               <p className="text-2xl font-black text-primary">{rate}%</p>
+                             </div>
+                             <div className="bg-amber-50 p-5 rounded-2xl border border-amber-200 text-center">
+                               <p className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-1">Liquidación Ganada</p>
+                               <p className="text-2xl font-black text-amber-900">RD$ {formatDOP(totalCommission)}</p>
+                             </div>
                            </div>
                            
                            <div className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
@@ -408,19 +528,24 @@ const Agents = () => {
                                        <th className="px-6 py-4">Cliente</th>
                                        <th className="px-6 py-4">Fecha</th>
                                        <th className="px-6 py-4 text-right">Monto</th>
+                                       <th className="px-6 py-4 text-right">Comisión</th>
                                     </tr>
                                  </thead>
                                  <tbody className="divide-y divide-slate-50">
-                                    {agentPayments.map((p: any) => (
-                                       <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
-                                          <td className="px-6 py-4">
-                                             <span className="text-[9px] font-black text-slate-400 bg-slate-100 px-2 py-1 rounded">#{p.id.toString().padStart(4, '0')}</span>
-                                          </td>
-                                          <td className="px-6 py-4 text-xs font-bold">{p.clientName || p.loan?.client?.name}</td>
-                                          <td className="px-6 py-4 text-[10px] font-black text-slate-400">{new Date(p.date).toLocaleDateString()}</td>
-                                          <td className="px-6 py-4 text-right text-xs font-black text-emerald-600">RD$ {formatDOP(p.amount)}</td>
-                                       </tr>
-                                    ))}
+                                    {agentPayments.map((p: any) => {
+                                       const comm = p.agentCommission !== undefined && p.agentCommission !== null ? Number(p.agentCommission) : (Number(p.amount) * rate / 100);
+                                       return (
+                                         <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-6 py-4">
+                                               <span className="text-[9px] font-black text-slate-400 bg-slate-100 px-2 py-1 rounded">#{p.id.toString().padStart(4, '0')}</span>
+                                            </td>
+                                            <td className="px-6 py-4 text-xs font-bold">{p.clientName || p.loan?.client?.name}</td>
+                                            <td className="px-6 py-4 text-[10px] font-black text-slate-400">{new Date(p.date).toLocaleDateString()}</td>
+                                            <td className="px-6 py-4 text-right text-xs font-black text-emerald-600">RD$ {formatDOP(p.amount)}</td>
+                                            <td className="px-6 py-4 text-right text-xs font-black text-amber-600">RD$ {formatDOP(comm)}</td>
+                                         </tr>
+                                       );
+                                    })}
                                  </tbody>
                               </table>
                            </div>
