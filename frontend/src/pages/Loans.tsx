@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getLoans, deleteLoan } from '../api/api';
+import { getLoans, deleteLoan, refinanceLoan, getBanks } from '../api/api';
 import { Link, useNavigate } from 'react-router-dom';
 import { formatDOP } from '../utils/format';
 import Swal from 'sweetalert2';
@@ -11,14 +11,52 @@ const Loans = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [selectedLoan, setSelectedLoan] = useState<any>(null);
+  const [refinanceModalLoan, setRefinanceModalLoan] = useState<any>(null);
+  const [refinanceData, setRefinanceData] = useState<any>({
+    additionalAmount: '0',
+    interestRate: '10',
+    term: '3',
+    frequency: 'MONTHLY',
+    loanType: 'INSTALLMENT',
+    interestType: 'SIMPLE',
+    bankAccountId: '',
+    lateFeeType: 'PERCENT',
+    lateFeeValue: '5',
+    graceDays: '2',
+    notes: ''
+  });
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [printType, setPrintType] = useState<'STATEMENT' | 'RECEIPT'>('STATEMENT');
   const [searchTerm, setSearchTerm] = useState('');
 
+  const { data: banks = [] } = useQuery({
+    queryKey: ['banks'],
+    queryFn: getBanks,
+  });
+
   const { data: loans = [], isLoading } = useQuery({
     queryKey: ['loans'],
     queryFn: getLoans,
+  });
+
+  const refinanceMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) => refinanceLoan(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['loans'] });
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['summary'] });
+      setRefinanceModalLoan(null);
+      Swal.fire({
+        icon: 'success',
+        title: '¡Préstamo Refinanciado!',
+        text: 'La deuda previa ha sido cancelada y se ha aperturado el nuevo crédito reestructurado.',
+        confirmButtonColor: '#2563eb'
+      });
+    },
+    onError: (err: any) => {
+      Swal.fire('Error', err.response?.data?.message || 'Error al refinanciar el préstamo.', 'error');
+    }
   });
 
   const filteredLoans = loans.filter((l: any) => 
@@ -159,34 +197,69 @@ const Loans = () => {
                     <p className="text-[10px] text-slate-400 uppercase italic font-bold">{loan.frequency === 'MONTHLY' ? 'Mensual' : loan.frequency === 'BIWEEKLY' ? 'Quincenal' : 'Semanal'}</p>
                   </td>
                   <td className="px-8 py-6">
-                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter ${
-                      loan.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                      loan.status === 'ARREARS' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
-                      'bg-slate-50 text-slate-600 border border-slate-100'
-                    }`}>
-                      {loan.status === 'ACTIVE' ? 'Al Corriente' : 
-                       loan.status === 'ARREARS' ? 'En Mora' : 
-                       'Completado'}
-                    </span>
+                    <div className="flex flex-col gap-1 items-start">
+                      <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter ${
+                        loan.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                        loan.status === 'ARREARS' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
+                        'bg-slate-50 text-slate-600 border border-slate-100'
+                      }`}>
+                        {loan.status === 'ACTIVE' ? 'Al Corriente' : 
+                         loan.status === 'ARREARS' ? 'En Mora' : 
+                         'Completado'}
+                      </span>
+                      {loan.isRefinanced && (
+                        <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 text-[8px] font-black uppercase tracking-wider flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[10px]">sync</span>
+                          Refinanciado
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-8 py-6">
                     <div className="flex justify-center gap-2">
                        <button 
                          onClick={() => openDetails(loan)}
                          className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-primary hover:text-white text-slate-400 transition-all flex items-center justify-center border border-slate-100 active:scale-90"
+                         title="Ver Cuotas"
                        >
                          <span className="material-symbols-outlined text-xl">visibility</span>
                        </button>
                        <button 
                          onClick={() => openPrint(loan)}
                          className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-primary hover:text-white text-slate-400 transition-all flex items-center justify-center border border-slate-100 active:scale-90"
+                         title="Imprimir Pagaré / Recibo"
                        >
                          <span className="material-symbols-outlined text-xl">receipt_long</span>
                        </button>
+                       {loan.status !== 'COMPLETED' && !loan.isRefinanced && (
+                         <button 
+                           onClick={() => {
+                             setRefinanceModalLoan(loan);
+                             setRefinanceData({
+                               additionalAmount: '0',
+                               interestRate: String(loan.interestRate || '10'),
+                               term: String(loan.term || '3'),
+                               frequency: loan.frequency || 'MONTHLY',
+                               loanType: loan.loanType || 'INSTALLMENT',
+                               interestType: loan.interestType || 'SIMPLE',
+                               bankAccountId: banks[0]?.id || '',
+                               lateFeeType: loan.lateFeeType || 'PERCENT',
+                               lateFeeValue: String(loan.lateFeeValue || '5'),
+                               graceDays: String(loan.graceDays || '2'),
+                               notes: `Refinanciamiento del préstamo #PR-${1000 + loan.id}`
+                             });
+                           }}
+                           className="w-10 h-10 rounded-xl bg-purple-50 hover:bg-purple-600 hover:text-white text-purple-600 transition-all flex items-center justify-center border border-purple-100 active:scale-90"
+                           title="Refinanciar / Reestructurar Deuda"
+                         >
+                           <span className="material-symbols-outlined text-xl">published_with_changes</span>
+                         </button>
+                       )}
                        <button 
                          onClick={() => handleDelete(loan.id)}
                          disabled={deleteMutation.isPending}
                          className="w-10 h-10 rounded-xl bg-rose-50 hover:bg-rose-500 hover:text-white text-rose-400 transition-all flex items-center justify-center border border-rose-100 active:scale-90 disabled:opacity-50"
+                         title="Eliminar"
                        >
                          <span className="material-symbols-outlined text-xl">delete</span>
                        </button>
@@ -441,7 +514,241 @@ const Loans = () => {
              <p className="text-[9px] font-black uppercase">LA ROMANA, REP. DOM.</p>
              <p className="text-[9px] font-medium italic mt-2">Este documento representa la entrega formal de valores. Validado por SistemaFac Pro.</p>
           </div>
-      </div>
+       </div>
+
+      {/* MODAL REFINANCIAMIENTO */}
+      {refinanceModalLoan && (() => {
+        const pendingBalance = refinanceModalLoan.installments?.filter((i: any) => i.status === 'PENDING').reduce((acc: number, i: any) => acc + Number(i.amount), 0) || 0;
+        const additional = parseFloat(refinanceData.additionalAmount) || 0;
+        const totalNewPrincipal = pendingBalance + additional;
+        const rate = parseFloat(refinanceData.interestRate) || 0;
+        const term = parseInt(refinanceData.term) || 1;
+        
+        let estInstallment = 0;
+        if (refinanceData.loanType === 'REDITO') {
+          estInstallment = totalNewPrincipal * (rate / 100);
+        } else {
+          const totalInterest = totalNewPrincipal * (rate / 100) * term;
+          estInstallment = (totalNewPrincipal + totalInterest) / term;
+        }
+
+        const handleConfirmRefinance = (e: React.FormEvent) => {
+          e.preventDefault();
+          if (!refinanceData.interestRate || !refinanceData.term) {
+            Swal.fire('Campos requeridos', 'Por favor indique la tasa de interés y el plazo.', 'warning');
+            return;
+          }
+          if (additional > 0 && !refinanceData.bankAccountId) {
+            Swal.fire('Cuenta requerida', 'Debe seleccionar una cuenta bancaria para el desembolso adicional en efectivo.', 'warning');
+            return;
+          }
+          refinanceMutation.mutate({
+            id: refinanceModalLoan.id,
+            data: {
+              additionalAmount: additional,
+              newInterestRate: rate,
+              newTerm: term,
+              newFrequency: refinanceData.frequency,
+              newLoanType: refinanceData.loanType,
+              newInterestType: refinanceData.interestType,
+              bankAccountId: refinanceData.bankAccountId ? parseInt(String(refinanceData.bankAccountId)) : banks[0]?.id,
+              lateFeeType: refinanceData.lateFeeType,
+              lateFeeValue: parseFloat(refinanceData.lateFeeValue || '0'),
+              graceDays: parseInt(refinanceData.graceDays || '0'),
+              notes: refinanceData.notes || `Refinanciamiento del préstamo PR-${1000 + refinanceModalLoan.id}`
+            }
+          });
+        };
+
+        return (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-md" onClick={() => setRefinanceModalLoan(null)}></div>
+            <div className="bg-white rounded-[2.5rem] w-full max-w-2xl relative z-10 shadow-3xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[92vh]">
+              {/* Header */}
+              <div className="relative bg-slate-900 px-8 pt-8 pb-10 overflow-hidden flex-shrink-0">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl -translate-y-1/4 translate-x-1/4 pointer-events-none"></div>
+                <div className="relative flex items-center justify-between">
+                  <div className="flex items-center gap-4 text-left">
+                    <div className="w-14 h-14 rounded-2xl bg-purple-600 flex items-center justify-center shadow-lg shadow-purple-600/30 flex-shrink-0 text-white">
+                      <span className="material-symbols-outlined text-2xl">published_with_changes</span>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-black text-white font-headline tracking-tighter uppercase">Refinanciar Préstamo</h3>
+                      <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em] mt-0.5">
+                        #PR-{1000 + refinanceModalLoan.id} · {refinanceModalLoan.client.name}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setRefinanceModalLoan(null)}
+                    className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all flex items-center justify-center"
+                  >
+                    <span className="material-symbols-outlined text-lg">close</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleConfirmRefinance} className="p-8 overflow-y-auto custom-scrollbar flex-1 space-y-6 text-left">
+                {/* Deuda a Cancelar vs Deuda Nueva */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">Deuda Pendiente Actual</span>
+                    <p className="text-lg font-black text-rose-600">RD$ {formatDOP(pendingBalance)}</p>
+                    <span className="text-[8px] font-bold text-slate-400">Se cancelará automáticamente</span>
+                  </div>
+
+                  <div className="bg-purple-50 border border-purple-100 p-4 rounded-2xl">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-purple-600 block mb-1">Efectivo Adicional (+)</span>
+                    <div className="flex items-center">
+                      <span className="text-sm font-black text-purple-700 mr-1">$</span>
+                      <input
+                        type="number"
+                        min="0"
+                        className="w-full bg-white border border-purple-200 rounded-lg py-1 px-2 text-sm font-black text-purple-900 focus:outline-none"
+                        value={refinanceData.additionalAmount}
+                        onChange={e => setRefinanceData({ ...refinanceData, additionalAmount: e.target.value })}
+                        placeholder="0"
+                      />
+                    </div>
+                    <span className="text-[8px] font-bold text-purple-500">Monto extra en mano</span>
+                  </div>
+
+                  <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600 block mb-1">Nuevo Capital Total</span>
+                    <p className="text-lg font-black text-emerald-700">RD$ {formatDOP(totalNewPrincipal)}</p>
+                    <span className="text-[8px] font-bold text-emerald-600">Monto nuevo crédito</span>
+                  </div>
+                </div>
+
+                {/* Modalidad y Frecuencia */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] font-black uppercase text-slate-400 block mb-1.5">Modalidad</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setRefinanceData({ ...refinanceData, loanType: 'INSTALLMENT' })}
+                        className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${
+                          refinanceData.loanType === 'INSTALLMENT' ? 'bg-primary text-white border-primary shadow-sm' : 'bg-slate-50 text-slate-500 border-slate-200'
+                        }`}
+                      >
+                        Cuotas
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRefinanceData({ ...refinanceData, loanType: 'REDITO' })}
+                        className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${
+                          refinanceData.loanType === 'REDITO' ? 'bg-amber-500 text-white border-amber-500 shadow-sm' : 'bg-slate-50 text-slate-500 border-slate-200'
+                        }`}
+                      >
+                        Rédito
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-black uppercase text-slate-400 block mb-1.5">Frecuencia</label>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {(['MONTHLY', 'BIWEEKLY', 'WEEKLY'] as const).map(freq => (
+                        <button
+                          key={freq}
+                          type="button"
+                          onClick={() => setRefinanceData({ ...refinanceData, frequency: freq })}
+                          className={`py-2 text-[9px] font-black uppercase rounded-xl border transition-all ${
+                            refinanceData.frequency === freq ? 'bg-primary text-white border-primary' : 'bg-slate-50 text-slate-500 border-slate-200'
+                          }`}
+                        >
+                          {freq === 'MONTHLY' ? 'Mensual' : freq === 'BIWEEKLY' ? 'Quincenal' : 'Semanal'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tasa y Plazo */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] font-black uppercase text-slate-400 block mb-1.5">Nueva Tasa Mensual (%)</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      required
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-black text-slate-800"
+                      value={refinanceData.interestRate}
+                      onChange={e => setRefinanceData({ ...refinanceData, interestRate: e.target.value })}
+                      placeholder="Ej: 10"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-black uppercase text-slate-400 block mb-1.5">Nuevo Plazo (Cuotas)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      required
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-black text-slate-800"
+                      value={refinanceData.term}
+                      onChange={e => setRefinanceData({ ...refinanceData, term: e.target.value })}
+                      placeholder="Ej: 3"
+                    />
+                  </div>
+                </div>
+
+                {/* Cuenta de Banco para desembolso */}
+                <div>
+                  <label className="text-[10px] font-black uppercase text-slate-400 block mb-1.5">Cuenta Bancaria de Registro</label>
+                  <select
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-bold text-slate-800 appearance-none"
+                    value={refinanceData.bankAccountId}
+                    onChange={e => setRefinanceData({ ...refinanceData, bankAccountId: e.target.value })}
+                  >
+                    <option value="">Seleccione cuenta</option>
+                    {banks.map((b: any) => (
+                      <option key={b.id} value={b.id}>
+                        {b.bankName} - Cuenta {b.accountNumber} (Disp: RD$ {formatDOP(b.balance)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Estimación de cuota */}
+                <div className="p-4 bg-slate-900 text-white rounded-2xl flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">Cuota Estimada Reestructurada</span>
+                    <span className="text-xl font-black text-emerald-400">RD$ {formatDOP(estInstallment)}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">Plazo Total</span>
+                    <span className="text-xs font-bold text-white">{term} {refinanceData.frequency === 'MONTHLY' ? 'Meses' : refinanceData.frequency === 'BIWEEKLY' ? 'Quincenas' : 'Semanas'}</span>
+                  </div>
+                </div>
+
+                {/* Footer buttons */}
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setRefinanceModalLoan(null)}
+                    className="flex-1 py-3.5 bg-slate-100 text-slate-600 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-slate-200"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={refinanceMutation.isPending}
+                    className="flex-[2] py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+                  >
+                    {refinanceMutation.isPending ? (
+                      <><span className="material-symbols-outlined text-sm animate-spin">progress_activity</span> Refinanciando...</>
+                    ) : (
+                      <><span className="material-symbols-outlined text-sm">published_with_changes</span> Aprobar y Refinanciar</>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };
