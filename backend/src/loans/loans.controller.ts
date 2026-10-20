@@ -23,6 +23,11 @@ export class LoansController {
     return this.loansService.getSummary(req.user);
   }
 
+  @Post(':id/refinance')
+  refinance(@Request() req: any, @Param('id') id: string, @Body() data: any) {
+    return this.loansService.refinanceLoan(req.user, +id, data);
+  }
+
   @Delete(':id')
   remove(@Request() req: any, @Param('id') id: string) {
     return this.loansService.remove(req.user, +id);
