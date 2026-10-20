@@ -9,7 +9,7 @@ const Agents = () => {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [newAgent, setNewAgent] = useState({ name: '', email: '', password: '', branchId: '' as string | number });
+  const [newAgent, setNewAgent] = useState({ name: '', email: '', password: '', branchId: '' as string | number, commissionRate: '' });
   const [selectedAgent, setSelectedAgent] = useState<any>(null);
 
   const { data: branches = [] } = useQuery({ queryKey: ['branches'], queryFn: getBranches });
@@ -85,7 +85,7 @@ const Agents = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['agents'] });
       setIsModalOpen(false);
-      setNewAgent({ name: '', email: '', password: '', branchId: '' });
+      setNewAgent({ name: '', email: '', password: '', branchId: '', commissionRate: '' });
     },
     onError: (error: any) => {
       Swal.fire({
@@ -126,6 +126,11 @@ const Agents = () => {
     const payload: any = { ...newAgent };
     if (!payload.branchId) delete payload.branchId;
     else payload.branchId = Number(payload.branchId);
+    if (payload.commissionRate !== undefined && payload.commissionRate !== '') {
+      payload.commissionRate = Number(payload.commissionRate);
+    } else {
+      payload.commissionRate = 0;
+    }
     
     mutation.mutate(payload);
   };
@@ -332,123 +337,149 @@ const Agents = () => {
 
       {/* Modal para Nuevo Agente */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto">
           <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-md" onClick={() => setIsModalOpen(false)}></div>
-          <div className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl relative z-10 overflow-hidden animate-in zoom-in-95 fade-in duration-300">
+          <div className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl relative z-10 overflow-hidden animate-in zoom-in-95 fade-in duration-300 flex flex-col max-h-[90vh] my-auto">
 
             {/* Header */}
-            <div className="relative bg-slate-900 px-8 pt-8 pb-10 overflow-hidden">
+            <div className="relative bg-slate-900 px-6 py-5 md:px-8 md:py-5 overflow-hidden flex-shrink-0">
               <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full blur-3xl -translate-y-1/4 translate-x-1/4 pointer-events-none"></div>
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
-              <div className="relative flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-white/10 text-white flex items-center justify-center shadow-lg shadow-black/30 flex-shrink-0">
-                  <span className="material-symbols-outlined text-white text-2xl">person_add</span>
+              <div className="relative flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center shadow-lg shadow-black/30 flex-shrink-0">
+                    <span className="material-symbols-outlined text-white text-2xl">person_add</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl md:text-2xl font-black text-white font-headline tracking-tighter">Nuevo Agente</h3>
+                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em] mt-0.5">Crear acceso de cobrador</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-2xl font-black text-white font-headline tracking-tighter">Nuevo Agente</h3>
-                  <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em] mt-0.5">Crear acceso de cobrador</p>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all flex items-center justify-center flex-shrink-0"
+                >
+                  <span className="material-symbols-outlined text-lg">close</span>
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="absolute top-4 right-4 w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all flex items-center justify-center"
-              >
-                <span className="material-symbols-outlined text-lg">close</span>
-              </button>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="p-8 space-y-5 bg-white">
+            <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0">
               
-              <div className="bg-amber-50 border border-amber-100 p-4 rounded-xl flex items-start gap-3">
-                 <span className="material-symbols-outlined text-amber-500 text-lg">info</span>
-                 <p className="text-[10px] font-bold text-amber-700 leading-relaxed uppercase tracking-widest">
-                    El agente solo tendrá acceso a la pantalla de "Cobros" para registrar pagos. No podrá ver el Dashboard ni eliminar registros.
-                 </p>
-              </div>
+              <div className="p-6 md:p-8 space-y-4 overflow-y-auto custom-scrollbar flex-1 min-h-0 bg-white">
+                <div className="bg-amber-50 border border-amber-100 p-3.5 rounded-xl flex items-start gap-3">
+                   <span className="material-symbols-outlined text-amber-500 text-lg flex-shrink-0 mt-0.5">info</span>
+                   <p className="text-[10px] font-bold text-amber-800 leading-relaxed uppercase tracking-wider">
+                      El agente solo tendrá acceso a la pantalla de "Cobros" para registrar pagos. No podrá ver el Dashboard ni eliminar registros.
+                   </p>
+                </div>
 
-              {/* Nombre */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <span className="material-symbols-outlined text-xs text-primary">badge</span>
-                  Nombre del Agente
-                </label>
-                <div className="relative">
+                {/* Nombre */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <span className="material-symbols-outlined text-xs text-primary">badge</span>
+                    Nombre del Agente
+                  </label>
                   <input
                     required
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     placeholder="Ej: Pedro Martínez"
                     value={newAgent.name}
                     onChange={e => setNewAgent({ ...newAgent, name: e.target.value })}
                   />
                 </div>
+
+                {/* Email */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <span className="material-symbols-outlined text-xs text-primary">mail</span>
+                    Correo de Acceso
+                  </label>
+                  <input
+                    required
+                    type="email"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    placeholder="pedro@tudominio.com"
+                    value={newAgent.email}
+                    onChange={e => setNewAgent({ ...newAgent, email: e.target.value })}
+                  />
+                </div>
+
+                {/* Contraseña */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <span className="material-symbols-outlined text-xs text-primary">key</span>
+                    Contraseña Temporal
+                  </label>
+                  <input
+                    required
+                    type="password"
+                    minLength={6}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    placeholder="Mínimo 6 caracteres"
+                    value={newAgent.password}
+                    onChange={e => setNewAgent({ ...newAgent, password: e.target.value })}
+                  />
+                </div>
+
+                {/* Sucursal */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <span className="material-symbols-outlined text-xs text-primary">store</span>
+                    Sucursal (Opcional)
+                  </label>
+                  <select
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer"
+                    value={newAgent.branchId}
+                    onChange={e => setNewAgent({ ...newAgent, branchId: e.target.value })}
+                  >
+                    <option value="">Sin Asignar</option>
+                    {branches.map((b: any) => (
+                      <option key={b.id} value={b.id}>{b.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Comisión por Cobro */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <span className="material-symbols-outlined text-xs text-primary">percent</span>
+                    Comisión por Cobro % (Opcional)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      max="100"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-10 text-sm font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                      placeholder="Ej: 5 (5% por cada cobro)"
+                      value={newAgent.commissionRate}
+                      onChange={e => setNewAgent({ ...newAgent, commissionRate: e.target.value })}
+                    />
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-black text-xs pointer-events-none">
+                      %
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
-              {/* Email */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <span className="material-symbols-outlined text-xs text-primary">mail</span>
-                  Correo de Acceso
-                </label>
-                <input
-                  required
-                  type="email"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                  placeholder="pedro@tudominio.com"
-                  value={newAgent.email}
-                  onChange={e => setNewAgent({ ...newAgent, email: e.target.value })}
-                />
-              </div>
-
-              {/* Contraseña */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <span className="material-symbols-outlined text-xs text-primary">key</span>
-                  Contraseña Temporal
-                </label>
-                <input
-                  required
-                  type="password"
-                  minLength={6}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                  placeholder="Mínimo 6 caracteres"
-                  value={newAgent.password}
-                  onChange={e => setNewAgent({ ...newAgent, password: e.target.value })}
-                />
-              </div>
-
-              {/* Sucursal */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <span className="material-symbols-outlined text-xs text-primary">store</span>
-                  Sucursal (Opcional)
-                </label>
-                <select
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
-                  value={newAgent.branchId}
-                  onChange={e => setNewAgent({ ...newAgent, branchId: e.target.value })}
-                >
-                  <option value="">Sin Asignar</option>
-                  {branches.map((b: any) => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Buttons */}
-              <div className="flex gap-3 pt-2">
+              {/* Sticky / Fixed Footer Buttons */}
+              <div className="p-4 md:px-8 md:py-4 bg-slate-50 border-t border-slate-100 flex-shrink-0 flex gap-3">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-3.5 bg-slate-50 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-slate-100 active:scale-95 transition-all border border-slate-200"
+                  className="flex-1 py-3 bg-white text-slate-600 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-slate-100 active:scale-95 transition-all border border-slate-200 shadow-sm"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={mutation.isPending}
-                  className="flex-[2] py-3.5 bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:brightness-110 shadow-lg shadow-black/20 hover:shadow-black/40 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-[2] py-3 bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:brightness-110 shadow-lg shadow-black/20 hover:shadow-black/40 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {mutation.isPending ? (
                     <><span className="material-symbols-outlined text-sm animate-spin">progress_activity</span> Creando...</>
