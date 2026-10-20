@@ -35,7 +35,19 @@ export const getClients = async () => {
   return response.data;
 };
 
-export const createClient = async (data: { name: string; email?: string; identification?: string; phone?: string; address?: string; guarantorName?: string; guarantorPhone?: string; routeId?: number }) => {
+export const createClient = async (data: { 
+  name: string; 
+  email?: string; 
+  identification?: string; 
+  phone?: string; 
+  address?: string; 
+  guarantorName?: string; 
+  guarantorPhone?: string; 
+  routeId?: number;
+  cedulaFrontUrl?: string;
+  cedulaBackUrl?: string;
+  guarantorDocUrl?: string;
+}) => {
   const response = await api.post('/clients', data);
   return response.data;
 };
@@ -65,12 +77,35 @@ export const getPayments = async () => {
   return response.data;
 };
 
+export const updateClient = async (id: number, data: any) => {
+  const response = await api.post(`/clients/${id}/update`, data);
+  return response.data;
+};
+
+export const refinanceLoan = async (id: number, data: any) => {
+  const response = await api.post(`/loans/${id}/refinance`, data);
+  return response.data;
+};
+
+export const getAgentCommissions = async () => {
+  const response = await api.get('/agents/commissions');
+  return response.data;
+};
+
+export const updateAgentCommission = async (id: number, commissionRate: number) => {
+  const response = await api.post(`/agents/${id}/commission`, { commissionRate });
+  return response.data;
+};
+
 export const createPayment = async (data: { 
   loanId: number; 
   amount: number; 
   method: 'CASH' | 'TRANSFER';
   isInterestOnly?: boolean;
   notes?: string;
+  latitude?: number;
+  longitude?: number;
+  lateFeePaid?: number;
 }) => {
   const response = await api.post('/payments', data);
   return response.data;
