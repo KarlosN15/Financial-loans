@@ -24,6 +24,22 @@ export class AgentsController {
     return this.agentsService.findAll(req.user.userId);
   }
 
+  @Get('commissions')
+  getCommissions(@Request() req: any) {
+    if (req.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('Solo los administradores pueden ver las comisiones.');
+    }
+    return this.agentsService.getCommissions(req.user.userId);
+  }
+
+  @Post(':id/commission')
+  updateCommission(@Request() req: any, @Param('id') id: string, @Body('commissionRate') commissionRate: number) {
+    if (req.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('Solo los administradores pueden cambiar comisiones.');
+    }
+    return this.agentsService.updateCommission(req.user.userId, +id, commissionRate);
+  }
+
   @Delete(':id')
   remove(@Request() req: any, @Param('id') id: string) {
     if (req.user.role !== 'ADMIN') {
