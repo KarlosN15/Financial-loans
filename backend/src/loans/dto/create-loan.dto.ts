@@ -37,4 +37,16 @@ export class CreateLoanDto {
   @IsString()
   @IsOptional()
   interestType?: 'SIMPLE' | 'FRENCH';
+
+  @IsString()
+  @IsOptional()
+  lateFeeType?: 'PERCENT' | 'FIXED' | 'NONE';
+
+  @IsNumber()
+  @IsOptional()
+  lateFeeValue?: number;
+
+  @IsNumber()
+  @IsOptional()
+  graceDays?: number;
 }
