@@ -12,10 +12,14 @@ async function bootstrap() {
     transform: true,
   }));
 
-  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+  // CORS habilitado para Vercel, localhost y dominios de producción
   app.enableCors({
-    origin: corsOrigin === '*' ? true : [corsOrigin, 'http://localhost:5173', 'http://127.0.0.1:5173'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: (origin, callback) => {
+      // Refleja el origen de la solicitud para admitir credentials: true en Vercel y localhost
+      callback(null, true);
+    },
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Accept,Authorization,X-Requested-With',
     credentials: true,
   });
 
