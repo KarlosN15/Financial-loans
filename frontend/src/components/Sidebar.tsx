@@ -36,8 +36,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
     <div className="h-full flex flex-col py-4 font-['Inter'] text-sm font-medium border-r border-slate-100 dark:border-slate-800">
       <div className="px-6 mb-8 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance</span>
+          <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 p-1.5 flex items-center justify-center shadow-md border border-slate-200/60 dark:border-slate-700/60">
+            <img src="/logo-icon.png" alt="PresPro Systems" className="w-full h-full object-contain" />
           </div>
           <div>
             <h1 className="text-xl font-extrabold text-blue-900 dark:text-white font-['Manrope'] leading-tight tracking-tighter">PresPro Systems</h1>

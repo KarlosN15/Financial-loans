@@ -78,8 +78,8 @@ const Landing = () => {
         className="flex items-center justify-between px-6 md:px-12 py-5 bg-white/70 backdrop-blur-md border-b border-slate-200/50 sticky top-0 z-50 transition-all"
       >
         <motion.div variants={navItemVariants} className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-800 text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 transform rotate-3 hover:rotate-0 transition-transform duration-300">
-            <span className="material-symbols-outlined font-bold text-xl">account_balance</span>
+          <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-xl p-1.5 flex items-center justify-center shadow-lg shadow-blue-500/10 border border-slate-200/80 transform hover:scale-105 transition-transform duration-300">
+            <img src="/logo-icon.png" alt="PresPro Systems" className="w-full h-full object-contain" />
           </div>
           <div>
             <span className="block text-xl font-black text-slate-900 tracking-tight leading-none">PresPro Systems</span>

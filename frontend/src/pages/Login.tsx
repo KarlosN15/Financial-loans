@@ -59,9 +59,9 @@ const Login = () => {
           <div className="text-center mb-10">
             <motion.div 
               whileHover={{ rotate: 0, scale: 1.05 }}
-              className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-primary/20 rotate-12 transition-transform duration-500 cursor-pointer"
+              className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl p-3 border border-white/20 rotate-12 transition-transform duration-500 cursor-pointer"
             >
-               <span className="material-symbols-outlined text-4xl text-white">account_balance</span>
+               <img src="/logo-icon.png" alt="PresPro Systems" className="w-full h-full object-contain" />
             </motion.div>
             <h1 className="text-3xl font-black text-white font-headline tracking-tighter uppercase mb-2">PresPro Systems</h1>
             <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">Financial Management SaaS</p>
