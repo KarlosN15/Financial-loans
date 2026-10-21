@@ -58,6 +58,25 @@ export class AgentsService {
     });
   }
 
+  async updatePassword(adminId: number, agentId: number, newPassword: string) {
+    if (!newPassword || newPassword.length < 6) {
+      throw new ConflictException('La contraseña debe tener al menos 6 caracteres.');
+    }
+    const agent = await this.prisma.user.findFirst({
+      where: { id: agentId, adminId: adminId, role: 'AGENT' }
+    });
+    if (!agent) {
+      throw new UnauthorizedException('Agente no encontrado o no pertenece a tu cuenta.');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    return this.prisma.user.update({
+      where: { id: agentId },
+      data: { password: hashedPassword },
+      select: { id: true, name: true, email: true }
+    });
+  }
+
   async getCommissions(adminId: number) {
     const agents = await this.prisma.user.findMany({
       where: { adminId, role: 'AGENT' },

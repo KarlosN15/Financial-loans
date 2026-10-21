@@ -216,8 +216,23 @@ export const updateUserPlan = async (id: number, plan: string) => {
   return response.data;
 };
 
+export const updateSaasUserPassword = async (id: number, password: string) => {
+  const response = await api.patch(`/saas/users/${id}/password`, { password });
+  return response.data;
+};
+
 export const deleteSaasUser = async (id: number) => {
   const response = await api.delete(`/saas/users/${id}`);
+  return response.data;
+};
+
+export const updateAgentPassword = async (id: number, password: string) => {
+  const response = await api.post(`/agents/${id}/password`, { password });
+  return response.data;
+};
+
+export const changeMyPassword = async (data: { currentPassword?: string; newPassword: string }) => {
+  const response = await api.post('/auth/change-password', data);
   return response.data;
 };
 

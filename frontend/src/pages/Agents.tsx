@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAgents, createAgent, deleteAgent, getPayments, getBranches, getAgentCommissions, updateAgentCommission } from '../api/api';
+import { getAgents, createAgent, deleteAgent, getPayments, getBranches, getAgentCommissions, updateAgentCommission, updateAgentPassword } from '../api/api';
 import { useState } from 'react';
 import { formatDOP } from '../utils/format';
 import { useAuth } from '../context/AuthContext';
@@ -46,6 +46,45 @@ const Agents = () => {
       Swal.fire('Error', 'No se pudo actualizar la comisión.', 'error');
     }
   });
+
+  const updatePasswordMutation = useMutation({
+    mutationFn: ({ id, password }: { id: number; password: string }) => updateAgentPassword(id, password),
+    onSuccess: () => {
+      Swal.fire({
+        icon: 'success',
+        title: '¡Contraseña Actualizada!',
+        text: 'La contraseña del cobrador ha sido cambiada exitosamente.',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    },
+    onError: (err: any) => {
+      Swal.fire('Error', err.response?.data?.message || 'No se pudo actualizar la contraseña.', 'error');
+    }
+  });
+
+  const handleChangeAgentPassword = (agent: any) => {
+    Swal.fire({
+      title: `Cambiar contraseña de ${agent.name}`,
+      text: 'Ingresa la nueva contraseña para el cobrador (mínimo 6 caracteres):',
+      input: 'password',
+      inputPlaceholder: 'Nueva contraseña...',
+      showCancelButton: true,
+      confirmButtonColor: '#2563eb',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Guardar Contraseña',
+      cancelButtonText: 'Cancelar',
+      inputValidator: (value) => {
+        if (!value || value.length < 6) {
+          return 'La contraseña debe tener al menos 6 caracteres';
+        }
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        updatePasswordMutation.mutate({ id: agent.id, password: result.value });
+      }
+    });
+  };
 
   const handleEditCommission = (agent: any) => {
     Swal.fire({
@@ -313,6 +352,16 @@ const Agents = () => {
                              title="Configurar Comisión"
                            >
                               <span className="material-symbols-outlined text-xl">percent</span>
+                           </button>
+                           <button 
+                             onClick={(e) => {
+                                e.stopPropagation();
+                                handleChangeAgentPassword(agent);
+                             }}
+                             className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center active:scale-90 shadow-sm"
+                             title="Cambiar Contraseña"
+                           >
+                              <span className="material-symbols-outlined text-xl">key</span>
                            </button>
                            <button 
                              onClick={(e) => {

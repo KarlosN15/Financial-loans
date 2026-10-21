@@ -2,7 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
 import { 
   getBranches, createBranch, updateBranch, deleteBranch,
-  getRoutes, createRoute, updateRoute, deleteRoute
+  getRoutes, createRoute, updateRoute, deleteRoute,
+  changeMyPassword
 } from '../api/api';
 
 const Configuracion = () => {
@@ -37,8 +38,6 @@ const Configuracion = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['routes'] })
   });
 
-
-
   const handleAddBranch = async () => {
     const { value: name } = await Swal.fire({
       title: 'Nueva Sucursal',
@@ -59,6 +58,57 @@ const Configuracion = () => {
       inputValidator: (value) => !value ? 'Debe ingresar un nombre' : null
     });
     if (name) routeMutation.mutate({ name });
+  };
+
+  const handleChangePassword = async () => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Cambiar mi Contraseña',
+      html: `
+        <div style="display:flex; flex-direction:column; gap:12px; text-align:left; font-size:13px; padding-top:10px;">
+          <div>
+            <label style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase;">Contraseña Actual</label>
+            <input id="swal-current-password" type="password" class="swal2-input" placeholder="Tu contraseña actual" style="width:100%; margin:4px 0 0 0; font-size:14px; box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-weight:700; color:#64748b; font-size:11px; text-transform:uppercase;">Nueva Contraseña</label>
+            <input id="swal-new-password" type="password" class="swal2-input" placeholder="Mínimo 6 caracteres" style="width:100%; margin:4px 0 0 0; font-size:14px; box-sizing:border-box;">
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Actualizar Contraseña',
+      confirmButtonColor: '#2563eb',
+      cancelButtonText: 'Cancelar',
+      preConfirm: () => {
+        const currentPassword = (document.getElementById('swal-current-password') as HTMLInputElement).value;
+        const newPassword = (document.getElementById('swal-new-password') as HTMLInputElement).value;
+        if (!currentPassword) {
+          Swal.showValidationMessage('Ingresa tu contraseña actual');
+          return false;
+        }
+        if (!newPassword || newPassword.length < 6) {
+          Swal.showValidationMessage('La nueva contraseña debe tener al menos 6 caracteres');
+          return false;
+        }
+        return { currentPassword, newPassword };
+      }
+    });
+
+    if (formValues) {
+      try {
+        await changeMyPassword(formValues);
+        Swal.fire({
+          icon: 'success',
+          title: '¡Contraseña Actualizada!',
+          text: 'Tu contraseña de acceso ha sido cambiada exitosamente.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (err: any) {
+        Swal.fire('Error', err.response?.data?.message || 'Error al cambiar la contraseña.', 'error');
+      }
+    }
   };
 
 
@@ -153,7 +203,27 @@ const Configuracion = () => {
           </div>
         </div>
 
-
+        {/* Seguridad de Acceso */}
+        <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 md:col-span-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <span className="material-symbols-outlined text-2xl">lock_reset</span>
+              </div>
+              <div>
+                <h3 className="text-lg font-extrabold text-primary tracking-tighter">Seguridad de Acceso</h3>
+                <p className="text-[10px] uppercase tracking-widest text-slate-400">Credenciales de inicio de sesión</p>
+              </div>
+            </div>
+            <button
+              onClick={handleChangePassword}
+              className="px-5 py-2.5 bg-primary hover:bg-blue-900 text-white rounded-xl font-bold text-xs flex items-center gap-2 shadow-md shadow-primary/20 active:scale-95 transition-all"
+            >
+              <span className="material-symbols-outlined text-sm">key</span>
+              Cambiar mi Contraseña
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

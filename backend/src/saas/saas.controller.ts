@@ -21,6 +21,14 @@ export class SaasController {
     return this.saasService.updateUserPlan(id, plan);
   }
 
+  @Patch('users/:id/password')
+  async updateUserPassword(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('password') password: string
+  ) {
+    return this.saasService.updateUserPassword(id, password);
+  }
+
   @Delete('users/:id')
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
     return this.saasService.deleteUser(id);

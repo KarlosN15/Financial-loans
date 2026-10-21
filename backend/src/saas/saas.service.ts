@@ -39,6 +39,22 @@ export class SaasService {
     });
   }
 
+  async updateUserPassword(userId: number, newPassword: string) {
+    if (!newPassword || newPassword.length < 6) {
+      throw new NotFoundException('La contraseña debe tener al menos 6 caracteres.');
+    }
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+
+    const bcrypt = await import('bcryptjs');
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+      select: { id: true, name: true, email: true }
+    });
+  }
+
   async deleteUser(userId: number) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('Usuario no encontrado');

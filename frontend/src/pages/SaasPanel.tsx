@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getSaasUsers, updateUserPlan, deleteSaasUser } from '../api/api';
+import { getSaasUsers, updateUserPlan, deleteSaasUser, updateSaasUserPassword } from '../api/api';
 import Swal from 'sweetalert2';
 
 const SaasPanel = () => {
@@ -41,6 +41,45 @@ const SaasPanel = () => {
       Swal.fire('Error', error.response?.data?.message || 'Error al eliminar el usuario', 'error');
     }
   });
+
+  const passwordMutation = useMutation({
+    mutationFn: ({ id, password }: { id: number; password: string }) => updateSaasUserPassword(id, password),
+    onSuccess: () => {
+      Swal.fire({
+        icon: 'success',
+        title: '¡Contraseña Actualizada!',
+        text: 'La nueva contraseña para este cliente/empresa ha sido guardada exitosamente.',
+        timer: 2500,
+        showConfirmButton: false
+      });
+    },
+    onError: (error: any) => {
+      Swal.fire('Error', error.response?.data?.message || 'Error al cambiar la contraseña', 'error');
+    }
+  });
+
+  const handleChangePassword = (id: number, name: string) => {
+    Swal.fire({
+      title: `Cambiar contraseña de ${name}`,
+      text: 'Ingresa la nueva contraseña temporal o definitiva (mínimo 6 caracteres):',
+      input: 'password',
+      inputPlaceholder: 'Nueva contraseña...',
+      showCancelButton: true,
+      confirmButtonColor: '#2563eb',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Guardar Contraseña',
+      cancelButtonText: 'Cancelar',
+      inputValidator: (value) => {
+        if (!value || value.length < 6) {
+          return 'La contraseña debe tener al menos 6 caracteres';
+        }
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        passwordMutation.mutate({ id, password: result.value });
+      }
+    });
+  };
 
   const handleDelete = (id: number, name: string) => {
     Swal.fire({
@@ -135,6 +174,14 @@ const SaasPanel = () => {
                         >
                           <span className="material-symbols-outlined text-sm">edit</span>
                           Modificar Plan
+                        </button>
+                        <button
+                          onClick={() => handleChangePassword(user.id, user.name || user.email)}
+                          className="text-xs font-bold text-amber-600 hover:text-amber-800 flex items-center gap-1"
+                          title="Restablecer Contraseña"
+                        >
+                          <span className="material-symbols-outlined text-sm">key</span>
+                          Contraseña
                         </button>
                         <button
                           onClick={() => handleDelete(user.id, user.name || 'Sin Nombre')}

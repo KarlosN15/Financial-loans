@@ -45,4 +45,11 @@ export class AuthController {
     await this.authService.turnOnTwoFactorAuthentication(req.user.userId || req.user.id || req.user.sub, twoFactorCode);
     return { message: '2FA enabled successfully' };
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  async changePassword(@Request() req: any, @Body() body: { currentPassword?: string; newPassword: string }) {
+    const userId = Number(req.user.userId || req.user.id || req.user.sub);
+    return this.authService.changePassword(userId, body.currentPassword, body.newPassword);
+  }
 }

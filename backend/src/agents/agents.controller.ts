@@ -40,6 +40,14 @@ export class AgentsController {
     return this.agentsService.updateCommission(req.user.userId, +id, commissionRate);
   }
 
+  @Post(':id/password')
+  updatePassword(@Request() req: any, @Param('id') id: string, @Body('password') password: string) {
+    if (req.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('Solo los administradores pueden cambiar contraseñas de agentes.');
+    }
+    return this.agentsService.updatePassword(req.user.userId, +id, password);
+  }
+
   @Delete(':id')
   remove(@Request() req: any, @Param('id') id: string) {
     if (req.user.role !== 'ADMIN') {
