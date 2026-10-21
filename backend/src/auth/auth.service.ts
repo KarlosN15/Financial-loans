@@ -51,16 +51,18 @@ export class AuthService {
     };
   }
 
-  async register(data: any) {
-    const existing = await this.prisma.user.findUnique({ where: { email: data.email } });
-    if (existing) throw new ConflictException('Email already in use');
+  async register(data: { name: string; email: string; password: string }) {
+    const existing = await this.prisma.user.findUnique({ where: { email: data.email.toLowerCase().trim() } });
+    if (existing) throw new ConflictException('El correo electrónico ya está registrado.');
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const user = await this.prisma.user.create({
       data: {
-        ...data,
+        name: data.name.trim(),
+        email: data.email.toLowerCase().trim(),
         password: hashedPassword,
-        plan: data.plan || 'inicio',
+        role: 'ADMIN',
+        plan: 'inicio',
       },
     });
 

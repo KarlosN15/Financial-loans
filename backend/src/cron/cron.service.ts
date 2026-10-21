@@ -38,23 +38,28 @@ export class CronService {
       this.logger.debug(`Found ${overdueInstallments.length} overdue installments.`);
       
       for (const inst of overdueInstallments) {
-        // Change loan status to ARREARS
-        await this.prisma.loan.update({
-          where: { id: inst.loanId },
-          data: { status: 'ARREARS' },
-        });
+        const graceDays = inst.loan.graceDays || 0;
+        const cutoffDate = new Date(inst.dueDate);
+        cutoffDate.setDate(cutoffDate.getDate() + graceDays);
 
-        // Log audit
-        await this.audit.logAction(
-          inst.loan.userId,
-          'MARK_LOAN_ARREARS',
-          'Loan',
-          inst.loanId,
-          { installmentId: inst.id, dueDate: inst.dueDate }
-        );
+        // Solo marcar en mora si ya sobrepasó los días de gracia
+        if (now > cutoffDate) {
+          await this.prisma.loan.update({
+            where: { id: inst.loanId },
+            data: { status: 'ARREARS' },
+          });
+
+          await this.audit.logAction(
+            inst.loan.userId,
+            'MARK_LOAN_ARREARS',
+            'Loan',
+            inst.loanId,
+            { installmentId: inst.id, dueDate: inst.dueDate, graceDays }
+          );
+        }
       }
       
-      this.logger.debug('Successfully updated loans to ARREARS status.');
+      this.logger.debug('Successfully updated loans to ARREARS status respecting grace periods.');
     } else {
       this.logger.debug('No overdue installments found.');
     }

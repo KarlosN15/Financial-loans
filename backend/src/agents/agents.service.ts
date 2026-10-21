@@ -36,17 +36,52 @@ export class AgentsService {
         password: hashedPassword,
         role: 'AGENT',
         adminId: adminId, // Enlazamos el agente a este administrador
+        commissionRate: data.commissionRate ? Number(data.commissionRate) : 0,
         ...(data.branchId && { branchId: data.branchId }),
       },
-      select: { id: true, name: true, email: true, role: true, createdAt: true, branch: true }
+      select: { id: true, name: true, email: true, role: true, commissionRate: true, createdAt: true, branch: true }
     });
   }
 
   async findAll(adminId: number) {
     return this.prisma.user.findMany({
       where: { adminId: adminId, role: 'AGENT' },
-      select: { id: true, name: true, email: true, role: true, createdAt: true, branch: true },
+      select: { id: true, name: true, email: true, role: true, commissionRate: true, createdAt: true, branch: true },
       orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  async updateCommission(adminId: number, agentId: number, commissionRate: number) {
+    return this.prisma.user.updateMany({
+      where: { id: agentId, adminId: adminId, role: 'AGENT' },
+      data: { commissionRate: Number(commissionRate) }
+    });
+  }
+
+  async getCommissions(adminId: number) {
+    const agents = await this.prisma.user.findMany({
+      where: { adminId, role: 'AGENT' },
+      select: { id: true, name: true, email: true, commissionRate: true },
+    });
+    
+    const payments = await this.prisma.payment.findMany({
+      where: {
+        loan: { userId: adminId }
+      }
+    });
+
+    return agents.map(agent => {
+      const agentPayments = payments.filter(p => p.userId === agent.id);
+      const totalCollected = agentPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+      const recordedCommission = agentPayments.reduce((sum, p) => sum + Number(p.agentCommission || 0), 0);
+      const rate = Number(agent.commissionRate || 0);
+      const totalCommission = recordedCommission > 0 ? recordedCommission : Number((totalCollected * (rate / 100)).toFixed(2));
+      return {
+        ...agent,
+        totalPaymentsCount: agentPayments.length,
+        totalCollected,
+        totalCommission
+      };
     });
   }
 

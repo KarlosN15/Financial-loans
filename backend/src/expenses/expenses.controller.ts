@@ -3,6 +3,7 @@ import { ExpensesService } from './expenses.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { CreateExpenseDto } from './dto/expense.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('expenses')
@@ -11,7 +12,7 @@ export class ExpensesController {
 
   @Roles('ADMIN')
   @Post()
-  create(@Request() req, @Body() data: { amount: number, description: string, status?: 'PAID' | 'PENDING' }) {
+  create(@Request() req, @Body() data: CreateExpenseDto) {
     const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
     return this.expensesService.create(adminId, data);
   }

@@ -12,14 +12,13 @@ async function bootstrap() {
     transform: true,
   }));
 
-  // CORS abierto para que Netlify no te dé errores
+  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
   app.enableCors({
-    origin: '*',
+    origin: corsOrigin === '*' ? true : [corsOrigin, 'http://localhost:5173', 'http://127.0.0.1:5173'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
 
-  // Escuchar en el puerto de Render
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

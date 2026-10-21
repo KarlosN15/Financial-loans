@@ -3,6 +3,7 @@ import { CashService } from './cash.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { OpenCashRegisterDto, CloseCashRegisterDto, CashTransactionDto } from './dto/cash.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('cash')
@@ -11,22 +12,22 @@ export class CashController {
 
   @Roles('ADMIN')
   @Post('open')
-  openRegister(@Request() req, @Body() data: { openingBalance: number }) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.id : req.user.adminId;
+  openRegister(@Request() req, @Body() data: OpenCashRegisterDto) {
+    const adminId = req.user.role === 'ADMIN' ? (req.user.userId || req.user.id) : req.user.adminId;
     return this.cashService.openRegister(adminId, data.openingBalance);
   }
 
   @Roles('ADMIN')
   @Post(':id/close')
-  closeRegister(@Request() req, @Param('id') id: string, @Body() data: { closingBalance: number }) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.id : req.user.adminId;
+  closeRegister(@Request() req, @Param('id') id: string, @Body() data: CloseCashRegisterDto) {
+    const adminId = req.user.role === 'ADMIN' ? (req.user.userId || req.user.id) : req.user.adminId;
     return this.cashService.closeRegister(adminId, +id, data.closingBalance);
   }
 
   @Roles('ADMIN')
   @Get('current')
   getCurrentRegister(@Request() req) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.id : req.user.adminId;
+    const adminId = req.user.role === 'ADMIN' ? (req.user.userId || req.user.id) : req.user.adminId;
     return this.cashService.getCurrentRegister(adminId);
   }
 
@@ -35,9 +36,9 @@ export class CashController {
   addTransaction(
     @Request() req,
     @Param('id') id: string,
-    @Body() data: { type: 'INCOME' | 'EXPENSE', amount: number, description: string }
+    @Body() data: CashTransactionDto
   ) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.id : req.user.adminId;
+    const adminId = req.user.role === 'ADMIN' ? (req.user.userId || req.user.id) : req.user.adminId;
     return this.cashService.addTransaction(adminId, +id, data);
   }
 }

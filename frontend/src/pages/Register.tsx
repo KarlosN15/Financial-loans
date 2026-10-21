@@ -127,21 +127,21 @@ export default function Register() {
   const renderStepper = () => {
     return (
       <div className="flex items-center justify-between mb-12 relative">
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-slate-200 z-0"></div>
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-slate-200 z-0"></div>
         {steps.map((step) => {
           const isActive = step.id === currentStep;
           const isCompleted = step.id < currentStep;
           
           return (
             <div key={step.id} className="relative z-10 flex flex-col items-center">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg mb-2 transition-colors ${
-                isActive ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' :
-                isCompleted ? 'bg-green-500 text-white' : 'bg-white text-slate-400 border-2 border-slate-200'
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-lg mb-2 transition-all ${
+                isActive ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/40 ring-4 ring-blue-100' :
+                isCompleted ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-slate-700 border-2 border-slate-300 shadow-sm'
               }`}>
-                {isCompleted ? <span className="material-symbols-outlined">check</span> : step.id}
+                {isCompleted ? <span className="material-symbols-outlined font-bold">check</span> : step.id}
               </div>
-              <span className={`text-xs font-bold text-center w-24 ${
-                isActive ? 'text-blue-600' : isCompleted ? 'text-green-500' : 'text-slate-400'
+              <span className={`text-xs text-center w-24 font-bold transition-colors ${
+                isActive ? 'text-blue-700 font-black' : isCompleted ? 'text-emerald-700 font-bold' : 'text-slate-600'
               }`}>
                 {step.title}
               </span>
@@ -190,9 +190,19 @@ export default function Register() {
       />
 
       {/* Header simple */}
-      <header className="px-8 py-6 flex items-center gap-2 relative z-10">
-        <span className="material-symbols-outlined text-primary text-3xl">account_balance</span>
-        <span className="text-2xl font-black text-white tracking-tight uppercase">PresPro Systems</span>
+      <header className="px-8 py-6 flex items-center justify-between relative z-10">
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/login')}>
+          <span className="material-symbols-outlined text-primary text-3xl">account_balance</span>
+          <span className="text-2xl font-black text-white tracking-tight uppercase">PresPro Systems</span>
+        </div>
+        <button 
+          type="button"
+          onClick={() => navigate('/login')}
+          className="text-xs font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 active:scale-95"
+        >
+          <span className="material-symbols-outlined text-sm">login</span>
+          ¿Ya tienes cuenta? <span className="font-black text-blue-400">Iniciar Sesión</span>
+        </button>
       </header>
 
       <main className="flex-1 flex justify-center items-start pt-4 px-4 pb-20 relative z-10">
@@ -209,20 +219,20 @@ export default function Register() {
               <h2 className="text-3xl font-bold text-blue-600 mb-8">Información Personal</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Nombre</label>
-                  <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none" />
+                  <label className="block text-sm font-bold text-slate-800 mb-2">Nombre</label>
+                  <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} placeholder="Ej. Juan" className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 font-semibold placeholder:text-slate-400 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none shadow-sm transition-all" />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Apellido</label>
-                  <input type="text" name="apellido" value={formData.apellido} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none" />
+                  <label className="block text-sm font-bold text-slate-800 mb-2">Apellido</label>
+                  <input type="text" name="apellido" value={formData.apellido} onChange={handleChange} placeholder="Ej. Pérez" className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 font-semibold placeholder:text-slate-400 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none shadow-sm transition-all" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Nombre de la Empresa</label>
-                  <input type="text" name="empresa" value={formData.empresa} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none" />
+                  <label className="block text-sm font-bold text-slate-800 mb-2">Nombre de la Empresa</label>
+                  <input type="text" name="empresa" value={formData.empresa} onChange={handleChange} placeholder="Ej. Inversiones Pérez S.A." className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 font-semibold placeholder:text-slate-400 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none shadow-sm transition-all" />
                 </div>
               </div>
               <div className="flex justify-end">
-                <button onClick={handleNext} disabled={!formData.nombre || !formData.apellido || !formData.empresa} className="bg-blue-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors">Siguiente</button>
+                <button onClick={handleNext} disabled={!formData.nombre || !formData.apellido || !formData.empresa} className="bg-blue-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-md">Siguiente</button>
               </div>
             </div>
           )}
@@ -232,28 +242,28 @@ export default function Register() {
               <h2 className="text-3xl font-bold text-blue-600 mb-8">Datos de Contacto</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Correo Electrónico</label>
-                  <input type="email" name="correo" value={formData.correo} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none" />
+                  <label className="block text-sm font-bold text-slate-800 mb-2">Correo Electrónico</label>
+                  <input type="email" name="correo" value={formData.correo} onChange={handleChange} placeholder="ejemplo@correo.com" className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 font-semibold placeholder:text-slate-400 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none shadow-sm transition-all" />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Teléfono (WhatsApp)</label>
-                  <input type="tel" name="telefono" value={formData.telefono} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none" />
+                  <label className="block text-sm font-bold text-slate-800 mb-2">Teléfono (WhatsApp)</label>
+                  <input type="tel" name="telefono" value={formData.telefono} onChange={handleChange} placeholder="+1 809 000 0000" className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 font-semibold placeholder:text-slate-400 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none shadow-sm transition-all" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Dirección</label>
-                  <input type="text" name="direccion" value={formData.direccion} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none" />
+                  <label className="block text-sm font-bold text-slate-800 mb-2">Dirección</label>
+                  <input type="text" name="direccion" value={formData.direccion} onChange={handleChange} placeholder="Calle Principal #123" className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 font-semibold placeholder:text-slate-400 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none shadow-sm transition-all" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Dirección 2 (opcional)</label>
-                  <input type="text" name="direccion2" value={formData.direccion2} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none" />
+                  <label className="block text-sm font-bold text-slate-800 mb-2">Dirección 2 (opcional)</label>
+                  <input type="text" name="direccion2" value={formData.direccion2} onChange={handleChange} placeholder="Apto, Suite, Edificio" className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 font-semibold placeholder:text-slate-400 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none shadow-sm transition-all" />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">País</label>
-                  <input type="text" name="pais" value={formData.pais} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 outline-none" />
+                  <label className="block text-sm font-bold text-slate-800 mb-2">País</label>
+                  <input type="text" name="pais" value={formData.pais} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-100 text-slate-900 font-bold outline-none cursor-not-allowed shadow-sm" />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Tipo de Licencia</label>
-                  <select name="licencia" value={formData.licencia} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none bg-white">
+                  <label className="block text-sm font-bold text-slate-800 mb-2">Tipo de Licencia</label>
+                  <select name="licencia" value={formData.licencia} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 font-semibold focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none shadow-sm transition-all">
                     <option value="inicio">Plan Prueba (Prueba Gratis)</option>
                     <option value="estandar">Plan Estándar ($30/mes)</option>
                     <option value="avanzado">Plan Avanzado ($45/mes)</option>
@@ -261,8 +271,8 @@ export default function Register() {
                 </div>
               </div>
               <div className="flex justify-between">
-                <button onClick={handlePrev} className="bg-white border border-slate-300 text-slate-700 font-bold py-3 px-8 rounded-xl hover:bg-slate-50 transition-colors">Atrás</button>
-                <button onClick={handleNext} disabled={!formData.correo || !formData.telefono || !formData.direccion} className="bg-blue-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors">Siguiente</button>
+                <button onClick={handlePrev} className="bg-white border border-slate-300 text-slate-700 font-bold py-3 px-8 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">Atrás</button>
+                <button onClick={handleNext} disabled={!formData.correo || !formData.telefono || !formData.direccion} className="bg-blue-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-md">Siguiente</button>
               </div>
             </div>
           )}
@@ -270,17 +280,17 @@ export default function Register() {
           {currentStep === 3 && (
             <div className="animate-fade-in text-center py-8">
               <h2 className="text-3xl font-bold text-blue-600 mb-4">Información de Pago</h2>
-              <div className="max-w-md mx-auto bg-slate-50 p-8 rounded-2xl border border-slate-200 mb-8">
+              <div className="max-w-md mx-auto bg-slate-50 p-8 rounded-2xl border border-slate-200 mb-8 shadow-sm">
                 <span className="material-symbols-outlined text-5xl text-blue-500 mb-4">credit_card</span>
-                <p className="text-slate-600 font-medium mb-4">
+                <p className="text-slate-700 font-medium mb-4">
                   {formData.licencia === 'inicio' 
                     ? 'Has seleccionado el plan gratuito de prueba por 15 días. No se requiere método de pago.' 
                     : 'La integración con tarjeta de crédito estará disponible próximamente. Por ahora, tu cuenta se creará en modo de pago pendiente de confirmación.'}
                 </p>
               </div>
               <div className="flex justify-between">
-                <button onClick={handlePrev} className="bg-white border border-slate-300 text-slate-700 font-bold py-3 px-8 rounded-xl hover:bg-slate-50 transition-colors">Atrás</button>
-                <button onClick={handleNext} className="bg-blue-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-700 transition-colors">Siguiente</button>
+                <button onClick={handlePrev} className="bg-white border border-slate-300 text-slate-700 font-bold py-3 px-8 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">Atrás</button>
+                <button onClick={handleNext} className="bg-blue-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-700 transition-colors shadow-md">Siguiente</button>
               </div>
             </div>
           )}
@@ -290,37 +300,37 @@ export default function Register() {
               <h2 className="text-3xl font-bold text-blue-600 mb-8">Confirmar Registro</h2>
               
               <div className="space-y-6 mb-8">
-                <div className="border border-slate-200 rounded-xl overflow-hidden">
+                <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
                   <div className="bg-slate-50 px-6 py-3 border-b border-slate-200">
                     <h3 className="font-bold text-blue-600">Datos Personales</h3>
                   </div>
                   <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div><span className="font-bold text-slate-700">Nombre completo:</span> {formData.nombre} {formData.apellido}</div>
-                    <div><span className="font-bold text-slate-700">Empresa:</span> {formData.empresa}</div>
+                    <div><span className="font-bold text-slate-700">Nombre completo:</span> <span className="font-semibold text-slate-900 ml-1">{formData.nombre} {formData.apellido}</span></div>
+                    <div><span className="font-bold text-slate-700">Empresa:</span> <span className="font-semibold text-slate-900 ml-1">{formData.empresa}</span></div>
                   </div>
                 </div>
 
-                <div className="border border-slate-200 rounded-xl overflow-hidden">
+                <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
                   <div className="bg-slate-50 px-6 py-3 border-b border-slate-200">
                     <h3 className="font-bold text-blue-600">Datos de Contacto</h3>
                   </div>
                   <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div><span className="font-bold text-slate-700">Correo Electrónico:</span> {formData.correo.toUpperCase()}</div>
-                    <div><span className="font-bold text-slate-700">Teléfono:</span> {formData.telefono}</div>
-                    <div><span className="font-bold text-slate-700">Dirección:</span> {formData.direccion}</div>
-                    <div><span className="font-bold text-slate-700">País:</span> {formData.pais}</div>
+                    <div><span className="font-bold text-slate-700">Correo Electrónico:</span> <span className="font-semibold text-slate-900 ml-1">{formData.correo.toUpperCase()}</span></div>
+                    <div><span className="font-bold text-slate-700">Teléfono:</span> <span className="font-semibold text-slate-900 ml-1">{formData.telefono}</span></div>
+                    <div><span className="font-bold text-slate-700">Dirección:</span> <span className="font-semibold text-slate-900 ml-1">{formData.direccion}</span></div>
+                    <div><span className="font-bold text-slate-700">País:</span> <span className="font-semibold text-slate-900 ml-1">{formData.pais}</span></div>
                   </div>
                 </div>
 
-                <div className="border border-slate-200 rounded-xl overflow-hidden">
+                <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
                   <div className="bg-slate-50 px-6 py-3 border-b border-slate-200">
                     <h3 className="font-bold text-blue-600">Detalles de Licencia</h3>
                   </div>
                   <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div><span className="font-bold text-slate-700">Tipo de Licencia:</span> {getLicenciaLabel()}</div>
-                    <div><span className="font-bold text-slate-700">Periodo de Pago:</span> {formData.licencia === 'inicio' ? 'Prueba (15 días)' : 'Mensual'}</div>
-                    <div><span className="font-bold text-slate-700">Total:</span> {getLicenciaPrice()}</div>
-                    <div><span className="font-bold text-slate-700">Referencia de Pago:</span> Pendiente de confirmación</div>
+                    <div><span className="font-bold text-slate-700">Tipo de Licencia:</span> <span className="font-semibold text-slate-900 ml-1">{getLicenciaLabel()}</span></div>
+                    <div><span className="font-bold text-slate-700">Periodo de Pago:</span> <span className="font-semibold text-slate-900 ml-1">{formData.licencia === 'inicio' ? 'Prueba (15 días)' : 'Mensual'}</span></div>
+                    <div><span className="font-bold text-slate-700">Total:</span> <span className="font-bold text-emerald-600 text-base ml-1">{getLicenciaPrice()}</span></div>
+                    <div><span className="font-bold text-slate-700">Referencia de Pago:</span> <span className="font-semibold text-slate-900 ml-1">Pendiente de confirmación</span></div>
                   </div>
                 </div>
               </div>

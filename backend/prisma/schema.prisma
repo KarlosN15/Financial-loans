@@ -28,6 +28,7 @@ model User {
   adminId   Int?     // Si es AGENT, aquí guardamos el ID de su ADMIN
   admin     User?    @relation("AdminAgents", fields: [adminId], references: [id])
   agents    User[]   @relation("AdminAgents")
+  commissionRate Decimal? @default(0) @db.Decimal(5, 2)
   clients   Client[]
   loans     Loan[]
   payments  Payment[]
@@ -60,13 +61,20 @@ model Client {
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name           String
   email          String?  @unique
-  identification String   // Cédula (Quitamos @unique de aquí)
+  identification String?  // Cédula (Opcional)
   phone          String?
   loans          Loan[]
   
   address        String?
   guarantorName  String?
   guarantorPhone String?
+  
+  // Scoring & Documentos Digitales
+  score          Int      @default(100)
+  rating         String   @default("EXCELLENT") // EXCELLENT, REGULAR, RISKY
+  cedulaFrontUrl String?  @db.Text
+  cedulaBackUrl  String?  @db.Text
+  guarantorDocUrl String? @db.Text
   
   routeId        Int?
   route          Route?   @relation(fields: [routeId], references: [id])
@@ -75,6 +83,8 @@ model Client {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, identification]) // Único por administrador
+  @@index([userId])
+  @@index([routeId])
 }
 
 enum LoanStatus {
@@ -85,6 +95,7 @@ enum LoanStatus {
 
 enum PaymentFrequency {
   MONTHLY
+  BIWEEKLY
   WEEKLY
 }
 
@@ -105,8 +116,20 @@ model Loan {
   portfolioId   Int?
   portfolio     Portfolio? @relation(fields: [portfolioId], references: [id])
   
+  // Reglas de Mora & Refinanciamiento
+  lateFeeType      String     @default("PERCENT") // PERCENT, FIXED, NONE
+  lateFeeValue     Decimal    @default(0) @db.Decimal(10, 2)
+  graceDays        Int        @default(2)
+  isRefinanced     Boolean    @default(false)
+  refinancedFromId Int?
+  
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([clientId])
+  @@index([status])
+  @@index([portfolioId])
 }
 
 enum InstallmentStatus {
@@ -127,6 +150,10 @@ model Installment {
   paidAmount    Decimal           @default(0) @db.Decimal(15, 2)
   status        InstallmentStatus @default(PENDING)
   createdAt     DateTime          @default(now())
+
+  @@index([loanId])
+  @@index([status])
+  @@index([dueDate])
 }
 
 enum PaymentMethod {
@@ -143,8 +170,21 @@ model Payment {
   clientName    String?       
   amount        Decimal       @db.Decimal(15, 2)
   method        PaymentMethod @default(CASH)
+  isInterestOnly Boolean      @default(false)
+  notes         String?
+  
+  // GPS & Comisiones & Mora
+  latitude        Float?
+  longitude       Float?
+  lateFeePaid     Decimal      @default(0) @db.Decimal(15, 2)
+  agentCommission Decimal      @default(0) @db.Decimal(15, 2)
+  
   date          DateTime      @default(now())
   createdAt     DateTime      @default(now())
+
+  @@index([loanId])
+  @@index([userId])
+  @@index([date])
 }
 
 // --- NUEVOS MÓDULOS SISPRES ---
@@ -171,6 +211,9 @@ model CashRegister {
   transactions   CashTransaction[]
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
+
+  @@index([userId])
+  @@index([status])
 }
 
 model CashTransaction {
@@ -182,6 +225,8 @@ model CashTransaction {
   description    String
   date           DateTime        @default(now())
   createdAt      DateTime        @default(now())
+
+  @@index([cashRegisterId])
 }
 
 enum ExpenseStatus {
@@ -199,6 +244,9 @@ model Expense {
   status      ExpenseStatus @default(PAID) 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([status])
 }
 
 enum InvestmentStatus {
@@ -218,6 +266,9 @@ model Investment {
   status       InvestmentStatus @default(ACTIVE)
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([status])
 }
 
 model BankAccount {
@@ -230,6 +281,8 @@ model BankAccount {
   transactions  BankTransaction[]
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
+
+  @@index([userId])
 }
 
 model BankTransaction {
@@ -241,6 +294,8 @@ model BankTransaction {
   description   String
   date          DateTime        @default(now())
   createdAt     DateTime        @default(now())
+
+  @@index([bankAccountId])
 }
 
 model Branch {
@@ -283,4 +338,8 @@ model AuditLog {
   entityId  Int
   details   String   // JSON string with extra details
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([entity])
 }

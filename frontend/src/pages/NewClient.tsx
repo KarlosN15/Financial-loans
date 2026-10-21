@@ -18,9 +18,26 @@ const NewClient = () => {
     email: '',
     address: '',
     routeId: '' as string | number,
+    guarantorName: '',
+    guarantorPhone: '',
+    cedulaFrontUrl: '',
+    cedulaBackUrl: '',
+    guarantorDocUrl: '',
   });
 
   const { data: routes = [] } = useQuery({ queryKey: ['routes'], queryFn: getRoutes });
+
+  const handleFileUpload = (field: 'cedulaFrontUrl' | 'cedulaBackUrl' | 'guarantorDocUrl', file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      Swal.fire('Archivo muy grande', 'Por favor selecciona una imagen menor a 5MB', 'warning');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData(prev => ({ ...prev, [field]: reader.result as string }));
+    };
+    reader.readAsDataURL(file);
+  };
 
   const mutation = useMutation({
     mutationFn: createClient,
@@ -41,8 +58,14 @@ const NewClient = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const payload: any = { ...formData };
+    if (!payload.identification?.trim()) delete payload.identification;
     if (!payload.email?.trim()) delete payload.email;
     if (!payload.address?.trim()) delete payload.address;
+    if (!payload.guarantorName?.trim()) delete payload.guarantorName;
+    if (!payload.guarantorPhone?.trim()) delete payload.guarantorPhone;
+    if (!payload.cedulaFrontUrl?.trim()) delete payload.cedulaFrontUrl;
+    if (!payload.cedulaBackUrl?.trim()) delete payload.cedulaBackUrl;
+    if (!payload.guarantorDocUrl?.trim()) delete payload.guarantorDocUrl;
     if (!payload.routeId) delete payload.routeId;
     else payload.routeId = Number(payload.routeId);
     
@@ -128,12 +151,11 @@ const NewClient = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cédula</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cédula (Opcional)</label>
                       <input
-                        required
                         maxLength={13}
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold font-mono focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                        placeholder="000-0000000-0"
+                        placeholder="000-0000000-0 (Opcional)"
                         value={formData.identification}
                         onChange={e => {
                           const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
@@ -185,7 +207,7 @@ const NewClient = () => {
                       />
                     </div>
 
-                    <div className="space-y-2 md:col-span-2">
+                    <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ruta (Opcional)</label>
                       <select
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
@@ -198,11 +220,40 @@ const NewClient = () => {
                         ))}
                       </select>
                     </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Garante / Fiador (Opcional)</label>
+                      <input
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                        placeholder="Nombre del fiador"
+                        value={formData.guarantorName}
+                        onChange={e => setFormData({ ...formData, guarantorName: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Teléfono Garante (Opcional)</label>
+                      <input
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold font-mono focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                        placeholder="809-000-0000"
+                        value={formData.guarantorPhone}
+                        onChange={e => setFormData({ ...formData, guarantorPhone: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="md:col-span-2 flex justify-end pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('documentos')}
+                        className="px-6 py-3 bg-slate-100 hover:bg-primary hover:text-white text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all flex items-center gap-2"
+                      >
+                        <span>Siguiente: Fotos de Documentos</span>
+                        <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               )}
-
-
 
               {activeTab === 'documentos' && (
                 <motion.div 
@@ -211,12 +262,115 @@ const NewClient = () => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.2 }}
-                  className="space-y-6 max-w-2xl h-full flex flex-col justify-center"
+                  className="space-y-6 max-w-3xl"
                 >
-                  <div className="text-center p-12 border-2 border-dashed border-slate-200 rounded-[2rem] bg-slate-50/50">
-                    <span className="material-symbols-outlined text-6xl text-slate-300 mb-4 block">cloud_upload</span>
-                    <h3 className="text-lg font-black text-primary uppercase tracking-tighter">Adjuntar Documentos</h3>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2 max-w-xs mx-auto">Esta función estará disponible en una próxima actualización del sistema.</p>
+                  <div className="mb-6">
+                    <h3 className="text-lg font-black text-primary uppercase tracking-tighter">Expediente Digital</h3>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Fotos de Cédula de Identidad y Garantías</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Cédula Frente */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-between items-center text-center">
+                      <div className="w-full flex items-center justify-between mb-3">
+                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Cédula (Frente)</span>
+                        <span className="material-symbols-outlined text-sm text-primary">badge</span>
+                      </div>
+                      
+                      {formData.cedulaFrontUrl ? (
+                        <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-slate-300 bg-white group mb-3">
+                          <img src={formData.cedulaFrontUrl} alt="Cédula Frente" className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, cedulaFrontUrl: '' })}
+                            className="absolute top-2 right-2 w-7 h-7 bg-rose-500 text-white rounded-lg flex items-center justify-center shadow-md active:scale-90"
+                            title="Eliminar"
+                          >
+                            <span className="material-symbols-outlined text-xs">delete</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="w-full aspect-video rounded-xl border-2 border-dashed border-slate-300 bg-white hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center cursor-pointer mb-3 p-4">
+                          <span className="material-symbols-outlined text-3xl text-slate-400 mb-1">add_a_photo</span>
+                          <span className="text-[10px] font-bold text-slate-500 uppercase">Subir Frente</span>
+                          <input
+                            type="file"
+                            accept="image/*,application/pdf"
+                            className="hidden"
+                            onChange={e => e.target.files?.[0] && handleFileUpload('cedulaFrontUrl', e.target.files[0])}
+                          />
+                        </label>
+                      )}
+                      <p className="text-[9px] text-slate-400 font-medium">Foto nítida del frente con datos legibles</p>
+                    </div>
+
+                    {/* Cédula Reverso */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-between items-center text-center">
+                      <div className="w-full flex items-center justify-between mb-3">
+                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Cédula (Reverso)</span>
+                        <span className="material-symbols-outlined text-sm text-primary">flip_to_back</span>
+                      </div>
+                      
+                      {formData.cedulaBackUrl ? (
+                        <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-slate-300 bg-white group mb-3">
+                          <img src={formData.cedulaBackUrl} alt="Cédula Reverso" className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, cedulaBackUrl: '' })}
+                            className="absolute top-2 right-2 w-7 h-7 bg-rose-500 text-white rounded-lg flex items-center justify-center shadow-md active:scale-90"
+                            title="Eliminar"
+                          >
+                            <span className="material-symbols-outlined text-xs">delete</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="w-full aspect-video rounded-xl border-2 border-dashed border-slate-300 bg-white hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center cursor-pointer mb-3 p-4">
+                          <span className="material-symbols-outlined text-3xl text-slate-400 mb-1">add_a_photo</span>
+                          <span className="text-[10px] font-bold text-slate-500 uppercase">Subir Reverso</span>
+                          <input
+                            type="file"
+                            accept="image/*,application/pdf"
+                            className="hidden"
+                            onChange={e => e.target.files?.[0] && handleFileUpload('cedulaBackUrl', e.target.files[0])}
+                          />
+                        </label>
+                      )}
+                      <p className="text-[9px] text-slate-400 font-medium">Reverso con código de barras y firma</p>
+                    </div>
+
+                    {/* Garantía / Pagaré */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-between items-center text-center">
+                      <div className="w-full flex items-center justify-between mb-3">
+                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Pagaré / Garantía</span>
+                        <span className="material-symbols-outlined text-sm text-primary">description</span>
+                      </div>
+                      
+                      {formData.guarantorDocUrl ? (
+                        <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-slate-300 bg-white group mb-3">
+                          <img src={formData.guarantorDocUrl} alt="Garantía" className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, guarantorDocUrl: '' })}
+                            className="absolute top-2 right-2 w-7 h-7 bg-rose-500 text-white rounded-lg flex items-center justify-center shadow-md active:scale-90"
+                            title="Eliminar"
+                          >
+                            <span className="material-symbols-outlined text-xs">delete</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="w-full aspect-video rounded-xl border-2 border-dashed border-slate-300 bg-white hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center cursor-pointer mb-3 p-4">
+                          <span className="material-symbols-outlined text-3xl text-slate-400 mb-1">upload_file</span>
+                          <span className="text-[10px] font-bold text-slate-500 uppercase">Subir Pagaré</span>
+                          <input
+                            type="file"
+                            accept="image/*,application/pdf"
+                            className="hidden"
+                            onChange={e => e.target.files?.[0] && handleFileUpload('guarantorDocUrl', e.target.files[0])}
+                          />
+                        </label>
+                      )}
+                      <p className="text-[9px] text-slate-400 font-medium">Contrato firmado, pagaré notarial o foto</p>
+                    </div>
                   </div>
                 </motion.div>
               )}

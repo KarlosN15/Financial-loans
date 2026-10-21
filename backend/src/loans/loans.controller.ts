@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, Request, UnauthorizedException } from '@nestjs/common';
 import { LoansService } from './loans.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateLoanDto } from './dto/create-loan.dto';
@@ -23,8 +23,16 @@ export class LoansController {
     return this.loansService.getSummary(req.user);
   }
 
+  @Post(':id/refinance')
+  refinance(@Request() req: any, @Param('id') id: string, @Body() data: any) {
+    return this.loansService.refinanceLoan(req.user, +id, data);
+  }
+
   @Delete(':id')
   remove(@Request() req: any, @Param('id') id: string) {
+    if (req.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('Solo los administradores tienen permiso para eliminar préstamos.');
+    }
     return this.loansService.remove(req.user, +id);
   }
 }

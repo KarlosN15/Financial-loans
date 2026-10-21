@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --font-headline: "Manrope", sans-serif;
   --font-body: "Inter", sans-serif;
@@ -97,6 +101,10 @@
 
   h1, h2, h3, .headline-font {
     font-family: 'Manrope', sans-serif;
+  }
+
+  input, select, textarea {
+    color: #0f172a;
   }
 }
 

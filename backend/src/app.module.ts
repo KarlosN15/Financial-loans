@@ -13,7 +13,8 @@ import { InvestmentsModule } from './investments/investments.module';
 import { ConfigModule as AppConfigModule } from './config/config.module';
 import { AuthModule } from './auth/auth.module';
 import { AgentsModule } from './agents/agents.module';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuditModule } from './audit/audit.module';
 import { CronModule } from './cron/cron.module';
@@ -38,13 +39,19 @@ import { SaasModule } from './saas/saas.module';
     ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([{
       ttl: 60000,
-      limit: 100,
+      limit: 120,
     }]),
     AuditModule,
     CronModule,
     EventsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

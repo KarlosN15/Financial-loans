@@ -126,7 +126,18 @@ const Login = () => {
             </motion.button>
           </form>
 
-          <div className="mt-12 pt-8 border-t border-white/5 text-center">
+          <div className="mt-8 pt-6 border-t border-white/10 text-center space-y-4">
+             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <span className="text-slate-300 text-xs font-bold">¿Aún no tienes cuenta?</span>
+                <button
+                   type="button"
+                   onClick={() => navigate('/register')}
+                   className="w-full sm:w-auto px-4 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/40 text-blue-400 hover:text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-sm"
+                >
+                   <span className="material-symbols-outlined text-sm">person_add</span>
+                   Registrarse
+                </button>
+             </div>
              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">
                 Acceso restringido a personal autorizado
              </p>

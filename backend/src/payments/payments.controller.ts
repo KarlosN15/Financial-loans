@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, UseGuards, Request } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
-import { PaymentMethod } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreatePaymentDto } from './dto/create-payment.dto';
 
 @Controller('payments')
 @UseGuards(JwtAuthGuard)
@@ -9,7 +9,7 @@ export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   @Post()
-  create(@Request() req: any, @Body() data: { loanId: number; amount: number; method: PaymentMethod }) {
+  create(@Request() req: any, @Body() data: CreatePaymentDto) {
     return this.paymentsService.create(req.user, data);
   }
 

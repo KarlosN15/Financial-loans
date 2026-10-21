@@ -20,6 +20,7 @@ const Configuracion = lazy(() => import('./pages/Configuracion'));
 const Register = lazy(() => import('./pages/Register'));
 const SaasPanel = lazy(() => import('./pages/SaasPanel'));
 import { AuthProvider, useAuth } from './context/AuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -50,14 +51,15 @@ const SaasRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Suspense fallback={
-          <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900">
-             <div className="w-16 h-16 border-4 border-white/10 border-t-primary rounded-full animate-spin mb-4"></div>
-             <p className="text-white font-bold tracking-widest text-xs uppercase animate-pulse">Cargando...</p>
-          </div>
-        }>
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router>
+          <Suspense fallback={
+            <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900">
+               <div className="w-16 h-16 border-4 border-white/10 border-t-primary rounded-full animate-spin mb-4"></div>
+               <p className="text-white font-bold tracking-widest text-xs uppercase animate-pulse">Cargando...</p>
+            </div>
+          }>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/register" element={<Register />} />
@@ -117,6 +119,7 @@ function App() {
         </Suspense>
       </Router>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

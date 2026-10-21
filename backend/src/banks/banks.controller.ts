@@ -3,6 +3,7 @@ import { BanksService } from './banks.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { CreateBankDto, CreateBankTransactionDto } from './dto/bank.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('banks')
@@ -11,7 +12,7 @@ export class BanksController {
 
   @Roles('ADMIN')
   @Post()
-  create(@Request() req, @Body() data: { bankName: string, accountNumber: string, balance: number }) {
+  create(@Request() req, @Body() data: CreateBankDto) {
     const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
     return this.banksService.create(adminId, data);
   }
@@ -28,7 +29,7 @@ export class BanksController {
   addTransaction(
     @Request() req,
     @Param('id') id: string,
-    @Body() data: { type: 'INCOME' | 'EXPENSE', amount: number, description: string }
+    @Body() data: CreateBankTransactionDto
   ) {
     const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
     return this.banksService.addTransaction(adminId, +id, data);

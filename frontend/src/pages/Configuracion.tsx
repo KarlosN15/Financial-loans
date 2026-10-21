@@ -2,8 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
 import { 
   getBranches, createBranch, updateBranch, deleteBranch,
-  getRoutes, createRoute, updateRoute, deleteRoute,
-  getPortfolios, createPortfolio, updatePortfolio, deletePortfolio
+  getRoutes, createRoute, updateRoute, deleteRoute
 } from '../api/api';
 
 const Configuracion = () => {
@@ -11,7 +10,6 @@ const Configuracion = () => {
 
   const { data: branches = [] } = useQuery({ queryKey: ['branches'], queryFn: getBranches });
   const { data: routes = [] } = useQuery({ queryKey: ['routes'], queryFn: getRoutes });
-  const { data: portfolios = [] } = useQuery({ queryKey: ['portfolios'], queryFn: getPortfolios });
 
   const branchMutation = useMutation({
     mutationFn: createBranch,
@@ -39,18 +37,7 @@ const Configuracion = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['routes'] })
   });
 
-  const portfolioMutation = useMutation({
-    mutationFn: createPortfolio,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['portfolios'] })
-  });
-  const updatePortfolioMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number, data: any }) => updatePortfolio(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['portfolios'] })
-  });
-  const deletePortfolioMutation = useMutation({
-    mutationFn: deletePortfolio,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['portfolios'] })
-  });
+
 
   const handleAddBranch = async () => {
     const { value: name } = await Swal.fire({
@@ -74,27 +61,18 @@ const Configuracion = () => {
     if (name) routeMutation.mutate({ name });
   };
 
-  const handleAddPortfolio = async () => {
-    const { value: name } = await Swal.fire({
-      title: 'Nueva Cartera',
-      input: 'text',
-      inputLabel: 'Nombre de la Cartera',
-      showCancelButton: true,
-      inputValidator: (value) => !value ? 'Debe ingresar un nombre' : null
-    });
-    if (name) portfolioMutation.mutate({ name });
-  };
+
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-3xl font-extrabold text-primary font-headline tracking-tight">Configuración de Estructura</h2>
-          <p className="text-slate-500 mt-1">Administración de Sucursales, Rutas y Carteras operativas.</p>
+          <p className="text-slate-500 mt-1">Administración de Sucursales y Rutas operativas.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Sucursales */}
         <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6">
           <div className="flex items-center gap-4 mb-6">
@@ -175,45 +153,7 @@ const Configuracion = () => {
           </div>
         </div>
 
-        {/* Carteras */}
-        <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
-              <span className="material-symbols-outlined text-2xl">cases</span>
-            </div>
-            <div>
-              <h3 className="text-lg font-extrabold text-primary tracking-tighter">Carteras</h3>
-              <p className="text-[10px] uppercase tracking-widest text-slate-400">Agrupación de clientes</p>
-            </div>
-          </div>
-          <button 
-            onClick={handleAddPortfolio}
-            className="w-full py-3 rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-primary hover:text-primary transition-colors font-bold text-sm mb-4"
-          >
-            + Añadir Cartera
-          </button>
-          <div className="space-y-2">
-             {portfolios.map((p: any) => (
-                <div key={p.id} className="p-3 bg-slate-50 rounded-xl flex items-center justify-between group">
-                   <span className="text-xs font-bold text-slate-700">{p.name}</span>
-                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                     <button onClick={async () => {
-                        const { value: name } = await Swal.fire({ title: 'Editar', input: 'text', inputValue: p.name, showCancelButton: true });
-                        if (name) updatePortfolioMutation.mutate({ id: p.id, data: { name } });
-                     }} className="text-slate-400 hover:text-blue-500">
-                        <span className="material-symbols-outlined text-[16px]">edit</span>
-                     </button>
-                     <button onClick={async () => {
-                        const res = await Swal.fire({ title: '¿Eliminar?', icon: 'warning', showCancelButton: true });
-                        if (res.isConfirmed) deletePortfolioMutation.mutate(p.id);
-                     }} className="text-slate-400 hover:text-red-500">
-                        <span className="material-symbols-outlined text-[16px]">delete</span>
-                     </button>
-                   </div>
-                </div>
-             ))}
-          </div>
-        </div>
+
       </div>
     </div>
   );

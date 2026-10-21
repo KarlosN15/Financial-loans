@@ -35,7 +35,19 @@ export const getClients = async () => {
   return response.data;
 };
 
-export const createClient = async (data: { name: string; email?: string; identification: string; phone?: string; address?: string; guarantorName?: string; guarantorPhone?: string; routeId?: number }) => {
+export const createClient = async (data: { 
+  name: string; 
+  email?: string; 
+  identification?: string; 
+  phone?: string; 
+  address?: string; 
+  guarantorName?: string; 
+  guarantorPhone?: string; 
+  routeId?: number;
+  cedulaFrontUrl?: string;
+  cedulaBackUrl?: string;
+  guarantorDocUrl?: string;
+}) => {
   const response = await api.post('/clients', data);
   return response.data;
 };
@@ -65,7 +77,36 @@ export const getPayments = async () => {
   return response.data;
 };
 
-export const createPayment = async (data: { loanId: number; amount: number; method: 'CASH' | 'TRANSFER' }) => {
+export const updateClient = async (id: number, data: any) => {
+  const response = await api.post(`/clients/${id}/update`, data);
+  return response.data;
+};
+
+export const refinanceLoan = async (id: number, data: any) => {
+  const response = await api.post(`/loans/${id}/refinance`, data);
+  return response.data;
+};
+
+export const getAgentCommissions = async () => {
+  const response = await api.get('/agents/commissions');
+  return response.data;
+};
+
+export const updateAgentCommission = async (id: number, commissionRate: number) => {
+  const response = await api.post(`/agents/${id}/commission`, { commissionRate });
+  return response.data;
+};
+
+export const createPayment = async (data: { 
+  loanId: number; 
+  amount: number; 
+  method: 'CASH' | 'TRANSFER';
+  isInterestOnly?: boolean;
+  notes?: string;
+  latitude?: number;
+  longitude?: number;
+  lateFeePaid?: number;
+}) => {
   const response = await api.post('/payments', data);
   return response.data;
 };
@@ -162,22 +203,7 @@ export const deleteRoute = async (id: number) => {
   return response.data;
 };
 
-export const getPortfolios = async () => {
-  const response = await api.get('/config/portfolios');
-  return response.data;
-};
-export const createPortfolio = async (data: { name: string }) => {
-  const response = await api.post('/config/portfolios', data);
-  return response.data;
-};
-export const updatePortfolio = async (id: number, data: { name: string }) => {
-  const response = await api.put(`/config/portfolios/${id}`, data);
-  return response.data;
-};
-export const deletePortfolio = async (id: number) => {
-  const response = await api.delete(`/config/portfolios/${id}`);
-  return response.data;
-};
+
 
 // --- SaaS / SuperAdmin ---
 export const getSaasUsers = async () => {

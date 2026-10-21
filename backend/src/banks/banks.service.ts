@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -9,8 +9,8 @@ export class BanksService {
     return this.prisma.bankAccount.create({
       data: {
         userId: adminId,
-        bankName: data.bankName,
-        accountNumber: data.accountNumber,
+        bankName: data.bankName.trim(),
+        accountNumber: data.accountNumber.trim(),
         balance: data.balance,
       },
     });
@@ -20,37 +20,45 @@ export class BanksService {
     return this.prisma.bankAccount.findMany({
       where: { userId: adminId },
       include: {
-        transactions: true,
+        transactions: {
+          orderBy: { createdAt: 'desc' },
+        },
       },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
   async addTransaction(adminId: number, bankAccountId: number, data: { type: 'INCOME' | 'EXPENSE', amount: number, description: string }) {
-    const bankAccount = await this.prisma.bankAccount.findUnique({
-      where: { id: bankAccountId },
-    });
+    return this.prisma.$transaction(async (tx) => {
+      const bankAccount = await tx.bankAccount.findUnique({
+        where: { id: bankAccountId },
+      });
 
-    if (!bankAccount || bankAccount.userId !== adminId) {
-      throw new NotFoundException('Cuenta bancaria no encontrada');
-    }
+      if (!bankAccount || bankAccount.userId !== adminId) {
+        throw new NotFoundException('Cuenta bancaria no encontrada.');
+      }
 
-    // Actualizar balance
-    const newBalance = data.type === 'INCOME' 
-      ? Number(bankAccount.balance) + Number(data.amount) 
-      : Number(bankAccount.balance) - Number(data.amount);
+      if (data.type === 'EXPENSE' && Number(bankAccount.balance) < data.amount) {
+        throw new BadRequestException(`Fondos insuficientes en la cuenta bancaria. Saldo disponible: RD$ ${Number(bankAccount.balance)}.`);
+      }
 
-    await this.prisma.bankAccount.update({
-      where: { id: bankAccountId },
-      data: { balance: newBalance },
-    });
+      await tx.bankAccount.update({
+        where: { id: bankAccountId },
+        data: {
+          balance: data.type === 'INCOME'
+            ? { increment: data.amount }
+            : { decrement: data.amount },
+        },
+      });
 
-    return this.prisma.bankTransaction.create({
-      data: {
-        bankAccountId,
-        type: data.type,
-        amount: data.amount,
-        description: data.description,
-      },
+      return tx.bankTransaction.create({
+        data: {
+          bankAccountId,
+          type: data.type,
+          amount: data.amount,
+          description: data.description.trim(),
+        },
+      });
     });
   }
 }

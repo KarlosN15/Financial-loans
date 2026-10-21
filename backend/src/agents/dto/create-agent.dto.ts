@@ -1,0 +1,23 @@
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Min, MinLength } from 'class-validator';
+
+export class CreateAgentDto {
+  @IsNotEmpty({ message: 'El nombre es obligatorio' })
+  @IsString()
+  name: string;
+
+  @IsEmail({}, { message: 'El correo electrónico no es válido' })
+  email: string;
+
+  @IsNotEmpty({ message: 'La contraseña es obligatoria' })
+  @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
+  password: string;
+
+  @IsOptional()
+  @IsNumber()
+  branchId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0, { message: 'La tasa de comisión no puede ser negativa' })
+  commissionRate?: number;
+}

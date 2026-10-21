@@ -6,9 +6,9 @@ services:
     image: postgres:16-alpine
     container_name: santana_db_local
     environment:
-      POSTGRES_USER: pablo
-      POSTGRES_PASSWORD: pablo123
-      POSTGRES_DB: fac_pablo_db
+      POSTGRES_USER: admin_fac
+      POSTGRES_PASSWORD: admin2303
+      POSTGRES_DB: prestamos_db
     ports:
       - "5433:5432"
     volumes:
@@ -24,7 +24,7 @@ services:
       dockerfile: Dockerfile
     container_name: santana_api_local
     environment:
-      DATABASE_URL: postgresql://pablo:pablo123@db:5432/fac_pablo_db?schema=public
+      DATABASE_URL: postgresql://admin_fac:admin2303@db:5432/prestamos_db?schema=public
       JWT_SECRET: mi_secreto_super_seguro_12345
       JWT_EXPIRES_IN: "1h"
       PORT: 3000

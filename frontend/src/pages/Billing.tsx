@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getPayments, getUpcomingInstallments, createPayment, getLoans } from '../api/api';
 import { formatDOP } from '../utils/format';
 import SearchableSelect from '../components/SearchableSelect';
+import ReceiptModal from '../components/ReceiptModal';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
@@ -13,6 +14,7 @@ const Billing = () => {
   const [showModal, setShowModal] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [recentPayment, setRecentPayment] = useState<any>(null);
+  const [paymentMode, setPaymentMode] = useState<'INSTALLMENT' | 'REDITO'>('INSTALLMENT');
 
   const [formData, setFormData] = useState({
     loanId: '',
@@ -20,6 +22,74 @@ const Billing = () => {
     amount: '',
     method: 'CASH' as 'CASH' | 'TRANSFER',
   });
+
+  const [gpsCoords, setGpsCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [waiveLateFee, setWaiveLateFee] = useState(false);
+  const [waiveReason, setWaiveReason] = useState('');
+
+  // Geolocation capture
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setGpsCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+        (err) => console.log('Ubicación GPS no disponible:', err.message),
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  }, []);
+
+  const handleSendWhatsAppReceipt = (p: any) => {
+    if (!p) return;
+    const client = p.loan?.client;
+    const clientName = p.clientName || client?.name || 'Cliente';
+    const rawPhone = client?.phone || '';
+    const cleanPhone = rawPhone.replace(/[^0-9]/g, '');
+    const targetPhone = cleanPhone.length === 10 ? `1${cleanPhone}` : cleanPhone;
+    const amount = formatDOP(p.amount);
+    const receiptNo = `REC-${new Date().getFullYear()}-${p.id.toString().padStart(4, '0')}`;
+    const dateStr = new Date(p.date || p.createdAt || Date.now()).toLocaleDateString('es-DO', { hour: '2-digit', minute: '2-digit' });
+    const notes = p.notes || (p.isInterestOnly ? 'Pago de Rédito' : 'Cuota Regular');
+    const capitalLeft = formatDOP(
+      p.isInterestOnly
+        ? p.loan?.installments?.filter((i: any) => i.status === 'PENDING').reduce((acc: number, i: any) => acc + Number(i.capital), 0) || p.loan?.amount || 0
+        : p.loan?.installments?.filter((i: any) => i.status === 'PENDING').reduce((acc: number, i: any) => acc + Number(i.amount), 0) || 0
+    );
+
+    const msg = `🧾 *COMPROBANTE OFICIAL DE PAGO*\n` +
+      `*PresPro Systems - Plataforma Financiera*\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `👤 *Cliente:* ${clientName}\n` +
+      `📄 *No. Recibo:* ${receiptNo}\n` +
+      `💵 *Monto Pagado:* RD$ ${amount}\n` +
+      `📌 *Concepto:* ${notes}\n` +
+      `📉 *Balance Restante:* RD$ ${capitalLeft}\n` +
+      `📅 *Fecha:* ${dateStr}\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `✅ _Pago registrado exitosamente. Conserve este comprobante como garantía oficial._`;
+
+    window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  const handleSendWhatsAppReminder = (item: any) => {
+    const client = item.loan?.client || item.client;
+    const clientName = client?.name || 'Cliente';
+    const rawPhone = client?.phone || '';
+    const cleanPhone = rawPhone.replace(/[^0-9]/g, '');
+    const targetPhone = cleanPhone.length === 10 ? `1${cleanPhone}` : cleanPhone;
+    const amount = formatDOP(item.amount || item.balance);
+    const dueDate = item.dueDate ? new Date(item.dueDate).toLocaleDateString('es-DO') : 'próxima';
+
+    const msg = `🔔 *RECORDATORIO DE PAGO*\n` +
+      `*PresPro Systems*\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `Estimado/a *${clientName}*,\n\n` +
+      `Le recordamos que su cuota por valor de *RD$ ${amount}* tiene fecha límite el *${dueDate}*.\n\n` +
+      `Mantener sus pagos al día le permite conservar un Récord Crediticio Excelente 🟢.\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `_¡Agradecemos su preferencia!_`;
+
+    window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
 
   const { data: payments = [], isLoading: loadingPayments } = useQuery({
     queryKey: ['payments'],
@@ -78,7 +148,7 @@ const Billing = () => {
     loans.filter((l: any) => l.status === 'ACTIVE' || l.status === 'ARREARS').map((l: any) => ({
       id: l.id,
       label: l.client.name,
-      sublabel: `Céd: ${l.client.identification} • PR-${l.id.toString().padStart(4, '0')} • Balance: RD$ ${formatDOP(l.amount)}`,
+      sublabel: `${l.client?.identification ? `Céd: ${l.client.identification} • ` : ''}PR-${l.id.toString().padStart(4, '0')} • Balance: RD$ ${formatDOP(l.amount)}`,
       original: l
     })), [loans]);
 
@@ -92,13 +162,46 @@ const Billing = () => {
     const nextInst = pending[0];
     const perInst = Number(nextInst?.amount) || 0;
     const totalRemaining = pending.reduce((acc: number, i: any) => acc + Number(i.amount), 0);
+    const capitalRemaining = pending.reduce((acc: number, i: any) => acc + Number(i.capital), 0);
+
+    let ratePerPeriod = 0;
+    if (loan.frequency === 'MONTHLY') {
+      ratePerPeriod = Number(loan.interestRate) / 100;
+    } else if (loan.frequency === 'BIWEEKLY') {
+      ratePerPeriod = (Number(loan.interestRate) / 2) / 100;
+    } else {
+      ratePerPeriod = (Number(loan.interestRate) / 4) / 100;
+    }
+    const perInterest = Number(nextInst?.interest) || (Number(loan.amount) * ratePerPeriod);
+
+    const now = new Date();
+    const isLate = nextInst?.dueDate ? new Date(nextInst.dueDate) < now : false;
+    const diffDays = isLate ? Math.max(0, Math.floor((now.getTime() - new Date(nextInst.dueDate).getTime()) / (1000 * 60 * 60 * 24))) : 0;
+    const graceDays = loan.graceDays !== undefined ? Number(loan.graceDays) : 2;
+    const effectiveLateDays = Math.max(0, diffDays - graceDays);
+    
+    let calculatedLateFee = 0;
+    if (effectiveLateDays > 0) {
+      if (loan.lateFeeType === 'FIXED') {
+        calculatedLateFee = effectiveLateDays * (Number(loan.lateFeeValue) || 50);
+      } else {
+        calculatedLateFee = (perInst * (Number(loan.lateFeeValue) || 5)) / 100;
+      }
+    }
 
     return {
       loan,
       perInst,
+      perInterest,
+      capitalRemaining,
       totalRemaining,
       nextDueDate: nextInst?.dueDate,
       pendingCount: pending.length,
+      isLate,
+      diffDays,
+      graceDays,
+      effectiveLateDays,
+      calculatedLateFee,
     };
   }, [formData.loanId, loans]);
 
@@ -113,6 +216,9 @@ const Billing = () => {
       setShowModal(false);
       setShowReceipt(true);
       setFormData({ loanId: '', numInstallments: 1, amount: '', method: 'CASH' });
+      setPaymentMode('INSTALLMENT');
+      setWaiveLateFee(false);
+      setWaiveReason('');
     },
   });
 
@@ -122,20 +228,55 @@ const Billing = () => {
     e.preventDefault();
     const amountVal = parseFloat(parseAmountInput(formData.amount));
     if (!formData.loanId || isNaN(amountVal)) return;
+    const isRedito = paymentMode === 'REDITO';
+    
+    let paymentNote = 'Cobro de Cuota Regular';
+    if (isRedito && loanInfo) {
+      const perInterest = loanInfo.perInterest;
+      const capitalRemaining = loanInfo.capitalRemaining || Number(loanInfo.loan.amount);
+      if (amountVal > perInterest) {
+        const capitalAbono = amountVal - perInterest;
+        const newCap = Math.max(0, capitalRemaining - capitalAbono);
+        paymentNote = `Pago de Rédito (RD$ ${formatDOP(perInterest)}) + Abono a Capital (RD$ ${formatDOP(capitalAbono)}). Saldo: RD$ ${formatDOP(newCap)}`;
+      } else {
+        paymentNote = `Pago de Rédito: RD$ ${formatDOP(amountVal)}`;
+      }
+    }
+
+    const lateFeeToPay = loanInfo && loanInfo.effectiveLateDays > 0 && !waiveLateFee ? loanInfo.calculatedLateFee : 0;
+    if (waiveLateFee && waiveReason) {
+      paymentNote += ` [Mora exonerada: ${waiveReason}]`;
+    } else if (lateFeeToPay > 0) {
+      paymentNote += ` [Mora cobrada: RD$ ${formatDOP(lateFeeToPay)}]`;
+    }
+
     mutation.mutate({
       loanId: parseInt(formData.loanId),
       amount: amountVal,
       method: formData.method,
+      isInterestOnly: isRedito,
+      notes: paymentNote,
+      latitude: gpsCoords?.latitude,
+      longitude: gpsCoords?.longitude,
+      lateFeePaid: lateFeeToPay,
     });
   };
 
   const updateInstallments = (count: number) => {
     if (!loanInfo) return;
-    setFormData({ 
-      ...formData, 
-      numInstallments: count, 
-      amount: formatAmountInput((loanInfo.perInst * count).toFixed(2)) 
-    });
+    if (paymentMode === 'REDITO') {
+      setFormData({ 
+        ...formData, 
+        numInstallments: count, 
+        amount: formatAmountInput((loanInfo.perInterest * count).toFixed(2)) 
+      });
+    } else {
+      setFormData({ 
+        ...formData, 
+        numInstallments: count, 
+        amount: formatAmountInput((loanInfo.perInst * count).toFixed(2)) 
+      });
+    }
   };
 
   const isOverdue = (dateStr: string) => new Date(dateStr) < new Date();
@@ -234,12 +375,37 @@ const Billing = () => {
                            <span className="text-[10px] font-black text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">#{p.id.toString().padStart(4, '0')}</span>
                         </td>
                         <td className="py-6">
-                           <p className="text-sm font-black text-primary tracking-tight">{p.clientName || p.loan?.client?.name}</p>
+                           <div className="flex items-center gap-2">
+                              <p className="text-sm font-black text-primary tracking-tight">{p.clientName || p.loan?.client?.name}</p>
+                              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black ${
+                                 p.loan?.client?.rating === 'RISKY' ? 'bg-rose-100 text-rose-700' :
+                                 p.loan?.client?.rating === 'REGULAR' ? 'bg-amber-100 text-amber-800' :
+                                 'bg-emerald-100 text-emerald-700'
+                              }`} title={`Score crediticio: ${p.loan?.client?.score || 100}/100`}>
+                                 {p.loan?.client?.rating === 'RISKY' ? '🔴 Riesgo' : p.loan?.client?.rating === 'REGULAR' ? '🟡 Regular' : '🟢 Excelente'}
+                              </span>
+                           </div>
                         </td>
                         <td className="py-6">
-                           <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase border ${p.method === 'CASH' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                              {p.method === 'CASH' ? 'Efectivo' : 'Transferencia'}
-                           </span>
+                           <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase border ${p.method === 'CASH' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                 {p.method === 'CASH' ? 'Efectivo' : 'Transferencia'}
+                              </span>
+                              {p.isInterestOnly ? (
+                                 <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase border ${p.notes?.includes('Abono a Capital') ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                                    {p.notes?.includes('Abono a Capital') ? 'Rédito + Capital' : 'Rédito'}
+                                 </span>
+                              ) : (
+                                 <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-200">
+                                    Cuota
+                                 </span>
+                              )}
+                              {Number(p.lateFeePaid) > 0 && (
+                                 <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-rose-50 text-rose-700 border border-rose-200">
+                                    +Mora
+                                 </span>
+                              )}
+                           </div>
                         </td>
                         <td className="py-6 text-right text-sm font-black text-emerald-600">RD$ {formatDOP(p.amount)}</td>
                         <td className="py-6 text-right">
@@ -247,9 +413,29 @@ const Billing = () => {
                            <p className="text-[8px] font-bold text-primary mt-1 uppercase truncate max-w-[100px] inline-block">{p.user?.name || 'Administrador'}</p>
                         </td>
                         <td className="py-6 text-center">
-                           <button onClick={() => { setRecentPayment(p); setShowReceipt(true); }} className="p-2 text-slate-400 hover:text-primary transition-colors">
-                              <span className="material-symbols-outlined text-[18px]">visibility</span>
-                           </button>
+                           <div className="flex items-center justify-center gap-1">
+                              {p.latitude && p.longitude && (
+                                 <a 
+                                    href={`https://www.google.com/maps?q=${p.latitude},${p.longitude}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                    title={`Cobro geolocalizado en GPS: ${p.latitude.toFixed(4)}, ${p.longitude.toFixed(4)}`}
+                                 >
+                                    <span className="material-symbols-outlined text-[18px]">location_on</span>
+                                 </a>
+                              )}
+                              <button 
+                                 onClick={() => handleSendWhatsAppReceipt(p)}
+                                 className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                 title="Enviar Recibo por WhatsApp"
+                              >
+                                 <span className="material-symbols-outlined text-[18px]">chat</span>
+                              </button>
+                              <button onClick={() => { setRecentPayment(p); setShowReceipt(true); }} className="p-1.5 text-slate-400 hover:text-primary rounded-lg transition-colors" title="Ver Recibo Pro">
+                                 <span className="material-symbols-outlined text-[18px]">visibility</span>
+                              </button>
+                           </div>
                         </td>
                      </tr>
                   ))}
@@ -270,11 +456,20 @@ const Billing = () => {
                <div key={p.id} className="bg-slate-50/50 p-5 rounded-3xl border border-slate-100 flex flex-col gap-4 active:scale-95 transition-all" onClick={() => { setRecentPayment(p); setShowReceipt(true); }}>
                   <div className="flex justify-between items-start">
                      <div>
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest border border-slate-200 px-1.5 py-0.5 rounded">#{p.id.toString().padStart(4, '0')}</span>
                            <span className={`text-[7px] font-black uppercase px-2 py-0.5 rounded border ${p.method === 'CASH' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
                               {p.method === 'CASH' ? 'Efectivo' : 'Transferencia'}
                            </span>
+                           {p.isInterestOnly ? (
+                              <span className="text-[7px] font-black uppercase px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                                 Rédito
+                              </span>
+                           ) : (
+                              <span className="text-[7px] font-black uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+                                 Cuota
+                              </span>
+                           )}
                         </div>
                         <h4 className="text-base font-black text-slate-900 tracking-tighter uppercase">{p.clientName || p.loan?.client?.name}</h4>
                         <p className="text-[9px] font-bold text-slate-400 uppercase">{new Date(p.date).toLocaleDateString('es-DO', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
@@ -323,18 +518,83 @@ const Billing = () => {
                      placeholder="Buscar en cartera activa..."
                      options={loanOptions}
                      value={formData.loanId}
-                     onChange={val => setFormData({ ...formData, loanId: val })}
+                     onChange={val => {
+                        const selected = loans.find((l: any) => l.id === parseInt(val));
+                        let defaultAmt = '';
+                        if (selected) {
+                           const pending = selected.installments.filter((i: any) => i.status === 'PENDING').sort((a: any, b: any) => a.number - b.number);
+                           const nextInst = pending[0];
+                           if (paymentMode === 'REDITO') {
+                              const rate = (selected.frequency === 'MONTHLY' ? Number(selected.interestRate) : selected.frequency === 'BIWEEKLY' ? Number(selected.interestRate) / 2 : Number(selected.interestRate) / 4) / 100;
+                              const interest = Number(nextInst?.interest) || (Number(selected.amount) * rate);
+                              defaultAmt = formatAmountInput(interest.toFixed(2));
+                           } else {
+                              const perInst = Number(nextInst?.amount) || 0;
+                              defaultAmt = formatAmountInput(perInst.toFixed(2));
+                           }
+                        }
+                        setFormData({ ...formData, loanId: val, numInstallments: 1, amount: defaultAmt });
+                     }}
                   />
 
-                  {loanInfo && (
+                  {/* MODALIDAD DE COBRO: CUOTA COMPLETA vs SOLO RÉDITO */}
+                  <div className="space-y-1.5">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Modalidad de Cobro</label>
+                     <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1.5 rounded-2xl">
+                        <button
+                           type="button"
+                           onClick={() => {
+                              setPaymentMode('INSTALLMENT');
+                              if (loanInfo) {
+                                 setFormData(prev => ({
+                                    ...prev,
+                                    numInstallments: 1,
+                                    amount: formatAmountInput(loanInfo.perInst.toFixed(2))
+                                 }));
+                              }
+                           }}
+                           className={`py-3 px-3 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 ${
+                              paymentMode === 'INSTALLMENT'
+                                 ? 'bg-white text-primary shadow-sm font-black'
+                                 : 'text-slate-500 hover:text-slate-800'
+                           }`}
+                        >
+                           <span className="material-symbols-outlined text-[16px]">payments</span>
+                           Cuota Completa
+                        </button>
+                        <button
+                           type="button"
+                           onClick={() => {
+                              setPaymentMode('REDITO');
+                              if (loanInfo) {
+                                 setFormData(prev => ({
+                                    ...prev,
+                                    numInstallments: 1,
+                                    amount: formatAmountInput(loanInfo.perInterest.toFixed(2))
+                                 }));
+                              }
+                           }}
+                           className={`py-3 px-3 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 ${
+                              paymentMode === 'REDITO'
+                                 ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30 font-black'
+                                 : 'text-slate-500 hover:text-amber-700'
+                           }`}
+                        >
+                           <span className="material-symbols-outlined text-[16px]">percent</span>
+                           Rédito y Abono a Capital
+                        </button>
+                     </div>
+                  </div>
+
+                  {loanInfo && paymentMode === 'INSTALLMENT' && (
                      <div className="bg-emerald-50/50 p-6 rounded-3xl border border-emerald-100 flex flex-col gap-4 animate-in slide-in-from-top-2">
                         <div className="flex justify-between items-center">
-                           <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Información de Deuda</p>
+                           <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Información de Deuda (Cuota Completa)</p>
                            <span className="bg-emerald-500 text-white px-2 py-0.5 rounded text-[8px] font-black uppercase">Activo</span>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                            <div>
-                              <p className="text-[9px] font-black text-slate-400 uppercase mb-0.5">Cuota Mensual</p>
+                              <p className="text-[9px] font-black text-slate-400 uppercase mb-0.5">Cuota {loanInfo?.loan?.frequency === 'MONTHLY' ? 'Mensual' : loanInfo?.loan?.frequency === 'BIWEEKLY' ? 'Quincenal' : 'Semanal'}</p>
                               <p className="text-base font-black text-primary italic underline underline-offset-4">RD$ {formatDOP(loanInfo.perInst)}</p>
                            </div>
                            <div>
@@ -349,9 +609,44 @@ const Billing = () => {
                      </div>
                   )}
 
+                  {loanInfo && paymentMode === 'REDITO' && (
+                     <div className="bg-amber-50/70 p-6 rounded-3xl border border-amber-200/80 flex flex-col gap-4 animate-in slide-in-from-top-2">
+                        <div className="flex justify-between items-center">
+                           <p className="text-[10px] font-black text-amber-700 uppercase tracking-widest">Información de Rédito y Capital</p>
+                           <span className="bg-amber-500 text-white px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider">Rédito Flexible</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                           <div>
+                              <p className="text-[9px] font-black text-slate-400 uppercase mb-0.5">Rédito por {loanInfo?.loan?.frequency === 'MONTHLY' ? 'Mes' : loanInfo?.loan?.frequency === 'BIWEEKLY' ? 'Quincena' : 'Semana'}</p>
+                              <p className="text-base font-black text-amber-600 italic underline underline-offset-4">RD$ {formatDOP(loanInfo.perInterest)}</p>
+                           </div>
+                           <div>
+                              <p className="text-[9px] font-black text-slate-400 uppercase mb-0.5">Capital Pendiente Actual</p>
+                              <p className="text-base font-black text-slate-700">RD$ {formatDOP(loanInfo.capitalRemaining || loanInfo.loan.amount)}</p>
+                           </div>
+                        </div>
+                        <div className="text-[10px] font-bold text-amber-800 bg-white/70 p-2.5 rounded-xl border border-amber-200/50 flex items-start gap-2">
+                           <span className="material-symbols-outlined text-[16px] text-amber-600 mt-0.5">info</span>
+                           <span>Permite pagar el rédito del ciclo (interés) y realizar abonos directos al capital adeudado. Si el cliente entrega un monto mayor al rédito (ej: 500 de rédito y paga 1,000), el excedente reduce automáticamente el capital.</span>
+                        </div>
+                     </div>
+                  )}
+
                   {loanInfo && (
+                     <button
+                        type="button"
+                        onClick={() => handleSendWhatsAppReminder(loanInfo.loan)}
+                        className="w-full py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-[9px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-95"
+                        title="Enviar Recordatorio de Pago al WhatsApp del Cliente"
+                     >
+                        <span className="material-symbols-outlined text-sm">chat</span>
+                        Enviar Recordatorio WhatsApp a {loanInfo.loan.client?.name}
+                     </button>
+                  )}
+
+                  {loanInfo && paymentMode === 'INSTALLMENT' && (
                      <div className="space-y-3">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{loanInfo?.loan?.frequency === 'MONTHLY' ? 'Meses' : 'Semanas'} a Liquidar</label>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{loanInfo?.loan?.frequency === 'MONTHLY' ? 'Meses' : loanInfo?.loan?.frequency === 'BIWEEKLY' ? 'Quincenas' : 'Semanas'} a Liquidar</label>
                         <div className="flex flex-wrap gap-2">
                            {[1, 2, 3].filter(q => q <= loanInfo.pendingCount && q !== loanInfo.pendingCount).map(q => (
                               <button 
@@ -360,7 +655,7 @@ const Billing = () => {
                                  onClick={() => updateInstallments(q)}
                                  className={`flex-1 min-w-[80px] py-3 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 transition-all ${formData.numInstallments === q ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-50 border-transparent text-slate-400 hover:border-slate-200'}`}
                               >
-                                 {q} {loanInfo?.loan?.frequency === 'MONTHLY' ? (q > 1 ? 'Meses' : 'Mes') : (q > 1 ? 'Semanas' : 'Semana')}
+                                 {q} {loanInfo?.loan?.frequency === 'MONTHLY' ? (q > 1 ? 'Meses' : 'Mes') : loanInfo?.loan?.frequency === 'BIWEEKLY' ? (q > 1 ? 'Quincenas' : 'Quincena') : (q > 1 ? 'Semanas' : 'Semana')}
                               </button>
                            ))}
                            {loanInfo.pendingCount > 0 && (
@@ -382,8 +677,66 @@ const Billing = () => {
                      </div>
                   )}
 
+                  {loanInfo && paymentMode === 'REDITO' && (
+                     <div className="space-y-3">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Períodos de Rédito a Pagar</label>
+                        <div className="flex flex-wrap gap-2">
+                           {[1, 2, 3].map(q => (
+                              <button 
+                                 key={q}
+                                 type="button"
+                                 onClick={() => updateInstallments(q)}
+                                 className={`flex-1 min-w-[80px] py-3 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 transition-all ${formData.numInstallments === q ? 'border-amber-500 bg-amber-500 text-white shadow-lg shadow-amber-500/25' : 'bg-slate-50 border-transparent text-slate-500 hover:border-slate-200'}`}
+                              >
+                                 {q} {loanInfo?.loan?.frequency === 'MONTHLY' ? (q > 1 ? 'Meses' : 'Mes') : loanInfo?.loan?.frequency === 'BIWEEKLY' ? (q > 1 ? 'Quincenas' : 'Quincena') : (q > 1 ? 'Semanas' : 'Semana')}
+                              </button>
+                           ))}
+                        </div>
+                     </div>
+                  )}
+
+                  {loanInfo && loanInfo.effectiveLateDays > 0 && (
+                     <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 space-y-2">
+                        <div className="flex items-center justify-between">
+                           <div className="flex items-center gap-2">
+                              <span className="material-symbols-outlined text-rose-600 text-lg">warning</span>
+                              <span className="font-bold text-xs uppercase tracking-wider">Atraso ({loanInfo.diffDays} días)</span>
+                           </div>
+                           <span className="font-black text-sm text-rose-700">+ RD$ {formatDOP(loanInfo.calculatedLateFee)} mora</span>
+                        </div>
+                        <div className="pt-2 border-t border-rose-200/60 flex items-center justify-between">
+                           <label className="flex items-center gap-2 text-xs font-bold text-rose-900 cursor-pointer">
+                              <input 
+                                 type="checkbox" 
+                                 checked={waiveLateFee} 
+                                 onChange={e => setWaiveLateFee(e.target.checked)}
+                                 className="rounded text-rose-600 focus:ring-rose-500"
+                              />
+                              <span>Exonerar / Condonar Mora</span>
+                           </label>
+                        </div>
+                        {waiveLateFee && (
+                           <input 
+                              type="text"
+                              placeholder="Motivo de la condonación (ej. Promesa de pago / Fidelidad)..."
+                              value={waiveReason}
+                              onChange={e => setWaiveReason(e.target.value)}
+                              className="w-full text-xs p-2.5 rounded-xl bg-white border border-rose-300 text-slate-800 focus:outline-none focus:ring-1 focus:ring-rose-500 font-medium"
+                           />
+                        )}
+                     </div>
+                  )}
+
                   <div className="space-y-2">
-                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Monto Final a Recibir (RD$)</label>
+                     <div className="flex items-center justify-between pl-1">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                           {paymentMode === 'REDITO' ? 'Monto a Recibir (Rédito / Capital) (RD$)' : 'Monto Final a Recibir (RD$)'}
+                        </label>
+                        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold">
+                           <span className={`w-2 h-2 rounded-full ${gpsCoords ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`}></span>
+                           <span>{gpsCoords ? 'GPS Activo' : 'GPS'}</span>
+                        </div>
+                     </div>
                      <input 
                         required
                         type="text"
@@ -394,6 +747,48 @@ const Billing = () => {
                      />
                   </div>
 
+                  {loanInfo && paymentMode === 'REDITO' && parseFloat(parseAmountInput(formData.amount)) > 0 && (() => {
+                     const enteredAmt = parseFloat(parseAmountInput(formData.amount));
+                     const perInt = loanInfo.perInterest;
+                     const capRem = loanInfo.capitalRemaining || Number(loanInfo.loan.amount);
+                     const reditoPart = enteredAmt <= perInt ? enteredAmt : perInt;
+                     const capitalPart = enteredAmt > perInt ? enteredAmt - perInt : 0;
+                     const newCap = Math.max(0, capRem - capitalPart);
+
+                     return (
+                        <div className="bg-slate-900 text-white p-5 rounded-2xl space-y-3 shadow-xl border border-amber-500/30">
+                           <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-amber-400">Distribución de Este Pago</p>
+                              <span className="text-[9px] font-mono font-bold bg-white/10 px-2 py-0.5 rounded text-white">Total: RD$ {formatDOP(enteredAmt)}</span>
+                           </div>
+
+                           <div className="space-y-1.5 text-xs font-medium">
+                              <div className="flex justify-between items-center">
+                                 <span className="text-white/70">1. Cobro de Rédito (Interés):</span>
+                                 <span className="font-black text-amber-300">RD$ {formatDOP(reditoPart)} {enteredAmt >= perInt ? '✓ Ciclo cubierto' : '(Parcial)'}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                 <span className="text-white/70">2. Abono a Capital (Reducción):</span>
+                                 <span className={`font-black ${capitalPart > 0 ? 'text-emerald-400' : 'text-white/40'}`}>
+                                    {capitalPart > 0 ? `+ RD$ ${formatDOP(capitalPart)}` : 'RD$ 0.00'}
+                                 </span>
+                              </div>
+                           </div>
+
+                           <div className="pt-2 border-t border-white/10 flex justify-between items-center">
+                              <span className="text-[10px] font-black uppercase tracking-wider text-white/80">Nuevo Capital Pendiente:</span>
+                              <span className="text-base font-black text-emerald-400">RD$ {formatDOP(newCap)}</span>
+                           </div>
+
+                           {newCap <= 0 && (
+                              <div className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 p-2 rounded-xl text-center text-[10px] font-black uppercase tracking-wider">
+                                 🎉 ¡Este pago liquidará el préstamo por completo!
+                              </div>
+                           )}
+                        </div>
+                     );
+                  })()}
+
                   <div className="flex gap-3">
                      <button type="button" onClick={() => setFormData({...formData, method: 'CASH'})} className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 transition-all ${formData.method === 'CASH' ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-50 border-transparent text-slate-400 hover:border-slate-200'}`}>EFECTIVO</button>
                      <button type="button" onClick={() => setFormData({...formData, method: 'TRANSFER'})} className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 transition-all ${formData.method === 'TRANSFER' ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-50 border-transparent text-slate-400 hover:border-slate-200'}`}>TRANSFERENCIA</button>
@@ -401,12 +796,16 @@ const Billing = () => {
 
                   <button 
                      disabled={mutation.isPending}
-                     className="w-full bg-emerald-500 text-white font-black py-4 rounded-xl mt-4 flex items-center justify-center gap-3 hover:brightness-110 transition-all shadow-xl shadow-emerald-500/20 active:scale-[0.98] disabled:opacity-50"
+                     className={`w-full text-white font-black py-4 rounded-xl mt-4 flex items-center justify-center gap-3 hover:brightness-110 transition-all shadow-xl active:scale-[0.98] disabled:opacity-50 ${
+                        paymentMode === 'REDITO' 
+                           ? 'bg-amber-500 shadow-amber-500/20' 
+                           : 'bg-emerald-500 shadow-emerald-500/20'
+                     }`}
                   >
                      {mutation.isPending ? (
                         <><span className="material-symbols-outlined text-sm animate-spin">progress_activity</span> Sincronizando...</>
                      ) : (
-                        <><span className="material-symbols-outlined">verified</span> FINALIZAR COBRO</>
+                        <><span className="material-symbols-outlined">verified</span> {paymentMode === 'REDITO' ? 'FINALIZAR COBRO (RÉDITO Y CAPITAL)' : 'FINALIZAR COBRO'}</>
                      )}
                   </button>
                </form>
@@ -414,96 +813,12 @@ const Billing = () => {
          </div>
       )}
 
-      {/* RECEIPT MODAL */}
-      {showReceipt && recentPayment && (
-         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-md no-print" onClick={() => setShowReceipt(false)}></div>
-            <div className="bg-white rounded-[2rem] w-full max-w-md relative z-10 shadow-3xl overflow-hidden animate-in zoom-in-95 fade-in duration-300 flex flex-col max-h-[95vh]">
-               
-               {/* Receipt Toast Header - No Print */}
-               <div className="bg-emerald-500 px-8 py-5 flex items-center justify-between flex-shrink-0 no-print">
-                  <div className="flex items-center gap-3 text-white">
-                     <span className="material-symbols-outlined font-black">verified</span>
-                     <p className="text-[10px] font-black uppercase tracking-widest leading-none">Recibo de Transacción Generado</p>
-                  </div>
-                  <button onClick={() => setShowReceipt(false)} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all">
-                     <span className="material-symbols-outlined text-lg">close</span>
-                  </button>
-               </div>
-
-               {/* Scrollable Receipt Area */}
-               <div className="flex-1 overflow-y-auto custom-scrollbar">
-                  
-                   {/* Printable Area - ID used by browser print */}
-                   <div className="p-8 md:p-10 text-left bg-white" id="printable-receipt">
-                       <div className="text-center mb-6 space-y-1">
-                           <h4 className="text-xl font-black text-black font-headline tracking-tighter uppercase">RECIBO DE PAGO</h4>
-                           <p className="text-[10px] font-bold text-black uppercase tracking-widest border-b border-black pb-2">PRESPRO SYSTEMS - SISTEMAFAC</p>
-                       </div>
-
-                       <div className="space-y-4 text-[13px] font-medium text-black">
-                           <div className="flex flex-col gap-1">
-                               <p className="text-[10px] font-black uppercase">NRO. DE OPERACION: {String(recentPayment.id).padStart(5, '0')}</p>
-                               <p className="text-[10px] font-black uppercase">RECIBO NO: PAY-{String(recentPayment.id).padStart(4, '0')}</p>
-                           </div>
-
-                           <div className="border-t border-black pt-2 flex flex-col gap-1">
-                               <p className="font-bold uppercase"><span className="font-black">CLIENTE:</span> {recentPayment.clientName || recentPayment.loan?.client?.name}</p>
-                               <p className="font-bold uppercase"><span className="font-black">CEDULA:</span> {recentPayment.loan?.client?.identification}</p>
-                           </div>
-
-                           <div className="border-t border-black pt-2 flex flex-col gap-1">
-                               <p className="font-bold uppercase"><span className="font-black">REMITENTE:</span> ADMINISTRACION PRO</p>
-                               <p className="font-bold uppercase"><span className="font-black">SERVICIO:</span> COBRO DE CUOTA</p>
-                               <p className="font-bold uppercase"><span className="font-black">METODO:</span> {recentPayment.method === 'CASH' ? 'EFECTIVO' : 'TRANSFERENCIA'}</p>
-                           </div>
-
-                           <div className="border-t border-black pt-2 space-y-2">
-                               <div className="flex justify-between items-center bg-black/5 p-2 border border-black">
-                                   <span className="font-black uppercase tracking-tighter">VALOR A COBRAR:</span>
-                                   <span className="text-lg font-black italic">RD$ {formatDOP(recentPayment.amount)}</span>
-                               </div>
-                               
-                               <div className="flex justify-between items-center text-[11px] font-bold">
-                                   <span className="uppercase font-black">SALDO RESTANTE:</span>
-                                   <span className="font-black">RD$ {formatDOP(recentPayment.loan?.installments?.filter((i:any) => i.status === 'PENDING').reduce((acc:number, i:any) => acc + Number(i.amount), 0) || 0)}</span>
-                               </div>
-                           </div>
-
-                           <div className="border-t border-black pt-4 text-[10px] space-y-1">
-                               <p className="font-black uppercase">FECHA COBRO: {new Date(recentPayment.date).toLocaleDateString('es-DO')} {new Date(recentPayment.date).toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}</p>
-                               <p className="font-black uppercase">ATENDIDO POR: {recentPayment.user?.name || 'Administrador'}</p>
-                           </div>
-
-                           <div className="text-center pt-6 border-t border-dashed border-black">
-                               <p className="text-[9px] font-bold italic leading-tight">
-                                   El cliente reconoce haber realizado el pago correspondiente a la cuota del préstamo mencionado. 
-                                   Conserve este comprobante para cualquier reclamación.
-                               </p>
-                           </div>
-                       </div>
-                   </div>
-               </div>
-
-               {/* Action Footer - No Print */}
-               <div className="p-8 bg-slate-50 border-t border-slate-100 space-y-3 flex-shrink-0 no-print">
-                  <button 
-                    onClick={() => window.print()}
-                    className="w-full bg-slate-900 text-white font-black py-4 rounded-xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all hover:bg-black shadow-xl shadow-slate-200"
-                  >
-                        <span className="material-symbols-outlined text-xl">print</span>
-                        <span className="tracking-widest uppercase text-[12px]">Imprimir Recibo Pro</span>
-                  </button>
-                  <button 
-                     onClick={() => setShowReceipt(false)}
-                     className="w-full py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-rose-500 transition-colors"
-                  >
-                      Cerrar Vista
-                  </button>
-               </div>
-            </div>
-         </div>
-      )}
+      {/* REUSABLE RECEIPT MODAL */}
+      <ReceiptModal 
+        payment={recentPayment} 
+        isOpen={showReceipt} 
+        onClose={() => setShowReceipt(false)} 
+      />
     </div>
   );
 };
