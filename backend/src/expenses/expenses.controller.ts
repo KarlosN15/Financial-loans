@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Patch, UseGuards, Request } from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -10,24 +10,31 @@ import { CreateExpenseDto } from './dto/expense.dto';
 export class ExpensesController {
   constructor(private readonly expensesService: ExpensesService) {}
 
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'AGENT')
   @Post()
   create(@Request() req, @Body() data: CreateExpenseDto) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
+    const adminId = Number(req.user.role === 'ADMIN' ? (req.user.userId || req.user.id) : req.user.adminId);
     return this.expensesService.create(adminId, data);
   }
 
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'AGENT')
   @Get()
   findAll(@Request() req) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
+    const adminId = Number(req.user.role === 'ADMIN' ? (req.user.userId || req.user.id) : req.user.adminId);
     return this.expensesService.findAll(adminId);
   }
 
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'AGENT')
   @Put(':id/pay')
-  markAsPaid(@Request() req, @Param('id') id: string) {
-    const adminId = req.user.role === 'ADMIN' ? req.user.userId : req.user.adminId;
+  markAsPaidPut(@Request() req, @Param('id') id: string) {
+    const adminId = Number(req.user.role === 'ADMIN' ? (req.user.userId || req.user.id) : req.user.adminId);
+    return this.expensesService.markAsPaid(adminId, +id);
+  }
+
+  @Roles('ADMIN', 'AGENT')
+  @Patch(':id/pay')
+  markAsPaidPatch(@Request() req, @Param('id') id: string) {
+    const adminId = Number(req.user.role === 'ADMIN' ? (req.user.userId || req.user.id) : req.user.adminId);
     return this.expensesService.markAsPaid(adminId, +id);
   }
 }

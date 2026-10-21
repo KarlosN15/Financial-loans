@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import Swal from 'sweetalert2';
 import { getExpenses, createExpense, markExpenseAsPaid } from '../api/api';
 import { formatDOP } from '../utils/format';
 import { LoansSkeleton } from '../components/Skeleton';
@@ -7,6 +8,7 @@ import { LoansSkeleton } from '../components/Skeleton';
 const Gastos = () => {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [payingId, setPayingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     amount: '',
     description: '',
@@ -22,8 +24,19 @@ const Gastos = () => {
     mutationFn: createExpense,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      queryClient.invalidateQueries({ queryKey: ['cash-registers'] });
       setIsModalOpen(false);
       setFormData({ amount: '', description: '', status: 'PENDING' });
+      Swal.fire({
+        icon: 'success',
+        title: '¡Gasto Registrado!',
+        text: 'El gasto se ha guardado correctamente.',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    },
+    onError: (err: any) => {
+      Swal.fire('Error', err.response?.data?.message || 'Error al registrar el gasto.', 'error');
     }
   });
 
@@ -31,6 +44,19 @@ const Gastos = () => {
     mutationFn: markExpenseAsPaid,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      queryClient.invalidateQueries({ queryKey: ['cash-registers'] });
+      setPayingId(null);
+      Swal.fire({
+        icon: 'success',
+        title: '¡Factura Pagada!',
+        text: 'La factura ha sido marcada como pagada y movida al historial.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    onError: (err: any) => {
+      setPayingId(null);
+      Swal.fire('Error', err.response?.data?.message || 'Error al procesar el pago de la factura.', 'error');
     }
   });
 
@@ -55,6 +81,24 @@ const Gastos = () => {
       amount: amountVal,
       description: formData.description,
       status: formData.status
+    });
+  };
+
+  const handlePayExpense = (expense: any) => {
+    Swal.fire({
+      title: '¿Confirmar pago?',
+      text: `¿Deseas marcar como PAGADA la factura "${expense.description}" por un monto de RD$ ${formatDOP(expense.amount)}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, pagar ahora',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setPayingId(expense.id);
+        payMutation.mutate(expense.id);
+      }
     });
   };
 
@@ -103,13 +147,23 @@ const Gastos = () => {
                   </div>
                 </div>
                 <div className="text-left sm:text-right flex flex-col sm:items-end">
-                  <p className="font-black text-rose-600">${formatDOP(expense.amount)}</p>
+                  <p className="font-black text-rose-600 text-base">RD$ {formatDOP(expense.amount)}</p>
                   <button 
-                    onClick={() => payMutation.mutate(expense.id)}
-                    disabled={payMutation.isPending}
-                    className="text-[10px] uppercase font-bold text-primary hover:underline mt-1 disabled:opacity-50"
+                    onClick={() => handlePayExpense(expense)}
+                    disabled={payMutation.isPending && payingId === expense.id}
+                    className="mt-1.5 px-3 py-1.5 bg-primary hover:bg-blue-900 text-white text-[11px] font-black uppercase tracking-wider rounded-xl shadow-sm hover:shadow active:scale-95 transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
                   >
-                    {payMutation.isPending ? 'Procesando...' : 'Pagar Ahora'}
+                    {payMutation.isPending && payingId === expense.id ? (
+                      <>
+                        <span className="material-symbols-outlined text-xs animate-spin">progress_activity</span>
+                        <span>Procesando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined text-xs">payments</span>
+                        <span>Pagar Ahora</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -140,12 +194,12 @@ const Gastos = () => {
                   <div>
                     <p className="font-bold text-slate-700 text-sm">{expense.description}</p>
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                      Pagado: {new Date(expense.updatedAt || expense.createdAt).toLocaleDateString()}
+                      Pagado: {new Date(expense.date || expense.updatedAt || expense.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
                 <div className="text-right font-black text-slate-600">
-                  ${formatDOP(expense.amount)}
+                  RD$ {formatDOP(expense.amount)}
                 </div>
               </div>
             ))}
@@ -242,4 +296,3 @@ const Gastos = () => {
 };
 
 export default Gastos;
-
