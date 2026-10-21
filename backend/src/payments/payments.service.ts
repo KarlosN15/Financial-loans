@@ -221,7 +221,6 @@ export class PaymentsService {
         where: { id: loan.clientId },
         data: { score, rating }
       });
-
       // Integración Contable: Reflejar ingreso en Caja o Banco
       if (data.method === 'CASH') {
         const openRegister = await tx.cashRegister.findFirst({

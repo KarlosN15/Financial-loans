@@ -412,6 +412,88 @@ export class LoansService {
       return refinancedLoan;
     });
   }
+
+  async refinanceLoan(user: any, loanId: number, data: { newAmount?: number; interestRate: number; term: number; frequency: PaymentFrequency }) {
+    const adminId = user.role === 'AGENT' ? user.adminId : user.userId;
+    
+    return this.prisma.$transaction(async (tx) => {
+      const oldLoan = await tx.loan.findFirst({
+        where: { id: loanId, userId: adminId },
+        include: { installments: true, client: true }
+      });
+      if (!oldLoan) throw new NotFoundException('Préstamo a refinanciar no encontrado');
+
+      // Calcular deuda pendiente real
+      const pendingBalance = oldLoan.installments.reduce((acc, inst) => {
+        return acc + (inst.status === 'PENDING' ? (Number(inst.amount) - Number(inst.paidAmount)) : 0);
+      }, 0);
+
+      const principalAmount = data.newAmount && data.newAmount > 0 ? data.newAmount : (pendingBalance > 0 ? pendingBalance : Number(oldLoan.amount));
+
+      // 1. Cerrar cuotas del préstamo anterior y marcarlo como completado/refinanciado
+      await tx.installment.updateMany({
+        where: { loanId: oldLoan.id, status: 'PENDING' },
+        data: { status: 'PAID' }
+      });
+      await tx.loan.update({
+        where: { id: oldLoan.id },
+        data: { status: 'COMPLETED', isRefinanced: true }
+      });
+
+      // 2. Crear nuevo préstamo refinanciado
+      let ratePerPeriod = 0;
+      if (data.frequency === 'MONTHLY') ratePerPeriod = data.interestRate / 100;
+      else if (data.frequency === 'BIWEEKLY') ratePerPeriod = (data.interestRate / 2) / 100;
+      else ratePerPeriod = (data.interestRate / 4) / 100;
+
+      const newLoan = await tx.loan.create({
+        data: {
+          userId: adminId,
+          clientId: oldLoan.clientId,
+          amount: principalAmount,
+          interestRate: data.interestRate,
+          term: data.term,
+          frequency: data.frequency,
+          portfolioId: oldLoan.portfolioId,
+          isRefinanced: true,
+          refinancedFromId: oldLoan.id,
+        }
+      });
+
+      // 3. Generar cuotas amortizables
+      const installments: Prisma.InstallmentCreateManyInput[] = [];
+      const capitalPerInstallment = principalAmount / data.term;
+      const interestPerInstallment = principalAmount * ratePerPeriod;
+      const installmentAmount = capitalPerInstallment + interestPerInstallment;
+
+      let currentDate = new Date();
+      for (let i = 1; i <= data.term; i++) {
+        const dueDate = new Date(currentDate);
+        if (data.frequency === 'MONTHLY') dueDate.setMonth(dueDate.getMonth() + i);
+        else if (data.frequency === 'BIWEEKLY') dueDate.setDate(dueDate.getDate() + (i * 15));
+        else dueDate.setDate(dueDate.getDate() + (i * 7));
+
+        installments.push({
+          loanId: newLoan.id,
+          number: i,
+          dueDate,
+          amount: installmentAmount,
+          capital: capitalPerInstallment,
+          interest: interestPerInstallment,
+          balance: principalAmount - (capitalPerInstallment * (i - 1)),
+          paidAmount: 0,
+          status: 'PENDING'
+        });
+      }
+
+      await tx.installment.createMany({ data: installments });
+
+      return tx.loan.findUnique({
+        where: { id: newLoan.id },
+        include: { client: true, installments: true }
+      });
+    });
+  }
 }
 
 

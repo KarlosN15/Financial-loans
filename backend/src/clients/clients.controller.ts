@@ -36,4 +36,3 @@ export class ClientsController {
     return this.clientsService.remove(req.user, +id);
   }
 }
-
